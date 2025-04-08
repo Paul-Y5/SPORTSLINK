@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:intl_phone_number_input/intl_phone_number_input.dart';
 
 void main() {
   runApp(const MyApp());
@@ -11,9 +12,19 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      title: 'Flutter Login',
+      title: 'SportsLink',
       theme: ThemeData(
-        primarySwatch: Colors.blue,
+        primarySwatch: Colors.orange,
+        visualDensity: VisualDensity.adaptivePlatformDensity,
+        scaffoldBackgroundColor: Colors.white,
+        appBarTheme: const AppBarTheme(
+          backgroundColor: Color.fromARGB(255, 3, 3, 3),
+          titleTextStyle: TextStyle(
+            color: Colors.white,
+            fontSize: 20,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
       ),
       home: const HomePage(),
     );
@@ -27,10 +38,7 @@ class HomePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('SportsLink'),
-        centerTitle: true,
-      ),
+      appBar: AppBar(title: const Text('SportsLink'), centerTitle: true),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
@@ -43,11 +51,15 @@ class HomePage extends StatelessWidget {
                   MaterialPageRoute(builder: (context) => const LoginPage()),
                 );
               },
-              child: const Text('Login'),
               style: ElevatedButton.styleFrom(
-                padding: const EdgeInsets.symmetric(horizontal: 50, vertical: 15),
+                backgroundColor: Colors.orange, // Cor laranja
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 50,
+                  vertical: 15,
+                ),
                 textStyle: const TextStyle(fontSize: 20),
               ),
+              child: const Text('Login'),
             ),
             const SizedBox(height: 20),
             ElevatedButton(
@@ -57,11 +69,15 @@ class HomePage extends StatelessWidget {
                   MaterialPageRoute(builder: (context) => const RegisterPage()),
                 );
               },
-              child: const Text('Register'),
               style: ElevatedButton.styleFrom(
-                padding: const EdgeInsets.symmetric(horizontal: 50, vertical: 15),
+                backgroundColor: Colors.orange, // Cor laranja
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 50,
+                  vertical: 15,
+                ),
                 textStyle: const TextStyle(fontSize: 20),
               ),
+              child: const Text('Register'),
             ),
           ],
         ),
@@ -80,10 +96,7 @@ class LoginPage extends StatelessWidget {
     final TextEditingController passwordController = TextEditingController();
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Login'),
-        centerTitle: true,
-      ),
+      appBar: AppBar(title: const Text('Login'), centerTitle: true),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
@@ -113,7 +126,15 @@ class LoginPage extends StatelessWidget {
               ),
               validator: (value) {
                 if (value == null || value.isEmpty) {
-                  return 'Por favor, insira password.';
+                  return 'Por favor, insira a password.';
+                }
+                if (value.length < 6) {
+                  return 'A password deve ter pelo menos 6 caracteres.';
+                }
+                if (!RegExp(
+                  r'^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{6,}$',
+                ).hasMatch(value)) {
+                  return 'A password deve conter letras e números.';
                 }
                 return null;
               },
@@ -121,16 +142,19 @@ class LoginPage extends StatelessWidget {
             const SizedBox(height: 20),
             ElevatedButton(
               onPressed: () {
-                if (emailController.text.isEmpty || passwordController.text.isEmpty) {
+                if (emailController.text.isEmpty ||
+                    passwordController.text.isEmpty) {
                   ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Por favor, preencha todos os campos')),
+                    const SnackBar(
+                      content: Text('Por favor, preencha todos os campos'),
+                    ),
                   );
                 } else {
                   // Implementar lógica de login
-                  print('Email: ${emailController.text}, Password: ${passwordController.text}');
                 }
               },
               child: const Text('Login'),
+              style: ElevatedButton.styleFrom(backgroundColor: Colors.orange),
             ),
             TextButton(
               onPressed: () {
@@ -157,12 +181,10 @@ class RegisterPage extends StatelessWidget {
     final TextEditingController nameController = TextEditingController();
     final TextEditingController emailController = TextEditingController();
     final TextEditingController passwordController = TextEditingController();
+    final TextEditingController phoneController = TextEditingController();
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Registo'),
-        centerTitle: true,
-      ),
+      appBar: AppBar(title: const Text('Registo'), centerTitle: true),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
@@ -197,6 +219,40 @@ class RegisterPage extends StatelessWidget {
               },
             ),
             const SizedBox(height: 10),
+            DropdownButtonFormField<String>(
+              decoration: const InputDecoration(
+                labelText: 'Nacionalidade',
+                border: OutlineInputBorder(),
+              ),
+              items:
+                  <String>[
+                    'Portugal',
+                    'Espanha',
+                    'França',
+                    'Alemanha',
+                  ].map<DropdownMenuItem<String>>((String value) {
+                    return DropdownMenuItem<String>(
+                      value: value,
+                      child: Text(value),
+                    );
+                  }).toList(),
+              onChanged: (String? newValue) {},
+            ),
+            const SizedBox(height: 10),
+            InternationalPhoneNumberInput(
+              onInputChanged: (PhoneNumber number) {
+                phoneController.text = number.phoneNumber ?? '';
+              },
+              initialValue: PhoneNumber(isoCode: 'PT'),
+              selectorConfig: const SelectorConfig(
+                selectorType: PhoneInputSelectorType.DIALOG,
+              ),
+              inputDecoration: const InputDecoration(
+                labelText: 'Número de Telemóvel',
+                border: OutlineInputBorder(),
+              ),
+            ),
+            const SizedBox(height: 10),
             TextFormField(
               controller: passwordController,
               obscureText: true,
@@ -208,21 +264,33 @@ class RegisterPage extends StatelessWidget {
                 if (value == null || value.isEmpty) {
                   return 'Por favor, insira a password.';
                 }
+                if (value.length < 6) {
+                  return 'A password deve ter pelo menos 6 caracteres.';
+                }
+                if (!RegExp(
+                  r'^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{6,}$',
+                ).hasMatch(value)) {
+                  return 'A password deve conter letras e números.';
+                }
                 return null;
               },
             ),
             const SizedBox(height: 20),
             ElevatedButton(
               onPressed: () {
-                if (nameController.text.isEmpty || emailController.text.isEmpty || passwordController.text.isEmpty) {
+                if (nameController.text.isEmpty ||
+                    emailController.text.isEmpty ||
+                    passwordController.text.isEmpty) {
                   ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Por favor, preencha todos os campos')),
+                    const SnackBar(
+                      content: Text('Por favor, preencha todos os campos'),
+                    ),
                   );
                 } else {
                   // Implementar lógica de registro
-                  print('Nome: ${nameController.text}, Email: ${emailController.text}, Senha: ${passwordController.text}');
                 }
               },
+              style: ElevatedButton.styleFrom(backgroundColor: Colors.orange),
               child: const Text('Register'),
             ),
           ],
