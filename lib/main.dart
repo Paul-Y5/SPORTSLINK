@@ -42,7 +42,7 @@ class HomePage extends StatelessWidget {
       appBar: AppBar(title: const Text('SportsLink'), centerTitle: true),
       body: Center(
         child: Padding(
-          padding: const EdgeInsets.all(20.0),
+          padding: const EdgeInsets.all(5.0),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
@@ -53,10 +53,10 @@ class HomePage extends StatelessWidget {
                     MaterialPageRoute(builder: (context) => const LoginPage()),
                   );
                 },
-                style: customButtonStyle(),
+                style: customButtonStyle(context),
                 child: const Text('Login'),
               ),
-              const SizedBox(height: 100),
+              const SizedBox(height: 50),
               ElevatedButton(
                 onPressed: () {
                   Navigator.push(
@@ -66,7 +66,7 @@ class HomePage extends StatelessWidget {
                     ),
                   );
                 },
-                style: customButtonStyle(),
+                style: customButtonStyle(context),
                 child: const Text('Register'),
               ),
             ],
@@ -89,59 +89,60 @@ class LoginPage extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(title: const Text('Login'), centerTitle: true),
       body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            TextFormField(
-              controller: emailController,
-              decoration: const InputDecoration(
-                labelText: 'Email',
-                border: OutlineInputBorder(),
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              TextFormField(
+                controller: emailController,
+                decoration: inputDecoration(labelText: 'Email'),
+                keyboardType: TextInputType.emailAddress,
+                cursorColor: Colors.black, // Set the cursor color here
               ),
-              keyboardType: TextInputType.emailAddress,
-            ),
-            const SizedBox(height: 10),
-            TextFormField(
-              controller: passwordController,
-              obscureText: true,
-              decoration: const InputDecoration(
-                labelText: 'Password',
-                border: OutlineInputBorder(),
+              const SizedBox(height: 10),
+              TextFormField(
+                controller: passwordController,
+                obscureText: true,
+                decoration: inputDecoration(labelText: 'Password'),
+                cursorColor: Colors.black, // Set the cursor color here
               ),
-            ),
-            const SizedBox(height: 20),
-            ElevatedButton(
-              onPressed: () {
-                if (emailController.text.isEmpty ||
-                    passwordController.text.isEmpty) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text('Por favor, preencha todos os campos'),
-                    ),
+              const SizedBox(height: 20),
+              ElevatedButton(
+                onPressed: () {
+                  if (emailController.text.isEmpty ||
+                      passwordController.text.isEmpty) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text('Por favor, preencha todos os campos'),
+                      ),
+                    );
+                  } else {
+                    // Implementar lógica de login
+                  }
+                },
+                style: customButtonStyleForms(context), // Estilo atualizado
+                child: const Text('Login'),
+              ),
+              TextButton(
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => const RegisterPage()),
                   );
-                } else {
-                  // Implementar lógica de login
-                }
-              },
-              style: ElevatedButton.styleFrom(backgroundColor: Colors.orange),
-              child: const Text('Login'),
-            ),
-            TextButton(
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => const RegisterPage()),
-                );
-              },
-              child: const Text('Não tens uma conta? Regista-te!'),
-            ),
-          ],
+                },
+                child: const Text('Não tens uma conta? Regista-te!', 
+                    style: TextStyle(
+                      color: Colors.black,
+                      fontSize: 16,
+                    )),
+              ),
+            ],
+          ),
         ),
-      ),
     );
   }
 }
+
 
 // Página de Registo
 class RegisterPage extends StatefulWidget {
@@ -183,40 +184,31 @@ class _RegisterPageState extends State<RegisterPage> {
           children: [
             TextFormField(
               controller: nameController,
-              decoration: const InputDecoration(
-                labelText: 'Nome',
-                border: OutlineInputBorder(),
-              ),
+              decoration: inputDecoration(labelText: 'Nome'),
+              cursorColor: Colors.black, // Set the cursor color here
             ),
             const SizedBox(height: 10),
             TextFormField(
               controller: emailController,
-              decoration: const InputDecoration(
-                labelText: 'Email',
-                border: OutlineInputBorder(),
-              ),
+              decoration: inputDecoration(labelText: 'Email'),
+              cursorColor: Colors.black, // Set the cursor color here
               keyboardType: TextInputType.emailAddress,
             ),
             const SizedBox(height: 10),
             DropdownButtonFormField<String>(
-              decoration: const InputDecoration(
-                labelText: 'Nacionalidade',
-                border: OutlineInputBorder(),
-              ),
+              decoration: inputDecoration(labelText: 'Nacionalidade'),
               value: 'Portugal',
+              icon: const Icon(Icons.arrow_drop_down),
+              iconSize: 24,
               items:
-                  countryCodes.keys.map<DropdownMenuItem<String>>((
-                    String value,
-                  ) {
+                  countryCodes.keys.map<DropdownMenuItem<String>>((String value) {
                     return DropdownMenuItem<String>(
                       value: value,
                       child: Text(value),
                     );
                   }).toList(),
               onChanged: (String? newValue) {
-                updatePhoneNumberSelector(
-                  newValue!,
-                ); // Atualizar o código de telefone
+                updatePhoneNumberSelector(newValue!); // Atualizar o código de telefone
               },
             ),
             const SizedBox(height: 10),
@@ -228,19 +220,15 @@ class _RegisterPageState extends State<RegisterPage> {
               selectorConfig: const SelectorConfig(
                 selectorType: PhoneInputSelectorType.DIALOG,
               ),
-              inputDecoration: const InputDecoration(
-                labelText: 'Número de Telemóvel',
-                border: OutlineInputBorder(),
-              ),
+              inputDecoration: inputDecoration(labelText: 'Número de Telemóvel'),
+              cursorColor: Colors.black, // Set the cursor color here
             ),
             const SizedBox(height: 10),
             TextFormField(
               controller: passwordController,
               obscureText: true,
-              decoration: const InputDecoration(
-                labelText: 'Password',
-                border: OutlineInputBorder(),
-              ),
+              decoration: inputDecoration(labelText: 'Password'),
+              cursorColor: Colors.black, // Set the cursor color here
             ),
             const SizedBox(height: 20),
             ElevatedButton(
@@ -257,7 +245,7 @@ class _RegisterPageState extends State<RegisterPage> {
                   // Implementar lógica de registro
                 }
               },
-              style: ElevatedButton.styleFrom(backgroundColor: Colors.orange),
+              style: customButtonStyleForms(context), // Estilo atualizado
               child: const Text('Register'),
             ),
           ],
