@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:intl_phone_number_input/intl_phone_number_input.dart';
+import 'styles.dart';
 
 void main() {
   runApp(const MyApp());
@@ -18,7 +19,7 @@ class MyApp extends StatelessWidget {
         visualDensity: VisualDensity.adaptivePlatformDensity,
         scaffoldBackgroundColor: Colors.white,
         appBarTheme: const AppBarTheme(
-          backgroundColor: Color.fromARGB(255, 3, 3, 3),
+          backgroundColor: Color.fromARGB(255, 0, 0, 0),
           titleTextStyle: TextStyle(
             color: Colors.white,
             fontSize: 20,
@@ -39,47 +40,37 @@ class HomePage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text('SportsLink'), centerTitle: true),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            ElevatedButton(
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => const LoginPage()),
-                );
-              },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.orange, // Cor laranja
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 50,
-                  vertical: 15,
-                ),
-                textStyle: const TextStyle(fontSize: 20),
+      body: Center(
+        child: Padding(
+          padding: const EdgeInsets.all(20.0),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              ElevatedButton(
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => const LoginPage()),
+                  );
+                },
+                style: customButtonStyle(),
+                child: const Text('Login'),
               ),
-              child: const Text('Login'),
-            ),
-            const SizedBox(height: 20),
-            ElevatedButton(
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => const RegisterPage()),
-                );
-              },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.orange, // Cor laranja
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 50,
-                  vertical: 15,
-                ),
-                textStyle: const TextStyle(fontSize: 20),
+              const SizedBox(height: 100),
+              ElevatedButton(
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const RegisterPage(),
+                    ),
+                  );
+                },
+                style: customButtonStyle(),
+                child: const Text('Register'),
               ),
-              child: const Text('Register'),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
@@ -109,12 +100,6 @@ class LoginPage extends StatelessWidget {
                 border: OutlineInputBorder(),
               ),
               keyboardType: TextInputType.emailAddress,
-              validator: (value) {
-                if (value == null || value.isEmpty) {
-                  return 'Por favor, insira o email.';
-                }
-                return null;
-              },
             ),
             const SizedBox(height: 10),
             TextFormField(
@@ -124,20 +109,6 @@ class LoginPage extends StatelessWidget {
                 labelText: 'Password',
                 border: OutlineInputBorder(),
               ),
-              validator: (value) {
-                if (value == null || value.isEmpty) {
-                  return 'Por favor, insira a password.';
-                }
-                if (value.length < 6) {
-                  return 'A password deve ter pelo menos 6 caracteres.';
-                }
-                if (!RegExp(
-                  r'^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{6,}$',
-                ).hasMatch(value)) {
-                  return 'A password deve conter letras e números.';
-                }
-                return null;
-              },
             ),
             const SizedBox(height: 20),
             ElevatedButton(
@@ -153,8 +124,8 @@ class LoginPage extends StatelessWidget {
                   // Implementar lógica de login
                 }
               },
-              child: const Text('Login'),
               style: ElevatedButton.styleFrom(backgroundColor: Colors.orange),
+              child: const Text('Login'),
             ),
             TextButton(
               onPressed: () {
@@ -173,16 +144,36 @@ class LoginPage extends StatelessWidget {
 }
 
 // Página de Registo
-class RegisterPage extends StatelessWidget {
+class RegisterPage extends StatefulWidget {
   const RegisterPage({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    final TextEditingController nameController = TextEditingController();
-    final TextEditingController emailController = TextEditingController();
-    final TextEditingController passwordController = TextEditingController();
-    final TextEditingController phoneController = TextEditingController();
+  _RegisterPageState createState() => _RegisterPageState();
+}
 
+class _RegisterPageState extends State<RegisterPage> {
+  final TextEditingController nameController = TextEditingController();
+  final TextEditingController emailController = TextEditingController();
+  final TextEditingController passwordController = TextEditingController();
+  final TextEditingController phoneController = TextEditingController();
+  String selectedCountryCode = 'PT'; // Valor inicial da nacionalidade
+
+  final Map<String, String> countryCodes = {
+    'Portugal': 'PT',
+    'Espanha': 'ES',
+    'França': 'FR',
+    'Alemanha': 'DE',
+  };
+
+  // Função para atualizar o código do telefone com base na nacionalidade
+  void updatePhoneNumberSelector(String country) {
+    setState(() {
+      selectedCountryCode = countryCodes[country] ?? 'PT';
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text('Registo'), centerTitle: true),
       body: Padding(
@@ -196,12 +187,6 @@ class RegisterPage extends StatelessWidget {
                 labelText: 'Nome',
                 border: OutlineInputBorder(),
               ),
-              validator: (value) {
-                if (value == null || value.isEmpty) {
-                  return 'Por favor, insira o nome.';
-                }
-                return null;
-              },
             ),
             const SizedBox(height: 10),
             TextFormField(
@@ -211,12 +196,6 @@ class RegisterPage extends StatelessWidget {
                 border: OutlineInputBorder(),
               ),
               keyboardType: TextInputType.emailAddress,
-              validator: (value) {
-                if (value == null || value.isEmpty) {
-                  return 'Por favor, insira o email.';
-                }
-                return null;
-              },
             ),
             const SizedBox(height: 10),
             DropdownButtonFormField<String>(
@@ -224,26 +203,28 @@ class RegisterPage extends StatelessWidget {
                 labelText: 'Nacionalidade',
                 border: OutlineInputBorder(),
               ),
+              value: 'Portugal',
               items:
-                  <String>[
-                    'Portugal',
-                    'Espanha',
-                    'França',
-                    'Alemanha',
-                  ].map<DropdownMenuItem<String>>((String value) {
+                  countryCodes.keys.map<DropdownMenuItem<String>>((
+                    String value,
+                  ) {
                     return DropdownMenuItem<String>(
                       value: value,
                       child: Text(value),
                     );
                   }).toList(),
-              onChanged: (String? newValue) {},
+              onChanged: (String? newValue) {
+                updatePhoneNumberSelector(
+                  newValue!,
+                ); // Atualizar o código de telefone
+              },
             ),
             const SizedBox(height: 10),
             InternationalPhoneNumberInput(
               onInputChanged: (PhoneNumber number) {
                 phoneController.text = number.phoneNumber ?? '';
               },
-              initialValue: PhoneNumber(isoCode: 'PT'),
+              initialValue: PhoneNumber(isoCode: selectedCountryCode),
               selectorConfig: const SelectorConfig(
                 selectorType: PhoneInputSelectorType.DIALOG,
               ),
@@ -260,20 +241,6 @@ class RegisterPage extends StatelessWidget {
                 labelText: 'Password',
                 border: OutlineInputBorder(),
               ),
-              validator: (value) {
-                if (value == null || value.isEmpty) {
-                  return 'Por favor, insira a password.';
-                }
-                if (value.length < 6) {
-                  return 'A password deve ter pelo menos 6 caracteres.';
-                }
-                if (!RegExp(
-                  r'^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{6,}$',
-                ).hasMatch(value)) {
-                  return 'A password deve conter letras e números.';
-                }
-                return null;
-              },
             ),
             const SizedBox(height: 20),
             ElevatedButton(
