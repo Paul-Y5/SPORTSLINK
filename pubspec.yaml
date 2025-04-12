@@ -69,6 +69,12 @@ flutter:
   # assets:
   assets:
     - img/Logo1.png
+    - img/bg1.jpg
+    - img/bg2.jpg
+    - img/bg3.jpg
+    - img/bg4.jpg
+    - img/bg5.jpg
+    - img/SPORTSLINK.png
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images
