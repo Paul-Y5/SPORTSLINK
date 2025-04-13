@@ -1,4 +1,4 @@
-import 'package:sports_link/models/utilizador.dart';
+/* import 'package:sports_link/models/utilizador.dart';
 
 Utilizador getMyUser() {
   return Utilizador(
@@ -9,6 +9,10 @@ Utilizador getMyUser() {
     password: password, 
     nacionalidade: nacionalidade, 
     utilizador: utilizador, 
-    createDate: createDate
+    createDate: createDate,
+    lastLogin: lastLogin,
+    urlIMG: urlIMG,
   );
-}
+
+
+} */
