@@ -16,7 +16,7 @@ class Arrendador extends Jogador {
     required super.password,
     required super.nacionalidade,
     required super.idade,
-    required super.descricao,
+    required super.descricao, required super.utilizador, required super.createDate,
   });
 
   factory Arrendador.fromJson(Map<String, dynamic> json) {
@@ -30,7 +30,9 @@ class Arrendador extends Jogador {
       idade: json['idade'] as int,
       descricao: json['descricao'] as String,
       noCampos: json['noCampos'] as int,
-      iban: json['iban'] as int,
+      iban: json['iban'] as int, 
+      utilizador: '', 
+      createDate: null,
     );
   }
 

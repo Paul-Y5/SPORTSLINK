@@ -13,7 +13,7 @@ class Jogador extends Utilizador {
     required super.password,
     required super.nacionalidade,
     required this.idade,
-    required this.descricao,
+    required this.descricao, required super.utilizador, required super.createDate,
   });
 
   factory Jogador.fromJson(Map<String, dynamic> json) {
@@ -25,7 +25,9 @@ class Jogador extends Utilizador {
       password: json['password'] as String,
       nacionalidade: json['nacionalidade'] as String,
       idade: json['idade'] as int,
-      descricao: json['descricao'] as String,
+      descricao: json['descricao'] as String, 
+      utilizador: '', 
+      createDate: null,
     );
   }
 

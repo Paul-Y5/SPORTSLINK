@@ -1,10 +1,21 @@
+// ignore_for_file: public_member_api_docs, sort_constructors_first
 class Utilizador {
+  // Atributos
   final int id;
-  final String nome;
-  final String email;
-  final int numTele;
-  final String password;
-  final String nacionalidade;
+  String nome;
+  String email;
+  int numTele;
+  String password;
+  String nacionalidade;
+  
+  // URL da imagem de perfil
+  // Se não houver imagem vai ser definido uma imagem padrão
+  String? urlIMG = 'default_image_url';
+
+  // About Utilizador
+  String utilizador;
+  DateTime? createDate;
+  String? lastLogin;
 
   Utilizador({
     required this.id,
@@ -13,6 +24,10 @@ class Utilizador {
     required this.numTele,
     required this.password,
     required this.nacionalidade,
+    this.urlIMG,
+    required this.utilizador,
+    required this.createDate,
+    this.lastLogin,
   });
 
   factory Utilizador.fromJson(Map<String, dynamic> json) {
@@ -22,7 +37,9 @@ class Utilizador {
       email: json['email'] as String,
       numTele: json['numTele'] as int,
       password: json['password'] as String,
-      nacionalidade: json['nacionalidade'] as String,
+      nacionalidade: json['nacionalidade'] as String, 
+      utilizador: '', 
+      createDate: json['createDate'] != null ? DateTime.parse(json['createDate']) : null,
     );
   }
 
