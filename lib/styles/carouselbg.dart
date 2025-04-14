@@ -17,37 +17,21 @@ class _CarouselbgState extends State<Carouselbg> {
     'img/bg5.jpg',
   ];
 
-  late PageController _pageController;
-
-  @override
-  void initState() {
-    super.initState();
-    _pageController = PageController();
-    _startAutoPlay();
-  }
+  int _currentIndex = 0;
 
   void _startAutoPlay() {
     Future.delayed(const Duration(seconds: 5), () {
-      if (_pageController.hasClients) {
-        final nextPage = (_pageController.page?.toInt() ?? 0) + 1;
-        if (nextPage >= imagePaths.length) {
-          _pageController.jumpToPage(0); // Go back to the first image
-        } else {
-          _pageController.animateToPage(
-            nextPage,
-            duration: const Duration(seconds: 1),
-            curve: Curves.easeInOut,
-          );
-        }
-      }
-      _startAutoPlay(); // Recurse to keep the auto-play going
+      setState(() {
+        _currentIndex = (_currentIndex + 1) % imagePaths.length;
+      });
+      _startAutoPlay(); // continua o ciclo
     });
   }
 
   @override
-  void dispose() {
-    _pageController.dispose();
-    super.dispose();
+  void initState() {
+    super.initState();
+    _startAutoPlay(); // Inicia o autoplay quando o widget for carregado
   }
 
   @override
@@ -55,29 +39,23 @@ class _CarouselbgState extends State<Carouselbg> {
     return Stack(
       fit: StackFit.expand,
       children: [
-        // Carousel de imagens
-        PageView.builder(
-          controller: _pageController,
-          itemCount: imagePaths.length,
-          itemBuilder: (context, index) {
-            return AnimatedSwitcher(
-              duration: const Duration(seconds: 1),
-              child: Image.asset(
-                imagePaths[index],
-                key: ValueKey<String>(imagePaths[index]),
-                fit: BoxFit.cover, // Garantir que a imagem ocupe todo o espaço
-              ),
-            );
-          },
+        AnimatedSwitcher(
+          duration: const Duration(seconds: 1),
+          switchInCurve: Curves.easeIn,
+          switchOutCurve: Curves.easeOut,
+          child: Image.asset(
+            imagePaths[_currentIndex],
+            key: ValueKey<String>(imagePaths[_currentIndex]),
+            fit: BoxFit.cover,
+            width: MediaQuery.of(context).size.width,
+            height: MediaQuery.of(context).size.height,
+          ),
         ),
-        // Camada de filtro de desfoque (com opacidade ajustada)
+        // Filtro de desfoque
         Container(
           color: const Color.fromARGB(50, 0, 0, 0),
           child: BackdropFilter(
-            filter: ImageFilter.blur(
-              sigmaX: 1.5,
-              sigmaY: 1.5,
-            ), // Ajuste do desfoque
+            filter: ImageFilter.blur(sigmaX: 1.5, sigmaY: 1.5),
             child: Container(color: Colors.transparent),
           ),
         ),

@@ -4,20 +4,20 @@ ButtonStyle customButtonStyle(BuildContext context) {
   return ButtonStyle(
     backgroundColor: WidgetStateProperty.resolveWith<Color>((states) {
       if (states.contains(WidgetState.pressed)) {
-        return Colors.orange;
+        return const Color.fromARGB(200, 255, 153, 0);
       }
-      return const Color.fromARGB(159, 0, 0, 0); // Preto desaturado
+      return const Color.fromARGB(120, 0, 0, 0); // Preto desaturado
     }),
     foregroundColor: WidgetStateProperty.resolveWith<Color>((states) {
       if (states.contains(WidgetState.pressed)) {
-        return const Color.fromARGB(144, 0, 0, 0);
+        return const Color.fromARGB(255, 0, 0, 0);
       }
       return Colors.orange;
     }),
     padding: WidgetStateProperty.all(
       const EdgeInsets.symmetric(
-        horizontal: 50,
-        vertical: 25,
+        horizontal: 40,
+        vertical: 20,
       ), // Ajuste do padding
     ),
     textStyle: WidgetStateProperty.all(
@@ -28,7 +28,11 @@ ButtonStyle customButtonStyle(BuildContext context) {
     ),
     shape: WidgetStateProperty.all(
       RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(5), // Ajuste das bordas
+        borderRadius: BorderRadius.circular(10), // Ajuste das bordas
+        side: const BorderSide(
+          color: Color.fromARGB(255, 255, 255, 255), // Cor da borda
+          width: 1, // Largura da borda
+        ),
       ),
     ),
     minimumSize: WidgetStateProperty.all(
@@ -87,10 +91,10 @@ ButtonStyle customButtonStyleForms(BuildContext context) {
 InputDecoration inputDecoration({String labelText = ''}) {
   return InputDecoration(
     labelText: labelText,
-    labelStyle: const TextStyle(color: Colors.black), // Cor da label
+    labelStyle: const TextStyle(color: Color.fromARGB(255, 242, 240, 240)), // Cor da label
     border: const OutlineInputBorder(),
     enabledBorder: OutlineInputBorder(
-      borderSide: const BorderSide(color: Colors.black), // Borda padrão preta
+      borderSide: const BorderSide(color: Color.fromARGB(255, 252, 250, 250)), // Borda padrão preta
     ),
     focusedBorder: OutlineInputBorder(
       borderSide: const BorderSide(color: Colors.orange, width: 2), // Borda laranja no foco
@@ -106,7 +110,7 @@ InputDecoration inputDecoration({String labelText = ''}) {
       vertical: 10,
     ), // Ajuste do padding interno
     filled: true,
-    fillColor: const Color.fromARGB(255, 255, 255, 255), // Cor de fundo branca
+    fillColor: const Color.fromARGB(0, 255, 255, 255), // Cor de fundo branca
   );
   
 }

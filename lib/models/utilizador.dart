@@ -15,7 +15,7 @@ class Utilizador {
   // About Utilizador
   String utilizador;
   DateTime? createDate;
-  String? lastLogin;
+  DateTime? lastLogin;
 
   Utilizador({
     required this.id,
