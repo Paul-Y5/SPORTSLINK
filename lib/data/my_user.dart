@@ -5,9 +5,9 @@ Utilizador getMyUser() {
   return Utilizador(
     id: id, 
     nome: "Paulo", 
-    email: "paulo.c50@ua.pt", 
+    email: "user@example.com", 
     numTele: 999999999, 
-    password: "123456", 
+    password: "password123", 
     nacionalidade: "PT", 
     utilizador: "paulo${String.fromCharCode(id)}", 
     createDate: DateTime.now(),
