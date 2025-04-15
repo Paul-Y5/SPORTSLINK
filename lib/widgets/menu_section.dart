@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:sports_link/widgets/menu_card.dart';
+import 'package:sports_link/screens/main_page2.dart'; // Import da MainPage2
 
 class MenuSection extends StatelessWidget {
   const MenuSection({super.key});
@@ -15,6 +16,13 @@ class MenuSection extends StatelessWidget {
                 icon: Icons.sports_soccer,
                 text: 'Criar\nPartida',
                 color: Colors.orange,
+                fullWidth: false,
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => const MainPage2()),
+                  );
+                },
               ),
             ),
             const SizedBox(width: 10),

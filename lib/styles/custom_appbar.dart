@@ -21,12 +21,15 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
       elevation: 0,
       leading: GestureDetector(
         onTap: () {
-          onMenuPressed(context, [
-            _buildMenuItem('home', Icons.home, 'Home'),
-            _buildMenuItem('profile', Icons.person, 'Perfil'),
-            _buildMenuItem('friends', Icons.group, 'Amigos'),
-            _buildMenuItem('settings', Icons.settings, 'Settings & Help Center'),
-          ]);
+          onMenuPressed(
+            context,
+            [
+              _buildMenuItem('home', Icons.home, 'Home'),
+              _buildMenuItem('profile', Icons.person, 'Perfil'),
+              _buildMenuItem('friends', Icons.group, 'Amigos'),
+              _buildMenuItem('settings', Icons.settings, 'Settings & Help Center'),
+            ],
+          );
         },
         child: const Icon(Icons.menu, color: Colors.white),
       ),
@@ -84,7 +87,10 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
           children: [
             Icon(icon, color: Colors.white),
             const SizedBox(width: 8),
-            Text(text, style: const TextStyle(color: Colors.white)),
+            Text(
+              text,
+              style: const TextStyle(color: Colors.white),
+            ),
           ],
         ),
       ),
@@ -93,28 +99,4 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
 
   @override
   Size get preferredSize => const Size.fromHeight(kToolbarHeight);
-}
-
-
-void showNotificationDropdown({
-  required BuildContext context,
-  required GlobalKey notificationButtonKey,
-  required List<PopupMenuItem<String>> items,
-  required Function() onClose,
-}) {
-  final RenderBox buttonBox =
-      notificationButtonKey.currentContext!.findRenderObject() as RenderBox;
-  final Offset buttonPosition = buttonBox.localToGlobal(Offset.zero);
-  final Size buttonSize = buttonBox.size;
-
-  showMenu(
-    context: context,
-    position: RelativeRect.fromLTRB(
-      buttonPosition.dx, // Posição horizontal do botão
-      buttonPosition.dy + buttonSize.height, // Posição vertical abaixo do botão
-      buttonPosition.dx + buttonSize.width, // Largura do botão
-      0, // Distância do fundo (não relevante aqui)
-    ),
-    items: items,
-  ).then((_) => onClose());
 }
