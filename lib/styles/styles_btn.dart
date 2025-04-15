@@ -88,7 +88,7 @@ ButtonStyle customButtonStyleForms(BuildContext context) {
 }
 
 
-InputDecoration inputDecoration({String labelText = ''}) {
+InputDecoration inputDecoration({String labelText = '', String? errorText}) {
   return InputDecoration(
     labelText: labelText,
     labelStyle: const TextStyle(color: Color.fromARGB(255, 242, 240, 240)), // Cor da label

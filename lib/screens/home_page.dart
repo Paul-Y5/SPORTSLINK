@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
 import 'package:intl_phone_number_input/intl_phone_number_input.dart';
+import 'package:sports_link/screens/main_page_1.dart';
 import 'package:sports_link/styles/carouselbg.dart';
 import 'package:sports_link/styles/styles_btn.dart';
 import 'package:sports_link/utils/register_validate.dart';
@@ -136,7 +136,6 @@ class HomePage extends StatelessWidget {
 }
 
 
-// Página de Login
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
 
@@ -145,6 +144,7 @@ class LoginPage extends StatefulWidget {
 }
 
 class _LoginPageState extends State<LoginPage> {
+  final _formKey = GlobalKey<FormState>(); // Chave do formulário
   final TextEditingController emailController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
 
@@ -153,6 +153,33 @@ class _LoginPageState extends State<LoginPage> {
     emailController.dispose();
     passwordController.dispose();
     super.dispose();
+  }
+
+  void validateAndLogin() {
+    if (_formKey.currentState!.validate()) {
+      final email = emailController.text.trim();
+      final password = passwordController.text;
+
+      // Simular credenciais válidas (substitua por lógica real de autenticação)
+      const validEmail = 'user@example.com';
+      const validPassword = 'password123';
+
+      if (email == validEmail && password == validPassword) {
+        // Login bem-sucedido
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => const MainPage1()),
+        );
+      } else {
+        // Credenciais inválidas
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Email ou password inválidos'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    }
   }
 
   @override
@@ -165,16 +192,10 @@ class _LoginPageState extends State<LoginPage> {
         elevation: 0,
         automaticallyImplyLeading: false,
         flexibleSpace: GestureDetector(
-          onTap: () {
-            Navigator.pushAndRemoveUntil(
-              context,
-              MaterialPageRoute(builder: (context) => const HomePage()),
-              (route) => false,
-            );
-          },
+          onTap: () => Navigator.pop(context),
           child: Center(
             child: Padding(
-              padding: const EdgeInsets.only(top: 50), // Ajuste fino para centralizar
+              padding: const EdgeInsets.only(top: 50),
               child: Image.asset('img/SPORTSLINK.png', fit: BoxFit.contain),
             ),
           ),
@@ -188,86 +209,88 @@ class _LoginPageState extends State<LoginPage> {
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 20),
               child: SingleChildScrollView(
-                child: Column(
-                  children: [
-                    const SizedBox(height: 100),
-                    TextFormField(
-                      controller: emailController,
-                      decoration: inputDecoration(labelText: 'Email'),
-                      keyboardType: TextInputType.emailAddress,
-                      cursorColor: const Color.fromARGB(255, 255, 255, 255),
-                      style: TextStyle(color: const Color.fromARGB(255, 255, 255, 255))
-                    ),
-                    const SizedBox(height: 10),
-                    TextFormField(
-                      controller: passwordController,
-                      obscureText: true,
-                      decoration: inputDecoration(labelText: 'Password'),
-                      cursorColor: const Color.fromARGB(255, 255, 255, 255),
-                      style: TextStyle(color: const Color.fromARGB(255, 255, 255, 255))
-                    ),
-                    const SizedBox(height: 20),
-                    ElevatedButton(
-                      onPressed: () {
-                        if (emailController.text.isEmpty ||
-                            passwordController.text.isEmpty) {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                              content: Text('Por favor, preencha todos os campos'),
+                child: Form(
+                  key: _formKey, // Adiciona o formulário
+                  autovalidateMode: AutovalidateMode.onUserInteraction,
+                  child: Column(
+                    children: [
+                      const SizedBox(height: 100),
+
+                      // Campo de Email
+                      TextFormField(
+                        controller: emailController,
+                        decoration: inputDecoration(labelText: 'Email'),
+                        keyboardType: TextInputType.emailAddress,
+                        cursorColor: Colors.white,
+                        style: const TextStyle(color: Colors.white),
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return 'Por favor, insira o seu email';
+                          }
+                          if (!RegExp(r'^[^@]+@[^@]+\.[^@]+').hasMatch(value)) {
+                            return 'Email inválido';
+                          }
+                          return null;
+                        },
+                      ),
+                      const SizedBox(height: 10),
+
+                      // Campo de Senha
+                      TextFormField(
+                        controller: passwordController,
+                        obscureText: true,
+                        decoration: inputDecoration(labelText: 'Password'),
+                        cursorColor: Colors.white,
+                        style: const TextStyle(color: Colors.white),
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return 'Por favor, insira a sua password';
+                          }
+                          if (value.length < 6) {
+                            return 'A password deve ter pelo menos 6 caracteres';
+                          }
+                          return null;
+                        },
+                      ),
+                      const SizedBox(height: 20),
+
+                      // Botão de Login
+                      ElevatedButton(
+                        onPressed: validateAndLogin, // Chama a função de validação
+                        style: customButtonStyleForms(context),
+                        child: const Text('Login'),
+                      ),
+
+                      // Botão para Registro
+                      TextButton(
+                        onPressed: () {
+                          Navigator.pushReplacement(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => const RegisterPage(),
                             ),
                           );
-                        
-                        } else {
-                          // TODO: Lógica de login
-                          if (emailController.text == 'user@example.com' &&
-                              passwordController.text == 'password123') {
-                            Navigator.pushReplacement(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => const HomePage(),
+                        },
+                        child: const Text(
+                          'Não tens uma conta? Regista-te!',
+                          style: TextStyle(
+                            color: Colors.orange,
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                            fontFamily: 'Roboto',
+                            letterSpacing: 1.5,
+                            shadows: [
+                              Shadow(
+                                blurRadius: 1.0,
+                                offset: Offset(2.0, 2.0),
+                                color: Color.fromARGB(200, 0, 0, 0),
                               ),
-                            );
-                          } else {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(
-                                content: Text('Utilizador inválido. Tente novamente.'),
-                                backgroundColor: Colors.red,
-                              ),
-                            );
-                          }
-                        }
-                      },
-                      style: customButtonStyleForms(context),
-                      child: const Text('Login'),
-                    ),
-                    TextButton(
-                      onPressed: () {
-                        Navigator.pushReplacement(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => const RegisterPage(),
+                            ],
                           ),
-                        );
-                      },
-                      child: const Text(
-                        'Não tens uma conta? Regista-te!',
-                        style: TextStyle(
-                          color: Colors.orange,
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
-                          fontFamily: 'Roboto',
-                          letterSpacing: 1.5,
-                          shadows: [
-                            Shadow(
-                              blurRadius: 1.0,
-                              offset: Offset(2.0, 2.0),
-                              color: Color.fromARGB(200, 0, 0, 0),
-                            ),
-                          ],
                         ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               ),
             ),
@@ -306,6 +329,7 @@ class _LoginPageState extends State<LoginPage> {
     );
   }
 }
+
 
 
 class RegisterPage extends StatefulWidget {
@@ -374,6 +398,7 @@ class _RegisterPageState extends State<RegisterPage> {
               child: SingleChildScrollView(
                 child: Form(
                   key: _formKey,
+                  autovalidateMode: AutovalidateMode.onUserInteraction,
                   child: Column(
                     children: [
                       const SizedBox(height: 120),
@@ -492,6 +517,7 @@ class _RegisterPageState extends State<RegisterPage> {
           ),
         ],
       ),
+      
       bottomNavigationBar: Container(
         color: Colors.transparent,
         child: const BottomAppBar(
