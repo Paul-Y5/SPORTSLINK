@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:sports_link/screens/main_page_1.dart';
 import 'package:sports_link/styles/carouselbg.dart';
 import 'package:sports_link/styles/custom_appbar.dart';
 import 'package:sports_link/widgets/menu_card.dart';
@@ -63,6 +64,12 @@ class _MainPage2State extends State<MainPage2> {
                     text: 'Voltar ao Menu',
                     color: Colors.green,
                     fullWidth: true,
+                    onPressed: () {
+                      Navigator.pushReplacement(
+                        context,
+                        MaterialPageRoute(builder: (context) => const MainPage1()),
+                      );
+                    },
                   ),
                 ],
               ),
