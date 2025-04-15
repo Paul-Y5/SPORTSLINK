@@ -3,6 +3,7 @@ import 'package:sports_link/data/my_user.dart';
 import 'package:sports_link/models/utilizador.dart';
 import 'package:sports_link/styles/carouselbg.dart';
 import 'package:sports_link/utils/weather_fetch.dart';
+import 'package:weather_icons/weather_icons.dart';
 
 class MainPage1 extends StatefulWidget {
   const MainPage1({super.key});
@@ -17,7 +18,9 @@ class _MainPage1State extends State<MainPage1> {
   bool isDropdownOpen = false; // Controla o estado do dropdown
   String weatherStatus = '';
   String weatherFeedback = '';
+  String currentCity = '';
   final WeatherFetch weatherService = WeatherFetch();
+  final GlobalKey notificationButtonKey = GlobalKey();
 
   @override
   void initState() {
@@ -31,6 +34,7 @@ class _MainPage1State extends State<MainPage1> {
     setState(() {
       weatherStatus = weatherData['weatherStatus']!;
       weatherFeedback = weatherData['weatherFeedback']!;
+      currentCity = weatherData['city'] ?? 'Cidade desconhecida'; // Atualize o nome da cidade
     });
   }
 
@@ -74,16 +78,10 @@ class _MainPage1State extends State<MainPage1> {
                 Stack(
                   children: [
                     IconButton(
+                      key: notificationButtonKey, // Atribua o GlobalKey aqui
                       icon: const Icon(Icons.notifications, color: Colors.orange),
                       onPressed: () {
-                        _toggleDropdownOverlay(
-                          context,
-                          [
-                            _buildNotificationItem('Reserva #1234 confirmada com sucesso'),
-                            _buildNotificationItem('Nova mensagem de Rafael'),
-                            _buildNotificationItem('Partida #5678 foi cancelada'),
-                          ],
-                        );
+                        _showNotificationDropdown(context);
                       },
                     ),
                     if (notificationCount > 0)
@@ -134,17 +132,32 @@ class _MainPage1State extends State<MainPage1> {
                                   borderRadius: BorderRadius.circular(16),
                                   border: Border.all(color: Colors.white24),
                                 ),
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                child: Row(
+                                  crossAxisAlignment: CrossAxisAlignment.center,
                                   children: [
-                                    Text(
-                                      '📍 $weatherStatus', // Exibe o status do clima
-                                      style: const TextStyle(color: Colors.white, fontSize: 16),
+                                    // Ícone do clima
+                                    Icon(
+                                      _getWeatherIcon(weatherStatus), // Obtém o ícone baseado no clima
+                                      color: Colors.white,
+                                      size: 50,
                                     ),
-                                    const SizedBox(height: 4),
-                                    Text(
-                                      weatherFeedback, // Exibe o feedback do clima
-                                      style: const TextStyle(color: Colors.white, fontSize: 14),
+                                    const SizedBox(width: 16), // Espaçamento entre o ícone e o texto
+                                    // Texto com cidade, status e feedback do clima
+                                    Expanded(
+                                      child: Column(
+                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        children: [
+                                          Text(
+                                            '📍 $currentCity — $weatherStatus', // Exibe o nome da cidade e o status do clima
+                                            style: const TextStyle(color: Colors.white, fontSize: 16),
+                                          ),
+                                          const SizedBox(height: 4),
+                                          Text(
+                                            weatherFeedback, // Exibe o feedback do clima
+                                            style: const TextStyle(color: Colors.white, fontSize: 14),
+                                          ),
+                                        ],
+                                      ),
                                     ),
                                   ],
                                 ),
@@ -255,6 +268,32 @@ class _MainPage1State extends State<MainPage1> {
     );
   }
 
+  void _showNotificationDropdown(BuildContext context) {
+    final RenderBox buttonBox =
+        notificationButtonKey.currentContext!.findRenderObject() as RenderBox;
+    final Offset buttonPosition = buttonBox.localToGlobal(Offset.zero);
+    final Size buttonSize = buttonBox.size;
+
+    showMenu(
+      context: context,
+      position: RelativeRect.fromLTRB(
+        buttonPosition.dx, // Posição horizontal do botão
+        buttonPosition.dy + buttonSize.height, // Posição vertical abaixo do botão
+        buttonPosition.dx + buttonSize.width, // Largura do botão
+        0, // Distância do fundo (não relevante aqui)
+      ),
+      items: [
+        _buildNotificationItem('Reserva #1234 confirmada com sucesso'),
+        _buildNotificationItem('Nova mensagem de Rafael'),
+        _buildNotificationItem('Partida #5678 foi cancelada'),
+      ],
+    ).then((_) {
+      setState(() {
+        isDropdownOpen = false; // Fecha o dropdown
+      });
+    });
+  }
+
   Widget menuCard(
     IconData icon,
     String text,
@@ -287,5 +326,21 @@ class _MainPage1State extends State<MainPage1> {
         ],
       ),
     );
+  }
+
+  IconData _getWeatherIcon(String weatherStatus) {
+    if (weatherStatus.toLowerCase().contains('clear')) {
+      return WeatherIcons.day_sunny; // Ícone para clima ensolarado
+    } else if (weatherStatus.toLowerCase().contains('cloud')) {
+      return WeatherIcons.cloud; // Ícone para clima nublado
+    } else if (weatherStatus.toLowerCase().contains('rain')) {
+      return WeatherIcons.rain; // Ícone para chuva
+    } else if (weatherStatus.toLowerCase().contains('snow')) {
+      return WeatherIcons.snow; // Ícone para neve
+    } else if (weatherStatus.toLowerCase().contains('thunderstorm')) {
+      return WeatherIcons.thunderstorm; // Ícone para tempestade
+    } else {
+      return WeatherIcons.na; // Ícone genérico para condições desconhecidas
+    }
   }
 }

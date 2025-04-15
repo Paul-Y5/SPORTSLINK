@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:intl_phone_number_input/intl_phone_number_input.dart';
 import 'package:sports_link/screens/main_page_1.dart';
 import 'package:sports_link/styles/carouselbg.dart';
 import 'package:sports_link/styles/styles_btn.dart';
 import 'package:sports_link/utils/register_validate.dart';
+import 'package:intl_phone_number_input/intl_phone_number_input.dart';
 
 // Página Inicial
 class HomePage extends StatelessWidget {

@@ -51,6 +51,7 @@ class WeatherFetch {
         return {
           'weatherStatus': weatherStatus,
           'weatherFeedback': weatherFeedback,
+          'city': city, // Inclua o nome da cidade
         };
       } else {
         return {
