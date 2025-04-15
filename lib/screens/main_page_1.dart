@@ -4,6 +4,7 @@ import 'package:sports_link/models/utilizador.dart';
 import 'package:sports_link/styles/carouselbg.dart';
 import 'package:sports_link/utils/weather_fetch.dart';
 import 'package:weather_icons/weather_icons.dart';
+import 'package:sports_link/styles/custom_appbar.dart';
 
 class MainPage1 extends StatefulWidget {
   const MainPage1({super.key});
@@ -52,62 +53,28 @@ class _MainPage1State extends State<MainPage1> {
             ),
           Scaffold(
             backgroundColor: Colors.transparent,
-            appBar: AppBar(
-              backgroundColor: Colors.transparent,
-              elevation: 0,
-              leading: GestureDetector(
-                onTap: () {
-                  _toggleDropdownOverlay(
-                    context,
-                    [
-                      _buildMenuItem('home', Icons.home, 'Home'),
-                      _buildMenuItem('profile', Icons.person, 'Perfil'),
-                      _buildMenuItem('friends', Icons.group, 'Amigos'),
-                      _buildMenuItem('settings', Icons.settings, 'Settings & Help Center'),
-                    ],
-                  );
-                },
-                child: const Icon(Icons.menu, color: Colors.white),
-              ),
-              title: Image.asset(
-                'img/SPORTSLINK.png',
-                height: 30, // Altura do logotipo
-                fit: BoxFit.contain, // Ajusta a imagem para evitar overflow
-              ),
-              actions: [
-                Stack(
-                  children: [
-                    IconButton(
-                      key: notificationButtonKey, // Atribua o GlobalKey aqui
-                      icon: const Icon(Icons.notifications, color: Colors.orange),
-                      onPressed: () {
-                        _showNotificationDropdown(context);
-                      },
-                    ),
-                    if (notificationCount > 0)
-                      Positioned(
-                        right: 8,
-                        top: 8,
-                        child: Container(
-                          padding: const EdgeInsets.all(4),
-                          decoration: const BoxDecoration(
-                            color: Colors.red,
-                            shape: BoxShape.circle,
-                          ),
-                          child: Text(
-                            '$notificationCount',
-                            style: const TextStyle(
-                              color: Colors.white,
-                              fontSize: 12,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        ),
-                      ),
+            appBar: CustomAppBar(
+              notificationButtonKey: notificationButtonKey,
+              notificationCount: notificationCount,
+              onNotificationPressed: (context) {
+                showNotificationDropdown(
+                  context: context,
+                  notificationButtonKey: notificationButtonKey,
+                  items: [
+                    _buildNotificationItem('Reserva #1234 confirmada com sucesso'),
+                    _buildNotificationItem('Nova mensagem de Rafael'),
+                    _buildNotificationItem('Partida #5678 foi cancelada'),
                   ],
-                ),
-              ],
+                  onClose: () {
+                    setState(() {
+                      isDropdownOpen = false;
+                    });
+                  },
+                );
+              },
+              onMenuPressed: _toggleDropdownOverlay,
             ),
+            
             body: LayoutBuilder(
               builder: (context, constraints) {
                 return SingleChildScrollView(
@@ -219,28 +186,6 @@ class _MainPage1State extends State<MainPage1> {
     });
   }
 
-  PopupMenuItem<String> _buildMenuItem(String value, IconData icon, String text) {
-    return PopupMenuItem(
-      value: value,
-      child: Container(
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(8),
-          color: const Color.fromARGB(200, 0, 0, 0),
-        ),
-        padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 10),
-        child: Row(
-          children: [
-            Icon(icon, color: Colors.white),
-            const SizedBox(width: 8),
-            Text(
-              text,
-              style: const TextStyle(color: Colors.white),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
 
   PopupMenuItem<String> _buildNotificationItem(String text) {
     return PopupMenuItem(
@@ -266,32 +211,6 @@ class _MainPage1State extends State<MainPage1> {
         ),
       ),
     );
-  }
-
-  void _showNotificationDropdown(BuildContext context) {
-    final RenderBox buttonBox =
-        notificationButtonKey.currentContext!.findRenderObject() as RenderBox;
-    final Offset buttonPosition = buttonBox.localToGlobal(Offset.zero);
-    final Size buttonSize = buttonBox.size;
-
-    showMenu(
-      context: context,
-      position: RelativeRect.fromLTRB(
-        buttonPosition.dx, // Posição horizontal do botão
-        buttonPosition.dy + buttonSize.height, // Posição vertical abaixo do botão
-        buttonPosition.dx + buttonSize.width, // Largura do botão
-        0, // Distância do fundo (não relevante aqui)
-      ),
-      items: [
-        _buildNotificationItem('Reserva #1234 confirmada com sucesso'),
-        _buildNotificationItem('Nova mensagem de Rafael'),
-        _buildNotificationItem('Partida #5678 foi cancelada'),
-      ],
-    ).then((_) {
-      setState(() {
-        isDropdownOpen = false; // Fecha o dropdown
-      });
-    });
   }
 
   Widget menuCard(
@@ -328,6 +247,7 @@ class _MainPage1State extends State<MainPage1> {
     );
   }
 
+  // Método para obter o ícone do clima baseado no tempo atual
   IconData _getWeatherIcon(String weatherStatus) {
     if (weatherStatus.toLowerCase().contains('clear')) {
       return WeatherIcons.day_sunny; // Ícone para clima ensolarado
