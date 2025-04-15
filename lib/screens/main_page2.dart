@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:sports_link/styles/carouselbg.dart';
 import 'package:sports_link/styles/custom_appbar.dart';
 import 'package:sports_link/widgets/menu_card.dart';
+import 'package:sports_link/widgets/notification_dropdown.dart' as notification_dropdown;
+import 'package:sports_link/widgets/notification_item.dart' as notification_item;
 
 class MainPage2 extends StatefulWidget {
   const MainPage2({super.key});
@@ -11,6 +13,9 @@ class MainPage2 extends StatefulWidget {
 }
 
 class _MainPage2State extends State<MainPage2> {
+  final GlobalKey notificationButtonKey = GlobalKey();
+  bool isDropdownOpen = false;
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -21,10 +26,14 @@ class _MainPage2State extends State<MainPage2> {
           Scaffold(
             backgroundColor: Colors.transparent,
             appBar: CustomAppBar(
-              notificationButtonKey: GlobalKey(),
+              notificationButtonKey: notificationButtonKey,
               notificationCount: 0,
-              onNotificationPressed: (context) {},
-              onMenuPressed: (context, items) {},
+              onNotificationPressed: (context) {
+                _showNotificationDropdown(context);
+              },
+              onMenuPressed: (context, items) {
+                _toggleDropdownOverlay(context, items);
+              },
             ),
             body: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 100),
@@ -61,6 +70,44 @@ class _MainPage2State extends State<MainPage2> {
           ),
         ],
       ),
+    );
+  }
+
+  void _toggleDropdownOverlay(BuildContext context, List<PopupMenuEntry<String>> items) {
+    setState(() {
+      isDropdownOpen = true;
+    });
+
+    showMenu(
+      context: context,
+      position: const RelativeRect.fromLTRB(0, 80, 0, 0),
+      items: items,
+    ).then((_) {
+      setState(() {
+        isDropdownOpen = false;
+      });
+    });
+  }
+
+  void _showNotificationDropdown(BuildContext context) {
+    notification_dropdown.showNotificationDropdown(
+      context: context,
+      notificationButtonKey: notificationButtonKey,
+      items: [
+        _buildNotificationItem('Sem notificações'),
+      ],
+      onClose: () {
+        setState(() {
+          isDropdownOpen = false;
+        });
+      },
+    );
+  }
+
+  PopupMenuItem<String> _buildNotificationItem(String text) {
+    return PopupMenuItem(
+      value: 'notification',
+      child: notification_item.NotificationItem(text: text),
     );
   }
 }
