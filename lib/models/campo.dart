@@ -56,5 +56,17 @@ class Campo {
   String toString() {
     return 'Campo{id: $id, idPonto: $idPonto, idMapa: $idMapa, nome: $nome, comprimento: $comprimento, largura: $largura, ocupado: $ocupado, descricao: $descricao}';
   }
+
+  // getters
+  String get getNome => nome;
+  double get getComprimento => comprimento;
+  double get getLargura => largura;
+  bool get getOcupado => ocupado;
+  String get getDescricao => descricao;
+  int get getId => id;
+  int get getIdPonto => idPonto;
+  int get getIdMapa => idMapa;
+  Ponto? get getPonto => ponto;
+
 }
 

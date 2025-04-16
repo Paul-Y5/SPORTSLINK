@@ -39,9 +39,9 @@ class WeatherFetch {
             '${temp.toStringAsFixed(0)}°C, ${weather[0].toUpperCase()}${weather.substring(1)}';
         String weatherFeedback;
 
-        if ((temp > 15 && temp < 35) &&
+        if ((temp > 10 && temp < 30) &&
             (weather.contains('clear') || weather.contains('cloud')) &&
-            wind < 8) {
+            wind < 10) {
           weatherFeedback = '✅ Está ótimo para jogar ao ar livre!';
         } else {
           weatherFeedback =
@@ -66,7 +66,6 @@ class WeatherFetch {
 
   Future<Map<String, String>> getLocationAndFetchWeather() async {
     try {
-      // Solicita permissão de localização
       LocationPermission permission = await Geolocator.requestPermission();
       if (permission == LocationPermission.denied ||
           permission == LocationPermission.deniedForever) {
@@ -76,18 +75,17 @@ class WeatherFetch {
         };
       }
 
-      // Obtém a localização atual
       Position position = await Geolocator.getCurrentPosition(
-        desiredAccuracy: LocationAccuracy.high, // Define a precisão desejada
+        locationSettings: const LocationSettings(
+          accuracy: LocationAccuracy.high,
+        ),
       );
 
-      // Converte as coordenadas em uma cidade
       String city = await getCityFromCoordinates(
         position.latitude,
         position.longitude,
       );
 
-      // Busca o clima para a cidade obtida
       return await fetchWeather(city);
     } catch (e) {
       return {
@@ -96,5 +94,6 @@ class WeatherFetch {
       };
     }
   }
+
   
 }

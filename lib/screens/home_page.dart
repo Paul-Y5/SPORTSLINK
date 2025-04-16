@@ -140,10 +140,10 @@ class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
 
   @override
-  _LoginPageState createState() => _LoginPageState();
+  LoginPageState createState() => LoginPageState();
 }
 
-class _LoginPageState extends State<LoginPage> {
+class LoginPageState extends State<LoginPage> {
   final _formKey = GlobalKey<FormState>(); // Chave do formulário
   final TextEditingController emailController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
@@ -179,7 +179,8 @@ class _LoginPageState extends State<LoginPage> {
           ),
         );
         Future.delayed(const Duration(seconds: 2), () {
-          // Aqui adicionar a lógica de navegação para a página principal
+          if (!mounted) return;
+          // adicionar a lógica de navegação para a página principal
           Navigator.pushReplacement(
             context,
             MaterialPageRoute(builder: (context) => const MainPage1()),
@@ -351,10 +352,10 @@ class RegisterPage extends StatefulWidget {
   const RegisterPage({super.key});
 
   @override
-  _RegisterPageState createState() => _RegisterPageState();
+  RegisterPageState createState() => RegisterPageState();
 }
 
-class _RegisterPageState extends State<RegisterPage> {
+class RegisterPageState extends State<RegisterPage> {
   final _formKey = GlobalKey<FormState>();
   final RegisterValidate validator = RegisterValidate();
 

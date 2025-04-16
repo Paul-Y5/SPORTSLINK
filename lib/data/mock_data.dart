@@ -219,3 +219,14 @@ final List<Campo> mockCampos = [
     entidadePublicaResp: "Câmara Municipal de Lisboa",
   ),
 ];
+
+
+/// FUNÇÃO PARA OBTER O CAMPO POR ID
+Campo? getCampoById(int id) {
+  for (var campo in mockCampos) {
+    if (campo.id == id) {
+      return campo;
+    }
+  }
+  return null; // Retorna null se o campo não for encontrado
+}

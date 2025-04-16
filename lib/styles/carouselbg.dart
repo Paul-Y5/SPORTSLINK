@@ -5,10 +5,10 @@ class Carouselbg extends StatefulWidget {
   const Carouselbg({super.key});
 
   @override
-  _CarouselbgState createState() => _CarouselbgState();
+  CarouselbgState createState() => CarouselbgState();
 }
 
-class _CarouselbgState extends State<Carouselbg> {
+class CarouselbgState extends State<Carouselbg> {
   final List<String> imagePaths = const [
     'img/bg1.jpg',
     'img/bg2.jpg',

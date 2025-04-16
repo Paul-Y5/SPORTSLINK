@@ -32,7 +32,7 @@ class MenuCard extends StatelessWidget {
           children: [
             CircleAvatar(
               backgroundColor: color,
-              child: Icon(icon, color: Colors.orange),
+              child: Icon(icon, color: const Color.fromARGB(255, 255, 255, 255)),
             ),
             const SizedBox(height: 8),
             Text(
