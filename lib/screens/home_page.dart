@@ -165,11 +165,26 @@ class _LoginPageState extends State<LoginPage> {
       const validPassword = 'password123';
 
       if (email == validEmail && password == validPassword) {
-        // Login bem-sucedido
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (context) => const MainPage1()),
+        // Messagem de sucesso e esperar 2 segundos (depois será o tempo de autenticação real)
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('A autenticação está a ser processada...'),
+            backgroundColor: Colors.blue,
+          ),
         );
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Login bem-sucedido!'),
+            backgroundColor: Colors.green,
+          ),
+        );
+        Future.delayed(const Duration(seconds: 2), () {
+          // Aqui você pode adicionar a lógica de navegação para a página principal
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (context) => const MainPage1()),
+          );
+        });
       } else {
         // Credenciais inválidas
         ScaffoldMessenger.of(context).showSnackBar(
