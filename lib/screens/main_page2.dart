@@ -20,6 +20,7 @@ class _MainPage2State extends State<MainPage2> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      extendBody: true,
       extendBodyBehindAppBar: true,
       body: Stack(
         children: [

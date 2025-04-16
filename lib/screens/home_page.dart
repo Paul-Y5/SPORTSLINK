@@ -160,7 +160,7 @@ class _LoginPageState extends State<LoginPage> {
       final email = emailController.text.trim();
       final password = passwordController.text;
 
-      // Simular credenciais válidas (substitua por lógica real de autenticação)
+      // Simular credenciais válidas (substitir por lógica real de autenticação)
       const validEmail = 'user@example.com';
       const validPassword = 'password123';
 
@@ -179,7 +179,7 @@ class _LoginPageState extends State<LoginPage> {
           ),
         );
         Future.delayed(const Duration(seconds: 2), () {
-          // Aqui você pode adicionar a lógica de navegação para a página principal
+          // Aqui adicionar a lógica de navegação para a página principal
           Navigator.pushReplacement(
             context,
             MaterialPageRoute(builder: (context) => const MainPage1()),

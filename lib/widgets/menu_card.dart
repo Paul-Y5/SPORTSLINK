@@ -5,7 +5,7 @@ class MenuCard extends StatelessWidget {
   final String text;
   final Color color;
   final bool fullWidth;
-  final VoidCallback? onPressed; // Adicionado o callback onPressed
+  final VoidCallback? onPressed;
 
   const MenuCard({
     super.key,
@@ -19,12 +19,12 @@ class MenuCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: onPressed, // Chama o callback quando o card é pressionado
+      onTap: onPressed,
       child: Container(
         width: fullWidth ? double.infinity : 150,
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          color: const Color.fromARGB(128, 0, 0, 0), // Fundo com transparência
+          color: const Color.fromARGB(128, 0, 0, 0),
           borderRadius: BorderRadius.circular(20),
         ),
         margin: const EdgeInsets.symmetric(vertical: 10),
@@ -32,7 +32,7 @@ class MenuCard extends StatelessWidget {
           children: [
             CircleAvatar(
               backgroundColor: color,
-              child: Icon(icon, color: Colors.white),
+              child: Icon(icon, color: Colors.orange),
             ),
             const SizedBox(height: 8),
             Text(
