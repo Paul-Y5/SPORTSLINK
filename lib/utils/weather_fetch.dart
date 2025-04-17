@@ -39,7 +39,7 @@ class WeatherFetch {
             '${temp.toStringAsFixed(0)}°C, ${weather[0].toUpperCase()}${weather.substring(1)}';
         String weatherFeedback;
 
-        if ((temp > 10 && temp < 30) &&
+        if ((temp > 0 && temp < 30) &&
             (weather.contains('clear') || weather.contains('cloud')) &&
             wind < 10) {
           weatherFeedback = '✅ Está ótimo para jogar ao ar livre!';

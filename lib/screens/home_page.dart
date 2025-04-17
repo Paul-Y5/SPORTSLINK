@@ -525,6 +525,33 @@ class RegisterPageState extends State<RegisterPage> {
                         style: customButtonStyleForms(context),
                         child: const Text('Register'),
                       ),
+                      TextButton(
+                        onPressed: () {
+                          Navigator.pushReplacement(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => const LoginPage(),
+                            ),
+                          );
+                        },
+                        child: const Text(
+                          'Tens uma conta? Entra!',
+                          style: TextStyle(
+                            color: Colors.orange,
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                            fontFamily: 'Roboto',
+                            letterSpacing: 1.5,
+                            shadows: [
+                              Shadow(
+                                blurRadius: 1.0,
+                                offset: Offset(2.0, 2.0),
+                                color: Color.fromARGB(200, 0, 0, 0),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
                     ],
                   ),
                 ),

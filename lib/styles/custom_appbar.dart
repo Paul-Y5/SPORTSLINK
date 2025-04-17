@@ -24,14 +24,16 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
           onMenuPressed(
             context,
             [
-              _buildMenuItem('home', Icons.home, 'Home'),
-              _buildMenuItem('profile', Icons.person, 'Perfil'),
-              _buildMenuItem('friends', Icons.group, 'Amigos'),
-              _buildMenuItem('settings', Icons.settings, 'Settings & Help Center'),
+              _buildMenuItem('Home', Icons.home, 'Home'),
+              _buildMenuItem('Perfil', Icons.person, 'Perfil'),
+              _buildMenuItem('Amigos', Icons.group, 'Amigos'),
+              _buildMenuItem('Partidas', Icons.sports_sharp, 'Partidas'),
+              _buildMenuItem('Definições & Ajuda', Icons.settings, 'Definições & Ajuda'),
+              _buildMenuItem('Sair', Icons.logout, 'Sair'),
             ],
           );
         },
-        child: const Icon(Icons.menu, color: Colors.white),
+        child: const Icon(Icons.menu, color: Colors.orange),
       ),
       title: Image.asset(
         'img/SPORTSLINK.png',
@@ -44,13 +46,14 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
             IconButton(
               key: notificationButtonKey,
               icon: const Icon(Icons.notifications, color: Colors.orange),
+              tooltip: 'Notificações',
               onPressed: () {
                 onNotificationPressed(context);
               },
             ),
             if (notificationCount > 0)
               Positioned(
-                right: 8,
+                right:8,
                 top: 8,
                 child: Container(
                   padding: const EdgeInsets.all(4),

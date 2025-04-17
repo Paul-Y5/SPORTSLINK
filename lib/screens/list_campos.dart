@@ -42,7 +42,7 @@ class _ListCamposState extends State<ListCampos> {
         children: [
           // Fundo
           Scaffold(
-            backgroundColor: Colors.transparent,
+            backgroundColor: const Color.fromARGB(255, 0, 0, 0),
             appBar: CustomAppBar(
               notificationButtonKey: notificationButtonKey,
               notificationCount: notificationCount,

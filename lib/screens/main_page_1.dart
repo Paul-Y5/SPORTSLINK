@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:sports_link/data/my_user.dart';
 import 'package:sports_link/models/utilizador.dart';
+import 'package:sports_link/screens/list_campos.dart';
+import 'package:sports_link/styles/carousel_bar.dart';
 import 'package:sports_link/styles/carouselbg.dart';
 import 'package:sports_link/utils/weather_fetch.dart';
 import 'package:sports_link/widgets/weather_info.dart';
@@ -29,7 +31,11 @@ class _MainPage1State extends State<MainPage1> {
   void initState() {
     super.initState();
     currentUser = getMyUser();
-    fetchWeatherData();
+
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      fetchWeatherData();
+    });
   }
 
   @override
@@ -39,7 +45,7 @@ class _MainPage1State extends State<MainPage1> {
       extendBodyBehindAppBar: true,
       body: Stack(
         children: [
-          const Carouselbg(), // Fundo
+          const Carouselbg(), // Fundo dinâmico
           if (isDropdownOpen)
             ModalBarrier(
               color: const Color.fromARGB(128, 0, 0, 0),
@@ -63,23 +69,21 @@ class _MainPage1State extends State<MainPage1> {
                   child: ConstrainedBox(
                     constraints: BoxConstraints(minHeight: constraints.maxHeight),
                     child: IntrinsicHeight(
-                      child: Padding(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 16.0,
-                          vertical: 100,
-                        ),
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.start,
-                          children: [
-                            // Informações do clima
-                            WeatherInfo(
-                              city: currentCity,
-                              weatherStatus: weatherStatus,
-                              weatherFeedback: weatherFeedback,
-                            ),
-                            const SizedBox(height: 20),
-                            // Menu de opções
-                            Row(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        children: [
+                          // Informações do clima ocupando toda a largura
+                          WeatherInfo(
+                            currentUser: currentUser,
+                            city: currentCity,
+                            weatherStatus: weatherStatus,
+                            weatherFeedback: weatherFeedback
+                          ),
+                          const SizedBox(height: 20),
+                          // Menu de opções
+                          Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                            child: Row(
                               children: [
                                 Expanded(
                                   child: MenuCard(
@@ -87,7 +91,7 @@ class _MainPage1State extends State<MainPage1> {
                                     text: 'Criar\nPartida',
                                     color: Colors.orange,
                                     fullWidth: false,
-                                    onPressed:() => _showNavigationPopup(context),
+                                    onPressed: () => _showNavigationPopup(context),
                                   ),
                                 ),
                                 const SizedBox(width: 10),
@@ -104,8 +108,11 @@ class _MainPage1State extends State<MainPage1> {
                                 ),
                               ],
                             ),
-                            const SizedBox(height: 20),
-                            MenuCard(
+                          ),
+                          const SizedBox(height: 10),
+                          Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 0),
+                            child: MenuCard(
                               icon: Icons.add_location_alt,
                               text: 'Adicionar Campo',
                               color: Colors.green,
@@ -114,8 +121,16 @@ class _MainPage1State extends State<MainPage1> {
                                 // Lógica para adicionar campo
                               },
                             ),
-                          ],
-                        ),
+                          ),
+                          const SizedBox(height: 120),
+                          CarouselBar(
+                            newsItems: [
+                              '🔥 Novas funcionalidades disponíveis!',
+                              '⚽ Partidas abertas neste fim de semana!',
+                              '📢 Atualize seu perfil e ganhe recompensas!',
+                            ],
+                          ),
+                        ],
                       ),
                     ),
                   ),
@@ -169,28 +184,56 @@ class _MainPage1State extends State<MainPage1> {
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(16),
           ),
-          title: const Text('Escolha uma opção'),
-          content: Column(
-            mainAxisAlignment: MainAxisAlignment.start,
-            children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: [
-                  MenuCard(
+          backgroundColor: const Color.fromARGB(255, 255, 255, 255),
+          title: const Center(
+            child: Text(
+              'Escolha uma opção',
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            ),
+          ),
+          content: SizedBox(
+            width: 300,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 8.0),
+                  child: MenuCard(
                     icon: Icons.lock,
                     text: 'Reservar\nCampo Privado',
                     color: Colors.orange,
-                    fullWidth: false,
+                    fullWidth: true,
+                    onPressed: () {
+                      Navigator.pop(context); // Fecha o popup primeiro
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const ListCampos(),
+                        ),
+                      );
+                    },
                   ),
-                  MenuCard(
+                ),
+                Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 8.0),
+                  child: MenuCard(
                     icon: Icons.public,
                     text: 'Jogar em\nCampo Público',
                     color: Colors.blue,
-                    fullWidth: false,
+                    fullWidth: true,
+                    onPressed: () {
+                      Navigator.pop(context);
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const ListCampos(),
+                        ),
+                      );
+                    },
                   ),
-                ],
-              ),
-            ],
+                ),
+              ],
+            ),
           ),
         );
       },
