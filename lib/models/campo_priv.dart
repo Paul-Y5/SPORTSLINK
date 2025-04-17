@@ -14,7 +14,7 @@ class CampoPriv extends Campo {
     required super.largura,
     required super.ocupado,
     required super.descricao,
-    super.ponto,
+    required super.ponto,
   });
 
   factory CampoPriv.fromJson(Map<String, dynamic> json) {
@@ -28,7 +28,7 @@ class CampoPriv extends Campo {
       ocupado: json['ocupado'] == 1,
       descricao: json['Descricao'] as String,
       idArrendador: json['ID_Arrendador'] as int,
-      ponto: json['Ponto'] != null ? Ponto.fromJson(json['Ponto']) : null,
+      ponto: json['Ponto'] != null ? Ponto.fromJson(json['Ponto']) : Ponto.defaultInstance(),
     );
   }
 

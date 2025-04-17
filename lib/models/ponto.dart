@@ -11,6 +11,15 @@ class Ponto {
     required this.longitude,
   });
 
+    static Ponto defaultInstance() {
+      return Ponto(
+        id: 0,
+        idMapa: 0,
+        latitude: 0.0,
+        longitude: 0.0,
+      );
+    }
+
   factory Ponto.fromJson(Map<String, dynamic> json) {
     return Ponto(
       id: json['ID'] as int,

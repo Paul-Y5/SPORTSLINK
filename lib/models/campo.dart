@@ -10,7 +10,7 @@ class Campo {
   bool ocupado;
   String descricao;
 
-  Ponto? ponto;
+  Ponto ponto;
 
   Campo({
     required this.id,
@@ -21,7 +21,7 @@ class Campo {
     required this.largura,
     required this.ocupado,
     required this.descricao,
-    this.ponto,
+    required this.ponto,
   });
 
   factory Campo.fromJson(Map<String, dynamic> json) {
@@ -34,7 +34,7 @@ class Campo {
       largura: (json['Largura'] as num).toDouble(),
       ocupado: json['ocupado'] == 1,
       descricao: json['Descricao'] as String,
-      ponto: json['Ponto'] != null ? Ponto.fromJson(json['Ponto']) : null,
+      ponto: json['Ponto'] != null ? Ponto.fromJson(json['Ponto']) : Ponto.defaultInstance(),
     );
   }
 
@@ -48,7 +48,7 @@ class Campo {
       'Largura': largura,
       'ocupado': ocupado ? 1 : 0,
       'Descricao': descricao,
-      'Ponto': ponto?.toJson(),
+      'Ponto': ponto.toJson(),
     };
   }
 
