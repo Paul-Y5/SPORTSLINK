@@ -14,6 +14,13 @@ For help getting started with Flutter development, view the
 samples, guidance on mobile development, and a full API reference.
 
 Libraries:
+intl_phone_number_input: ^0.7.4
+http: ^1.3.0
+geolocator: ^13.0.4
+geocoding: ^3.0.0
+weather_icons: ^3.0.0
+flutter_map: ^8.1.1
 
 APIs:
 https://restcountries.com/v3.1/all
+https://openweathermap.org/api
