@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:sports_link/models/ponto.dart';
 
 class Campo {
@@ -11,6 +12,7 @@ class Campo {
   String descricao;
 
   Ponto ponto;
+  Image imagem;
 
   Campo({
     required this.id,
@@ -22,6 +24,7 @@ class Campo {
     required this.ocupado,
     required this.descricao,
     required this.ponto,
+    this.imagem = const Image(image: AssetImage('assets/images/icon_campo.png')),
   });
 
   factory Campo.fromJson(Map<String, dynamic> json) {

@@ -20,7 +20,7 @@ class CardCampo extends StatelessWidget {
           onPressed: () {
             Navigator.pushReplacement(
               context,
-              MaterialPageRoute(builder: (context) => const CampoDetails()),
+              MaterialPageRoute(builder: (context) => CampoDetails(campo: campo,)),
             );
           },
         ),

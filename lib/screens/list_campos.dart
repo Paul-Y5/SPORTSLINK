@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
-import 'package:latlong2/latlong.dart'; // Importa a biblioteca para coordenadas
-import 'package:geolocator/geolocator.dart'; // Importa o pacote geolocator
+import 'package:latlong2/latlong.dart'; 
+import 'package:geolocator/geolocator.dart'; 
 import 'package:sports_link/data/mock_data.dart';
 import 'package:sports_link/data/my_user.dart';
 import 'package:sports_link/models/campo.dart';
@@ -10,8 +10,8 @@ import 'package:sports_link/models/utilizador.dart';
 import 'package:sports_link/screens/campo_details.dart';
 import 'package:sports_link/styles/custom_appbar.dart';
 import 'package:sports_link/widgets/card_campo.dart';
-import 'package:sports_link/widgets/notification_dropdown.dart'
-    as notification_dropdown;
+import 'package:sports_link/widgets/notification_dropdown.dart'as notification_dropdown;
+import 'package:sports_link/styles/carouselbg.dart';
 
 class ListCampos extends StatefulWidget {
   const ListCampos({super.key});
@@ -51,8 +51,11 @@ class _ListCamposState extends State<ListCampos> {
     if (permission == LocationPermission.always ||
         permission == LocationPermission.whileInUse) {
       Position position = await Geolocator.getCurrentPosition(
-        desiredAccuracy: LocationAccuracy.high,
+        locationSettings: const LocationSettings(
+          accuracy: LocationAccuracy.high,
+        ),
       );
+      
       setState(() {
         latitude = position.latitude;
         longitude = position.longitude;
@@ -69,8 +72,9 @@ class _ListCamposState extends State<ListCampos> {
       extendBodyBehindAppBar: true,
       body: Stack(
         children: [
+          const Carouselbg(),
           Scaffold(
-            backgroundColor: const Color.fromARGB(255, 0, 0, 0),
+            backgroundColor: const Color.fromARGB(0, 0, 0, 0),
             appBar: CustomAppBar(
               notificationButtonKey: notificationButtonKey,
               notificationCount: notificationCount,
@@ -208,10 +212,7 @@ class _ListCamposState extends State<ListCampos> {
         )
         : FlutterMap(
           options: MapOptions(
-            initialCenter: LatLng(latitude, longitude), // Usando a localização atual
-            onTap: (tapPosition, point) {
-              // Handle the tap event here
-            },
+            initialCenter: LatLng(latitude, longitude), // Localização inicial
             minZoom: 12.0,
             maxZoom: 18.0,
           ),
@@ -221,33 +222,33 @@ class _ListCamposState extends State<ListCampos> {
               subdomains: ['a', 'b', 'c'],
             ),
             MarkerLayer(
-              markers:
-                  camposFiltrados.map((campo) {
-                    return Marker(
-                      width: 80.0,
-                      height: 80.0,
-                      point: LatLng(
-                        campo.ponto.latitude,
-                        campo.ponto.longitude,
-                      ),
-                      child: GestureDetector(
-                        onTap: () {
-                          // Navega para a página de descrição do campo
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => CampoDetails(),
-                            ),
-                          );
-                        },
-                        child: const Icon(
-                          Icons.location_on,
-                          color: Colors.orange,
-                          size: 40.0,
+              markers: camposFiltrados.map((campo) {
+                // Criação de um marcador para cada campo
+                return Marker(
+                  width: 80.0,
+                  height: 80.0,
+                  point: LatLng(
+                    campo.ponto.latitude, // Latitude do modelo Ponto
+                    campo.ponto.longitude, // Longitude do modelo Ponto
+                  ),
+                  child: GestureDetector(
+                    onTap: () {
+                      // Navega para a página de detalhes do campo
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => CampoDetails(campo: campo),
                         ),
-                      ),
-                    );
-                  }).toList(),
+                      );
+                    },
+                    child: const Icon(
+                      Icons.location_on,
+                      color: Colors.orange,
+                      size: 40.0,
+                    ),
+                  ),
+                );
+              }).toList(),
             ),
           ],
         );

@@ -1,87 +1,19 @@
-import 'package:sports_link/models/arrendador.dart';
-import 'package:sports_link/models/campo.dart';
+import 'package:flutter/material.dart';
+import 'package:sports_link/models/ponto.dart';
 import 'package:sports_link/models/campo_priv.dart';
 import 'package:sports_link/models/campo_pub.dart';
-import 'package:sports_link/models/jogador.dart';
-import 'package:sports_link/models/mapa.dart';
-import 'package:sports_link/models/ponto.dart';
+import 'package:sports_link/models/campo.dart';
 
-/// MAPAS
-final List<Mapa> mockMapas = [
-  Mapa(id: 1, ultimoUpdate: DateTime.now().subtract(Duration(days: 1))),
-  Mapa(id: 2, ultimoUpdate: DateTime.now().subtract(Duration(days: 2))),
-];
-
-/// PONTOS
+// PONTOS
 final List<Ponto> mockPontos = [
   Ponto(id: 1, idMapa: 1, latitude: 38.7169, longitude: -9.1399), // Lisboa
   Ponto(id: 2, idMapa: 1, latitude: 41.1496, longitude: -8.6109), // Porto
   Ponto(id: 3, idMapa: 2, latitude: 40.6405, longitude: -8.6538), // Aveiro
 ];
 
-/// JOGADORES
-final List<Jogador> mockJogadores = [
-  Jogador(
-    id: 1,
-    nome: 'Rui Silva',
-    email: 'rui@gmail.com',
-    numTele: 912345678,
-    password: '123456',
-    nacionalidade: 'Português',
-    idade: 25,
-    descricao: 'Médio ofensivo com boa visão de jogo',
-    utilizador: 'rui25',
-    createDate: DateTime.now().subtract(Duration(days: 15)),
-  ),
-  Jogador(
-    id: 2,
-    nome: 'Ana Costa',
-    email: 'ana.costa@gmail.com',
-    numTele: 934567891,
-    password: 'abc123',
-    nacionalidade: 'Portuguesa',
-    idade: 22,
-    descricao: 'Guarda-redes com reflexos rápidos',
-    utilizador: 'ana22',
-    createDate: DateTime.now().subtract(Duration(days: 5)),
-  ),
-];
-
-/// ARRENDADORES
-final List<Arrendador> mockArrendadores = [
-  Arrendador(
-    id: 3,
-    nome: 'João Campos',
-    email: 'joao.campos@gmail.com',
-    numTele: 913456789,
-    password: 'campo123',
-    nacionalidade: 'Português',
-    idade: 38,
-    descricao: 'Gestor de campos em Lisboa',
-    utilizador: 'joao38',
-    createDate: DateTime.now().subtract(Duration(days: 30)),
-    noCampos: 2,
-    iban: 123456789,
-  ),
-  Arrendador(
-    id: 4,
-    nome: 'Marta Ferreira',
-    email: 'marta.ferreira@gmail.com',
-    numTele: 926789123,
-    password: 'ferreira22',
-    nacionalidade: 'Portuguesa',
-    idade: 31,
-    descricao: 'Responsável pelo campo municipal do Porto',
-    utilizador: 'marta31',
-    createDate: DateTime.now().subtract(Duration(days: 10)),
-    noCampos: 1,
-    iban: 987654321,
-  ),
-];
-
-/// CAMPOS
+// CAMPOS
 final List<Campo> mockCampos = [
-  CampoPriv (
+  CampoPriv(
     id: 1,
     idPonto: 1,
     idMapa: 1,
@@ -91,10 +23,16 @@ final List<Campo> mockCampos = [
     ocupado: false,
     descricao: 'Relvado sintético, ideal para 11x11',
     ponto: mockPontos[0],
-
+    imagem: Image.network('https://example.com/campo_grande.png'),
     idArrendador: 3,
+    preco: 50.0, // Preço associado
+    diasFuncionamento: [
+      'Segunda-feira',
+      'Quarta-feira',
+      'Sexta-feira',
+    ], // Dias de funcionamento
   ),
-  CampoPub (
+  CampoPub(
     id: 2,
     idPonto: 2,
     idMapa: 1,
@@ -104,10 +42,9 @@ final List<Campo> mockCampos = [
     ocupado: true,
     descricao: 'Relva natural, vista para o Douro',
     ponto: mockPontos[1],
-
     entidadePublicaResp: "Câmara Municipal",
   ),
-  CampoPriv (
+  CampoPriv(
     id: 3,
     idPonto: 3,
     idMapa: 2,
@@ -117,11 +54,12 @@ final List<Campo> mockCampos = [
     ocupado: false,
     descricao: 'Muito procurado por estudantes',
     ponto: mockPontos[2],
-
+    imagem: Image.network('https://example.com/campo_universitario.png'),
     idArrendador: 3,
+    preco: 45.0, // Preço associado
+    diasFuncionamento: ['Terça-feira', 'Quinta-feira'], // Dias de funcionamento
   ),
-
-  CampoPub (
+  CampoPub(
     id: 4,
     idPonto: 1,
     idMapa: 1,
@@ -131,11 +69,9 @@ final List<Campo> mockCampos = [
     ocupado: true,
     descricao: 'Campo com iluminação noturna',
     ponto: mockPontos[0],
-
     entidadePublicaResp: "Câmara Municipal",
   ),
-
-  CampoPriv (
+  CampoPriv(
     id: 5,
     idPonto: 2,
     idMapa: 1,
@@ -145,11 +81,12 @@ final List<Campo> mockCampos = [
     ocupado: false,
     descricao: 'Campo coberto, ideal para futsal',
     ponto: mockPontos[1],
-
     idArrendador: 4,
+    imagem: Image.network('https://example.com/campo_futsal.png'),
+    preco: 35.0, // Preço associado
+    diasFuncionamento: ['Segunda-feira', 'Quarta-feira'],
   ),
-
-  CampoPub (
+  CampoPriv(
     id: 6,
     idPonto: 3,
     idMapa: 2,
@@ -159,11 +96,12 @@ final List<Campo> mockCampos = [
     ocupado: true,
     descricao: 'Campo de areia, ideal para futebol de praia',
     ponto: mockPontos[2],
-
-    entidadePublicaResp: "Câmara Municipal de Aveiro",
+    imagem: Image.network('https://example.com/campo_praia.png'),
+    idArrendador: 3,
+    preco: 40.0, // Preço associado
+    diasFuncionamento: ['Sexta-feira', 'Sábado'],
   ),
-
-  CampoPriv (
+  CampoPriv(
     id: 7,
     idPonto: 1,
     idMapa: 1,
@@ -173,11 +111,12 @@ final List<Campo> mockCampos = [
     ocupado: false,
     descricao: 'Campo para treinos, com balizas ajustáveis',
     ponto: mockPontos[0],
-
     idArrendador: 3,
+    imagem: Image.network('https://example.com/campo_treino.png'),
+    preco: 30.0, // Preço associado
+    diasFuncionamento: ['Terça-feira', 'Quinta-feira'],
   ),
-
-  CampoPub (
+  CampoPub(
     id: 8,
     idPonto: 2,
     idMapa: 1,
@@ -187,11 +126,9 @@ final List<Campo> mockCampos = [
     ocupado: true,
     descricao: 'Campo de areia, ideal para treinos de resistência',
     ponto: mockPontos[1],
-
     entidadePublicaResp: "Câmara Municipal do Porto",
   ),
-
-  CampoPriv (
+  CampoPriv(
     id: 9,
     idPonto: 3,
     idMapa: 2,
@@ -200,12 +137,13 @@ final List<Campo> mockCampos = [
     largura: 50.0,
     ocupado: false,
     descricao: 'Campo com marcações para futebol americano',
-    ponto: mockPontos[2], 
-    
+    ponto: mockPontos[2],
     idArrendador: 3,
+    imagem: Image.network('https://example.com/campo_futebol_americano.png'),
+    preco: 60.0, // Preço associado
+    diasFuncionamento: ['Segunda-feira', 'Sexta-feira'],
   ),
-
-  CampoPub (
+  CampoPub(
     id: 10,
     idPonto: 1,
     idMapa: 1,
@@ -215,18 +153,6 @@ final List<Campo> mockCampos = [
     ocupado: true,
     descricao: 'Campo com marcações para rugby',
     ponto: mockPontos[0],
-
     entidadePublicaResp: "Câmara Municipal de Lisboa",
   ),
 ];
-
-
-/// FUNÇÃO PARA OBTER O CAMPO POR ID
-Campo? getCampoById(int id) {
-  for (var campo in mockCampos) {
-    if (campo.id == id) {
-      return campo;
-    }
-  }
-  return null; // Retorna null se o campo não for encontrado
-}
