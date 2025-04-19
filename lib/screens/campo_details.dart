@@ -4,6 +4,8 @@ import 'package:latlong2/latlong.dart';
 import 'package:sports_link/models/campo.dart';
 import 'package:sports_link/models/campo_priv.dart';
 import 'package:sports_link/models/campo_pub.dart';
+import 'package:sports_link/screens/page_reserva.dart';
+import 'package:sports_link/styles/carouselbg.dart';
 
 class CampoDetails extends StatefulWidget {
   final Campo campo;
@@ -18,137 +20,143 @@ class _CampoDetailsState extends State<CampoDetails> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      extendBody: true,
+      extendBodyBehindAppBar: true,
       appBar: AppBar(
         title: Text(widget.campo.nome),
         backgroundColor: Colors.orange,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () {
+            Navigator.pop(context); // Volta para a página list_campos
+          },
+        ),
       ),
-      body: SingleChildScrollView(
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              // Título
-              Text(
-                widget.campo.nome,
-                textAlign: TextAlign.center,
-                style: const TextStyle(
-                  fontSize: 24,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.orange,
-                ),
-              ),
-              const SizedBox(height: 16),
-
-              // Imagem do campo
-              ClipRRect(
-                borderRadius: BorderRadius.circular(12),
-                child: widget.campo.imagem,
-              ),
-              const SizedBox(height: 16),
-
-              // Localização com mapa
-              Row(
+      body: Stack(
+        children: [
+          const Carouselbg(), // Fundo com o Carousel
+          SingleChildScrollView(
+            child: Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  const Icon(Icons.location_on, color: Colors.orange),
-                  const SizedBox(width: 8),
-                  Expanded(
-                    child: GestureDetector(
-                      onTap: _openMap, // Método para abrir o mapa
-                      child: Text(
-                        '${widget.campo.ponto.latitude}, ${widget.campo.ponto.longitude}',
-                        style: const TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
+                  // Título
+                  Text(
+                    widget.campo.nome,
+                    textAlign: TextAlign.center,
+                    style: const TextStyle(
+                      fontSize: 24,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.orange,
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+
+                  // Imagem do campo
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(12),
+                    child: widget.campo.imagem,
+                  ),
+                  const SizedBox(height: 16),
+
+                  // Localização com mapa
+                  Row(
+                    children: [
+                      const Icon(Icons.location_on, color: Colors.orange),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: GestureDetector(
+                          onTap: _openMap, // Método para abrir o mapa
+                          child: Text(
+                            '${widget.campo.ponto.latitude}, ${widget.campo.ponto.longitude}',
+                            style: const TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
                         ),
                       ),
+                    ],
+                  ),
+                  const SizedBox(height: 16),
+
+                  // Mapa Miniatura com borda
+                  Container(
+                    decoration: BoxDecoration(
+                      border: Border.all(color: Colors.orange, width: 2),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: SizedBox(
+                      height: 200,
+                      child: FlutterMap(
+                        options: MapOptions(
+                          onTap: (tapPosition, point) {
+                            _openMap(); // Abre o mapa em tela cheia ao clicar
+                          },
+                          minZoom: 15.0,
+                          maxZoom: 18.0,
+                        ),
+                        children: [
+                          TileLayer(
+                            urlTemplate:
+                                "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+                            subdomains: ['a', 'b', 'c'],
+                          ),
+                          MarkerLayer(
+                            markers: [
+                              Marker(
+                                point: LatLng(
+                                  widget.campo.ponto.latitude,
+                                  widget.campo.ponto.longitude,
+                                ),
+                                child: const Icon(
+                                  Icons.location_pin,
+                                  color: Colors.orange,
+                                  size: 40,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+
+                  // Exibição condicional para campos públicos ou privados
+                  widget.campo is CampoPriv
+                      ? _buildPrivateFieldDetails()
+                      : _buildPublicFieldDetails(),
+
+                  const SizedBox(height: 16),
+
+                  // Botão "Agendar Reserva"
+                  ElevatedButton(
+                    onPressed: () {
+                      // Lógica para agendar reserva
+                      _scheduleReservation();
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.orange,
+                      padding: const EdgeInsets.symmetric(vertical: 16),
+                    ),
+                    child: const Text(
+                      'Agendar Reserva',
+                      style: TextStyle(fontSize: 16),
                     ),
                   ),
                 ],
               ),
-              const SizedBox(height: 16),
-
-              // Mapa Miniatura
-              SizedBox(
-                height: 200,
-                child: FlutterMap(
-                  options: MapOptions(
-                    onTap: (tapPosition, point) {
-                      // Handle tap event here if needed
-                      _openMap(); // Abre o mapa em tela cheia ao clicar
-                    },
-                    minZoom: 15.0,
-                    maxZoom: 18.0,
-                  ),
-                  children: [
-                    TileLayer(
-                      urlTemplate:
-                          "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
-                      subdomains: ['a', 'b', 'c'],
-                    ),
-                    MarkerLayer(
-                      markers: [
-                        Marker(
-                          point: LatLng(
-                            widget.campo.ponto.latitude,
-                            widget.campo.ponto.longitude,
-                          ),
-                          child: const Icon(
-                            Icons.location_pin,
-                            color: Colors.orange,
-                            size: 40,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-              ),
-              const SizedBox(height: 16),
-
-              // Exibição condicional para campos públicos ou privados
-              widget.campo is CampoPriv
-                  ? _buildPrivateFieldDetails()
-                  : _buildPublicFieldDetails(),
-
-              const SizedBox(height: 16),
-
-              // Botões de ação
-              ElevatedButton(
-                onPressed: () {
-                  // Lógica para adicionar
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.orange,
-                  padding: const EdgeInsets.symmetric(vertical: 16),
-                ),
-                child: const Text('Adicionar', style: TextStyle(fontSize: 16)),
-              ),
-              const SizedBox(height: 8),
-              OutlinedButton(
-                onPressed: () {
-                  Navigator.pop(context);
-                },
-                style: OutlinedButton.styleFrom(
-                  side: const BorderSide(color: Colors.black),
-                  padding: const EdgeInsets.symmetric(vertical: 16),
-                ),
-                child: const Text(
-                  'Cancelar',
-                  style: TextStyle(fontSize: 16, color: Colors.black),
-                ),
-              ),
-            ],
+            ),
           ),
-        ),
+        ],
       ),
     );
   }
 
   // Método para abrir o mapa em tela cheia ao clicar na localização
   void _openMap() {
-    // Aqui você pode implementar a lógica para abrir o mapa em uma nova tela
-    // ou em um modal, se preferir
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -254,6 +262,16 @@ class _CampoDetailsState extends State<CampoDetails> {
             ),
           ),
         ],
+      ),
+    );
+  }
+
+  // Método para agendar reserva
+  void _scheduleReservation() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => PageReserva(campo: widget.campo),
       ),
     );
   }

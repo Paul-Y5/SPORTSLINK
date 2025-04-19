@@ -26,11 +26,11 @@ final List<Campo> mockCampos = [
     imagem: Image.network('https://example.com/campo_grande.png'),
     idArrendador: 3,
     preco: 50.0, // Preço associado
-    diasFuncionamento: [
-      'Segunda-feira',
-      'Quarta-feira',
-      'Sexta-feira',
-    ], // Dias de funcionamento
+    diasFuncionamento: {
+      'Segunda-feira': [DateTime.parse('09:00'), DateTime.parse('18:00')],
+      'Quarta-feira': [DateTime.parse('09:00'), DateTime.parse('18:00')],
+      'Sexta-feira': [DateTime.parse('09:00'), DateTime.parse('18:00')],
+    },
   ),
   CampoPub(
     id: 2,
@@ -57,7 +57,10 @@ final List<Campo> mockCampos = [
     imagem: Image.network('https://example.com/campo_universitario.png'),
     idArrendador: 3,
     preco: 45.0, // Preço associado
-    diasFuncionamento: ['Terça-feira', 'Quinta-feira'], // Dias de funcionamento
+    diasFuncionamento: {
+      'Terça-feira': [DateTime.parse('10:00'), DateTime.parse('17:00')],
+      'Quinta-feira': [DateTime.parse('10:00'), DateTime.parse('17:00')],
+    },
   ),
   CampoPub(
     id: 4,
@@ -84,7 +87,10 @@ final List<Campo> mockCampos = [
     idArrendador: 4,
     imagem: Image.network('https://example.com/campo_futsal.png'),
     preco: 35.0, // Preço associado
-    diasFuncionamento: ['Segunda-feira', 'Quarta-feira'],
+    diasFuncionamento: {
+      'Segunda-feira': [DateTime.parse('09:00'), DateTime.parse('18:00')],
+      'Quarta-feira': [DateTime.parse('09:00'), DateTime.parse('18:00')],
+    },
   ),
   CampoPriv(
     id: 6,
@@ -99,7 +105,10 @@ final List<Campo> mockCampos = [
     imagem: Image.network('https://example.com/campo_praia.png'),
     idArrendador: 3,
     preco: 40.0, // Preço associado
-    diasFuncionamento: ['Sexta-feira', 'Sábado'],
+    diasFuncionamento: {
+      'Sexta-feira': [DateTime.parse('08:00'), DateTime.parse('16:00')],
+      'Sábado': [DateTime.parse('08:00'), DateTime.parse('16:00')],
+    },
   ),
   CampoPriv(
     id: 7,
@@ -114,7 +123,10 @@ final List<Campo> mockCampos = [
     idArrendador: 3,
     imagem: Image.network('https://example.com/campo_treino.png'),
     preco: 30.0, // Preço associado
-    diasFuncionamento: ['Terça-feira', 'Quinta-feira'],
+    diasFuncionamento: {
+      'Terça-feira': [DateTime.parse('07:00'), DateTime.parse('15:00')],
+      'Quinta-feira': [DateTime.parse('07:00'), DateTime.parse('15:00')],
+    },
   ),
   CampoPub(
     id: 8,
@@ -141,7 +153,10 @@ final List<Campo> mockCampos = [
     idArrendador: 3,
     imagem: Image.network('https://example.com/campo_futebol_americano.png'),
     preco: 60.0, // Preço associado
-    diasFuncionamento: ['Segunda-feira', 'Sexta-feira'],
+    diasFuncionamento: {
+      'Segunda-feira': [DateTime.parse('09:00'), DateTime.parse('18:00')],
+      'Sexta-feira': [DateTime.parse('09:00'), DateTime.parse('18:00')],
+    },
   ),
   CampoPub(
     id: 10,

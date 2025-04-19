@@ -7,10 +7,8 @@ class Reserva {
   String horaInicio;
   String tempoDuracao;
   String estado;
+  String pagamento;
   String? descricao;
-  String? pagamento;
-  String? feedback;
-
 
   Reserva({
     required this.id,
@@ -21,12 +19,11 @@ class Reserva {
     required this.horaInicio,
     required this.tempoDuracao,
     required this.estado,
+    required this.pagamento,
     this.descricao,
-    this.pagamento,
-    this.feedback,
   });
 
-  // Convertendo para JSON
+  // Converter para JSON
   Map<String, dynamic> toJson() {
     return {
       'id': id,
@@ -39,7 +36,6 @@ class Reserva {
       'estado': estado,
       'descricao': descricao,
       'pagamento': pagamento,
-      'feedback': feedback,
     };
   }
 }

@@ -1,17 +1,16 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_map/flutter_map.dart';
-import 'package:latlong2/latlong.dart'; 
+import 'package:sports_link/styles/carouselbg.dart';
 import 'package:geolocator/geolocator.dart'; 
 import 'package:sports_link/data/mock_data.dart';
 import 'package:sports_link/data/my_user.dart';
 import 'package:sports_link/models/campo.dart';
 import 'package:sports_link/models/campo_priv.dart';
 import 'package:sports_link/models/utilizador.dart';
-import 'package:sports_link/screens/campo_details.dart';
 import 'package:sports_link/styles/custom_appbar.dart';
-import 'package:sports_link/widgets/card_campo.dart';
-import 'package:sports_link/widgets/notification_dropdown.dart'as notification_dropdown;
-import 'package:sports_link/styles/carouselbg.dart';
+import 'package:sports_link/widgets/notification_dropdown.dart' as notification_dropdown;
+import 'package:sports_link/widgets/map_view.dart' as map_view;
+import 'package:sports_link/widgets/list_view.dart' as list_view;
+import 'package:sports_link/utils/filter_campos.dart' as filter_campos;
 
 class ListCampos extends StatefulWidget {
   const ListCampos({super.key});
@@ -34,38 +33,54 @@ class _ListCamposState extends State<ListCampos> {
   bool isMapView = false; // Controla a exibição do mapa
   int camposVisiveis = 10;
 
-  double latitude = 51.509865; // Valor inicial (exemplo: Londres)
-  double longitude = -0.118092; // Valor inicial (exemplo: Londres)
+  double latitude = 0.0;
+  double longitude = 0.0;
 
   @override
   void initState() {
     super.initState();
     currentUser = getMyUser();
-    _getCurrentLocation(); // Obter a localização atual do usuário
+    _getCurrentLocation(); // Obter a localização atual do utilizador
   }
 
-  // Método para obter a localização atual do usuário
+  // Método para obter a localização atual do utilizador
   Future<void> _getCurrentLocation() async {
-    LocationPermission permission = await Geolocator.requestPermission();
+    try {
+      LocationPermission permission = await Geolocator.requestPermission();
 
-    if (permission == LocationPermission.always ||
-        permission == LocationPermission.whileInUse) {
-      Position position = await Geolocator.getCurrentPosition(
-        locationSettings: const LocationSettings(
-          accuracy: LocationAccuracy.high,
-        ),
-      );
-      
-      setState(() {
-        latitude = position.latitude;
-        longitude = position.longitude;
-      });
+      if (permission == LocationPermission.always ||
+          permission == LocationPermission.whileInUse) {
+        Position position = await Geolocator.getCurrentPosition(
+          locationSettings: const LocationSettings(
+            accuracy: LocationAccuracy.high,
+          ),
+        );
+
+        setState(() {
+          latitude = position.latitude;
+          longitude = position.longitude;
+        });
+        return;
+      }
+    } catch (e) {
+      // Caso ocorra um erro, a localização será definida como Aveiro
+      debugPrint('Erro ao obter localização: $e');
     }
+
+    // Localização padrão: Aveiro
+    setState(() {
+      latitude = 40.6405;
+      longitude = -8.6538;
+    });
   }
 
   @override
   Widget build(BuildContext context) {
-    final List<CampoPriv> camposFiltrados = _filtrarCampos();
+    final List<CampoPriv> camposFiltrados = filter_campos.filterCampos(
+      campos: campos,
+      query: searchController.text,
+      isAscending: isAscending,
+    );
 
     return Scaffold(
       extendBody: true,
@@ -139,12 +154,20 @@ class _ListCamposState extends State<ListCampos> {
                     ),
                   ),
                   Expanded(
-                    child:
-                        isMapView
-                            ? _buildMapView(camposFiltrados)
-                            : _buildListView(camposFiltrados),
+                    child: isMapView
+                        ? map_view.MapView(
+                            campos: camposFiltrados,
+                            latitude: latitude,
+                            longitude: longitude,
+                          )
+                        : list_view.buildListView(camposFiltrados),
                   ),
-                  if (_filtrarCampos(semLimite: true).length > camposVisiveis)
+                  if (filter_campos.filterCampos(
+                          campos: campos,
+                          query: searchController.text,
+                          isAscending: isAscending)
+                      .length >
+                      camposVisiveis)
                     Padding(
                       padding: const EdgeInsets.only(bottom: 16.0),
                       child: ElevatedButton(
@@ -163,95 +186,6 @@ class _ListCamposState extends State<ListCampos> {
         ],
       ),
     );
-  }
-
-  /// Retorna uma lista de até 10 campos privados filtrados pelo nome
-  List<CampoPriv> _filtrarCampos({bool semLimite = false}) {
-    String query = searchController.text.toLowerCase();
-
-    List<CampoPriv> filtrados =
-        campos
-            .whereType<CampoPriv>()
-            .where((campo) => campo.nome.toLowerCase().contains(query))
-            .toList();
-
-    filtrados.sort(
-      (a, b) =>
-          isAscending ? a.nome.compareTo(b.nome) : b.nome.compareTo(a.nome),
-    );
-
-    return semLimite ? filtrados : filtrados.take(camposVisiveis).toList();
-  }
-
-  // Método para exibir a ListView
-  Widget _buildListView(List<CampoPriv> camposFiltrados) {
-    return camposFiltrados.isEmpty
-        ? const Center(
-          child: Text(
-            'Nenhum campo encontrado.',
-            style: TextStyle(color: Colors.white),
-          ),
-        )
-        : ListView.builder(
-          padding: const EdgeInsets.symmetric(horizontal: 12),
-          itemCount: camposFiltrados.length,
-          itemBuilder: (context, index) {
-            return CardCampo(campo: camposFiltrados[index]);
-          },
-        );
-  }
-
-  // Método para exibir o MapView
-  Widget _buildMapView(List<CampoPriv> camposFiltrados) {
-    return camposFiltrados.isEmpty
-        ? const Center(
-          child: Text(
-            'Nenhum campo encontrado.',
-            style: TextStyle(color: Colors.white),
-          ),
-        )
-        : FlutterMap(
-          options: MapOptions(
-            initialCenter: LatLng(latitude, longitude), // Localização inicial
-            minZoom: 12.0,
-            maxZoom: 18.0,
-          ),
-          children: [
-            TileLayer(
-              urlTemplate: "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
-              subdomains: ['a', 'b', 'c'],
-            ),
-            MarkerLayer(
-              markers: camposFiltrados.map((campo) {
-                // Criação de um marcador para cada campo
-                return Marker(
-                  width: 80.0,
-                  height: 80.0,
-                  point: LatLng(
-                    campo.ponto.latitude, // Latitude do modelo Ponto
-                    campo.ponto.longitude, // Longitude do modelo Ponto
-                  ),
-                  child: GestureDetector(
-                    onTap: () {
-                      // Navega para a página de detalhes do campo
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => CampoDetails(campo: campo),
-                        ),
-                      );
-                    },
-                    child: const Icon(
-                      Icons.location_on,
-                      color: Colors.orange,
-                      size: 40.0,
-                    ),
-                  ),
-                );
-              }).toList(),
-            ),
-          ],
-        );
   }
 
   void _toggleDropdownOverlay(

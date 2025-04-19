@@ -7,7 +7,8 @@ class CampoPriv extends Campo {
   int idArrendador;
   Arrendador arrendador;
   double preco = 0.0;
-  List<String> diasFuncionamento = [];
+  Map<String, List<DateTime>> diasFuncionamento = {"Segunda": [], "Terça": [], "Quarta": [], "Quinta": [], "Sexta": [], "Sábado": [], "Domingo": []};
+  
 
   CampoPriv({
     required this.idArrendador,
@@ -38,7 +39,12 @@ class CampoPriv extends Campo {
       largura: (json['Largura'] as num).toDouble(),
       descricao: json['Descricao'] as String,
       preco: (json['Preco'] as num).toDouble(),
-      diasFuncionamento: (json['DiasFuncionamento'] as List<dynamic>).map((e) => e as String).toList(),
+      diasFuncionamento: (json['DiasFuncionamento'] as Map<String, dynamic>).map(
+        (key, value) => MapEntry(
+          key,
+          (value as List<dynamic>).map((e) => DateTime.parse(e as String)).toList(),
+        ),
+      ),
       ocupado: json['ocupado'] == 1,
     );
   }
