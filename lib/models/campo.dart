@@ -71,5 +71,7 @@ class Campo {
   int get getIdMapa => idMapa;
   Ponto? get getPonto => ponto;
 
+  get idArrendador => null;
+
 }
 

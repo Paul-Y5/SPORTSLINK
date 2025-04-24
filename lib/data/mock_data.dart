@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:sports_link/models/arrendador.dart';
 import 'package:sports_link/models/ponto.dart';
 import 'package:sports_link/models/campo_priv.dart';
 import 'package:sports_link/models/campo_pub.dart';
@@ -171,4 +172,71 @@ final List<Campo> mockCampos = [
     ponto: mockPontos[0],
     entidadePublicaResp: "Câmara Municipal de Lisboa",
   ),
+];
+
+// Arrendadores
+final List<Arrendador> mockArrendadores = [
+  Arrendador(
+    id: 1,
+    nome: 'João Silva',
+    email: 'joao.silva@example.com',
+    numTele: 912345678,
+    password: 'senha123',
+    nacionalidade: 'Português',
+    idade: 35,
+    descricao: 'Arrendador experiente com vários campos disponíveis.',
+    noCampos: 3,
+    iban: 123456789,
+    utilizador: 'joaosilva',
+    createDate: DateTime.now(),
+  )..adicionarMetodoPagamento('metodo1', 'Cartão de Crédito')
+    ..adicionarMetodoPagamento('metodo2', 'MB Way'),
+
+  Arrendador(
+    id: 2,
+    nome: 'Maria Oliveira',
+    email: 'maria.oliveira@example.com',
+    numTele: 913456789,
+    password: 'senha456',
+    nacionalidade: 'Brasileira',
+    idade: 29,
+    descricao: 'Especialista em gestão de campos desportivos.',
+    noCampos: 2,
+    iban: 987654321,
+    utilizador: 'mariaoliveira',
+    createDate: DateTime.now(),
+  )..adicionarMetodoPagamento('metodo1', 'Transferência Bancária')
+    ..adicionarMetodoPagamento('metodo2', 'Cartão de Débito'),
+
+  Arrendador(
+    id: 3,
+    nome: 'Carlos Santos',
+    email: 'carlos.santos@example.com',
+    numTele: 914567890,
+    password: 'senha789',
+    nacionalidade: 'Angolano',
+    idade: 42,
+    descricao: 'Arrendador com experiência em eventos desportivos.',
+    noCampos: 5,
+    iban: 112233445,
+    utilizador: 'carlossantos',
+    createDate: DateTime.now(),
+  )..adicionarMetodoPagamento('metodo1', 'Dinheiro')
+    ..adicionarMetodoPagamento('metodo2', 'Cartão de Crédito'),
+
+  Arrendador(
+    id: 4,
+    nome: 'Ana Costa',
+    email: 'ana.costa@example.com',
+    numTele: 915678901,
+    password: 'senha321',
+    nacionalidade: 'Moçambicana',
+    idade: 37,
+    descricao: 'Gestora de campos desportivos com foco em futebol.',
+    noCampos: 4,
+    iban: 556677889,
+    utilizador: 'anacosta',
+    createDate: DateTime.now(),
+  )..adicionarMetodoPagamento('metodo1', 'MB Way')
+    ..adicionarMetodoPagamento('metodo2', 'Transferência Bancária'),
 ];

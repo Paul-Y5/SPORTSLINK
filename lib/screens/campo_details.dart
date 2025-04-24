@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
+import 'package:sports_link/data/mock_data.dart';
 import 'package:sports_link/models/campo.dart';
 import 'package:sports_link/models/campo_priv.dart';
 import 'package:sports_link/models/campo_pub.dart';
@@ -23,12 +24,16 @@ class _CampoDetailsState extends State<CampoDetails> {
       extendBody: true,
       extendBodyBehindAppBar: true,
       appBar: AppBar(
-        title: Text(widget.campo.nome),
-        backgroundColor: Colors.orange,
+        title: Text(
+          widget.campo.nome,
+          style: const TextStyle(color: Colors.orange),
+        ),
+        backgroundColor: const Color.fromARGB(255, 6, 6, 6),
+        elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
+          icon: const Icon(Icons.arrow_back, color: Colors.orange),
           onPressed: () {
-            Navigator.pop(context); // Volta para a página list_campos
+            Navigator.pop(context); // Volta para a página anterior
           },
         ),
       ),
@@ -122,30 +127,105 @@ class _CampoDetailsState extends State<CampoDetails> {
                       ),
                     ),
                   ),
-                  const SizedBox(height: 12),
-
-                  // Exibição condicional para campos públicos ou privados
-                  widget.campo is CampoPriv
-                      ? _buildPrivateFieldDetails()
-                      : _buildPublicFieldDetails(),
-
                   const SizedBox(height: 16),
 
-                  // Botão "Agendar Reserva"
-                  ElevatedButton(
-                    onPressed: () {
-                      // Lógica para agendar reserva
-                      _scheduleReservation();
-                    },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.orange,
-                      padding: const EdgeInsets.symmetric(vertical: 16),
+                  // Descrição com fundo branco e texto preto
+                  Container(
+                    padding: const EdgeInsets.all(16),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(12),
                     ),
-                    child: const Text(
-                      'Agendar Reserva',
-                      style: TextStyle(fontSize: 16),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Text(
+                          'Descrição',
+                          style: TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.black,
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+
+                        // Informações específicas para CampoPriv
+                        if (widget.campo is CampoPriv) ...[
+                          Text(
+                            'Responsável: ${_getNomeArrendador()}',
+                            style: const TextStyle(
+                              fontSize: 16,
+                              color: Colors.black,
+                            ),
+                          ),
+                          const SizedBox(height: 8),
+                          Text(
+                            'Preço: ${(widget.campo as CampoPriv).preco.toStringAsFixed(2)}€/h',
+                            style: const TextStyle(
+                              fontSize: 16,
+                              color: Colors.black,
+                            ),
+                          ),
+                          const SizedBox(height: 8),
+                          Text(
+                            'Métodos de Pagamento: ${_getMetodosPagamento()}',
+                            style: const TextStyle(
+                              fontSize: 16,
+                              color: Colors.black,
+                            ),
+                          ),
+                          const SizedBox(height: 8),
+                          Text(
+                            'Horários de Funcionamento: ${_getHorariosFuncionamento()}',
+                            style: const TextStyle(
+                              fontSize: 16,
+                              color: Colors.black,
+                            ),
+                          ),
+                        ],
+
+                        // Informações específicas para CampoPub
+                        if (widget.campo is CampoPub) ...[
+                          Text(
+                            'Entidade Responsável: ${(widget.campo as CampoPub).entidadePublicaResp}',
+                            style: const TextStyle(
+                              fontSize: 16,
+                              color: Colors.black,
+                            ),
+                          ),
+                          const SizedBox(height: 8),
+                          Text(
+                            'Estado: ${(widget.campo as CampoPub).ocupado ? "Ocupado" : "Disponível"}',
+                            style: const TextStyle(
+                              fontSize: 16,
+                              color: Colors.black,
+                            ),
+                          ),
+                        ],
+                      ],
                     ),
                   ),
+                  const SizedBox(height: 16),
+
+                  // Botão "Agendar Reserva" (apenas para CampoPriv)
+                  if (widget.campo is CampoPriv)
+                    ElevatedButton(
+                      onPressed: () {
+                        // Lógica para agendar reserva
+                        _scheduleReservation();
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.orange,
+                        padding: const EdgeInsets.symmetric(vertical: 16),
+                      ),
+                      child: const Text(
+                        'Agendar Reserva',
+                        style: TextStyle(
+                          fontSize: 18, // Aumenta o tamanho do texto
+                          color: Colors.black, // Altera a cor do texto para preto
+                        ),
+                      ),
+                    ),
                 ],
               ),
             ),
@@ -153,6 +233,44 @@ class _CampoDetailsState extends State<CampoDetails> {
         ],
       ),
     );
+  }
+
+  // Método para obter o nome do arrendador
+  String _getNomeArrendador() {
+    if (widget.campo is CampoPriv) {
+      final arrendadorCampo = (widget.campo as CampoPriv).idArrendador;
+      for (var arrendador in mockArrendadores) {
+        if (arrendador.id == arrendadorCampo) {
+          return arrendador.nome;
+        }
+      }
+    }
+    return 'Entidade Pública';
+  }
+
+  // Método para obter os métodos de pagamento
+  String _getMetodosPagamento() {
+    if (widget.campo is CampoPriv) {
+      final arrendadorCampo = (widget.campo as CampoPriv).idArrendador;
+      for (var arrendador in mockArrendadores) {
+        if (arrendador.id == arrendadorCampo) {
+          return arrendador.metodosPagamento.values.join(', ');
+        }
+      }
+    }
+    return 'Gratuito';
+  }
+
+  // Método para obter os horários de funcionamento
+  String _getHorariosFuncionamento() {
+    if (widget.campo is CampoPriv) {
+      final campoPriv = widget.campo as CampoPriv;
+      return campoPriv.diasFuncionamento.entries
+          .map((entry) =>
+              '${entry.key}: ${entry.value[0].format(context)} - ${entry.value[1].format(context)}')
+          .join(', ');
+    }
+    return 'Horário não disponível';
   }
 
   // Método para abrir o mapa em tela cheia ao clicar na localização
@@ -205,64 +323,6 @@ class _CampoDetailsState extends State<CampoDetails> {
           ],
         );
       },
-    );
-  }
-
-  // Widget para detalhes de campos privados
-  Widget _buildPrivateFieldDetails() {
-    CampoPriv campoPriv = widget.campo as CampoPriv;
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.grey[200],
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // Responsável
-          Text(
-            'Responsável: ${campoPriv.idArrendador}',
-            style: const TextStyle(
-              fontSize: 14,
-              color: Colors.blue,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-          const SizedBox(height: 16),
-          // Outros detalhes do campo privado...
-        ],
-      ),
-    );
-  }
-
-  // Widget para detalhes de campos públicos
-  Widget _buildPublicFieldDetails() {
-    CampoPub campoPub = widget.campo as CampoPub;
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.grey[200],
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // Entidade pública responsável
-          const Text(
-            'Entidade Pública Responsável:',
-            style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-          ),
-          Text(
-            campoPub.entidadePublicaResp,
-            style: const TextStyle(
-              fontSize: 14,
-              color: Colors.blue,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-        ],
-      ),
     );
   }
 

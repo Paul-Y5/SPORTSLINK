@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:latlong2/latlong.dart';
+import 'package:sports_link/models/ponto.dart';
 import 'package:sports_link/screens/campo_details.dart';
 import 'package:sports_link/styles/carouselbg.dart';
 import 'package:geolocator/geolocator.dart';
@@ -146,17 +148,38 @@ class _ListCamposState extends State<ListCampos> {
                   Expanded(
                     child: isMapView
                         ? map_view.MapView(
-                            campos: camposFiltrados.take(camposVisiveis).toList(),
-                            latitude: latitude,
-                            longitude: longitude,
-                            onCampoSelected: (campo) {
+                            campos: camposFiltrados.map((campo) => LatLng(campo.ponto.latitude, campo.ponto.longitude)).toList(),
+                            userLocation: LatLng(latitude, longitude),
+                            onCampoSelected: (selectedCampoLocation) {
+                              // Encontra o campo correspondente à localização selecionada
+                              final selectedCampo = camposFiltrados.firstWhere(
+                                (campo) =>
+                                    campo.ponto.latitude == selectedCampoLocation.latitude &&
+                                    campo.ponto.longitude == selectedCampoLocation.longitude,
+                                orElse: () => CampoPriv(
+                                  id: 0,
+                                  nome: 'Default Campo',
+                                  ponto: Ponto(id: 0, idMapa: 0, latitude: latitude, longitude: longitude),
+                                  descricao: 'Default description',
+                                  idArrendador: 0,
+                                  idPonto: 0,
+                                  idMapa: 0,
+                                  comprimento: 0.0,
+                                  largura: 0.0,
+                                  ocupado: false,
+                                  imagem: Image.asset('assets/images/placeholder.png'),
+                                  preco: 0.0,
+                                  diasFuncionamento: <String, List<TimeOfDay>>{},
+                                ),
+                              );
+
                               Navigator.push(
                                 context,
                                 MaterialPageRoute(
-                                  builder: (_) => CampoDetails(campo: campo),
+                                  builder: (_) => CampoDetails(campo: selectedCampo),
                                 ),
                               );
-                            },
+                                                        },
                           )
                         : list_view.buildListViewWithLoadMore(
                             camposFiltrados,

@@ -35,10 +35,15 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
         },
         child: const Icon(Icons.menu, color: Colors.orange),
       ),
-      title: Image.asset(
-        'img/SPORTSLINK.png',
-        height: 30, // Altura do logotipo
-        fit: BoxFit.contain, // Ajusta a imagem para evitar overflow
+      title: GestureDetector(
+        onTap: () {
+          Navigator.pushNamed(context, '/main');
+        },
+        child: Image.asset(
+          'img/SPORTSLINK.png',
+          height: 30, // Altura do logotipo
+          fit: BoxFit.contain, // Ajusta a imagem para evitar overflow
+        ),
       ),
       actions: [
         Stack(
@@ -53,7 +58,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
             ),
             if (notificationCount > 0)
               Positioned(
-                right:8,
+                right: 8,
                 top: 8,
                 child: Container(
                   padding: const EdgeInsets.all(4),
