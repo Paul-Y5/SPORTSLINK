@@ -7,7 +7,7 @@ class CampoPriv extends Campo {
   int idArrendador;
   Arrendador arrendador;
   double preco = 0.0;
-  Map<String, List<DateTime>> diasFuncionamento = {"Segunda": [], "Terça": [], "Quarta": [], "Quinta": [], "Sexta": [], "Sábado": [], "Domingo": []};
+  Map<String, List<TimeOfDay>> diasFuncionamento = {"Segunda": [], "Terça": [], "Quarta": [], "Quinta": [], "Sexta": [], "Sábado": [], "Domingo": []};
   
 
   CampoPriv({
@@ -42,7 +42,10 @@ class CampoPriv extends Campo {
       diasFuncionamento: (json['DiasFuncionamento'] as Map<String, dynamic>).map(
         (key, value) => MapEntry(
           key,
-          (value as List<dynamic>).map((e) => DateTime.parse(e as String)).toList(),
+          (value as List<dynamic>).map((e) {
+            final dateTime = DateTime.parse(e as String);
+            return TimeOfDay(hour: dateTime.hour, minute: dateTime.minute);
+          }).toList(),
         ),
       ),
       ocupado: json['ocupado'] == 1,

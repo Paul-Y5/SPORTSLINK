@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:sports_link/screens/campo_details.dart';
 import 'package:sports_link/styles/carouselbg.dart';
-import 'package:geolocator/geolocator.dart'; 
+import 'package:geolocator/geolocator.dart';
 import 'package:sports_link/data/mock_data.dart';
 import 'package:sports_link/data/my_user.dart';
 import 'package:sports_link/models/campo.dart';
@@ -29,9 +30,8 @@ class _ListCamposState extends State<ListCampos> {
   final TextEditingController searchController = TextEditingController();
 
   bool isAscending = true;
-  bool isGridView = false;
   bool isMapView = false; // Controla a exibição do mapa
-  int camposVisiveis = 10;
+  int camposVisiveis = 5;
 
   double latitude = 0.0;
   double longitude = 0.0;
@@ -103,47 +103,36 @@ class _ListCamposState extends State<ListCampos> {
             body: SafeArea(
               child: Column(
                 children: [
+                  // Barra de pesquisa e botão de alternância
                   Padding(
                     padding: const EdgeInsets.all(12.0),
-                    child: TextField(
-                      controller: searchController,
-                      onChanged: (_) => setState(() {}),
-                      decoration: InputDecoration(
-                        hintText: 'Pesquisar campos...',
-                        prefixIcon: const Icon(Icons.search),
-                        filled: true,
-                        fillColor: Colors.white,
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(12),
-                          borderSide: BorderSide.none,
-                        ),
-                        contentPadding: const EdgeInsets.symmetric(
-                          horizontal: 16,
-                        ),
-                      ),
-                    ),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 12.0),
                     child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        ElevatedButton.icon(
-                          onPressed: () {
-                            setState(() {
-                              isAscending = !isAscending;
-                            });
-                          },
-                          icon: Icon(
-                            isAscending
-                                ? Icons.arrow_upward
-                                : Icons.arrow_downward,
+                        // Barra de pesquisa
+                        Expanded(
+                          child: TextField(
+                            controller: searchController,
+                            onChanged: (_) => setState(() {}),
+                            decoration: InputDecoration(
+                              hintText: 'Pesquisar campos...',
+                              prefixIcon: const Icon(Icons.search),
+                              filled: true,
+                              fillColor: Colors.white,
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(12),
+                                borderSide: BorderSide.none,
+                              ),
+                              contentPadding: const EdgeInsets.symmetric(
+                                horizontal: 16,
+                              ),
+                            ),
                           ),
-                          label: Text("Ordenar"),
                         ),
+                        const SizedBox(width: 8),
+                        // Botão de alternância de visualização
                         IconButton(
                           icon: Icon(isMapView ? Icons.view_list : Icons.map),
-                          color: Colors.white,
+                          color: const Color.fromARGB(255, 255, 152, 0),
                           onPressed: () {
                             setState(() {
                               isMapView = !isMapView;
@@ -153,32 +142,32 @@ class _ListCamposState extends State<ListCampos> {
                       ],
                     ),
                   ),
+                  // Conteúdo principal
                   Expanded(
                     child: isMapView
                         ? map_view.MapView(
-                            campos: camposFiltrados,
+                            campos: camposFiltrados.take(camposVisiveis).toList(),
                             latitude: latitude,
                             longitude: longitude,
+                            onCampoSelected: (campo) {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (_) => CampoDetails(campo: campo),
+                                ),
+                              );
+                            },
                           )
-                        : list_view.buildListView(camposFiltrados),
+                        : list_view.buildListViewWithLoadMore(
+                            camposFiltrados,
+                            camposVisiveis,
+                            () {
+                              setState(() {
+                                camposVisiveis += 5; // Carregar mais 5 campos
+                              });
+                            },
+                          ),
                   ),
-                  if (filter_campos.filterCampos(
-                          campos: campos,
-                          query: searchController.text,
-                          isAscending: isAscending)
-                      .length >
-                      camposVisiveis)
-                    Padding(
-                      padding: const EdgeInsets.only(bottom: 16.0),
-                      child: ElevatedButton(
-                        onPressed: () {
-                          setState(() {
-                            camposVisiveis += 10;
-                          });
-                        },
-                        child: const Text('Ver mais'),
-                      ),
-                    ),
                 ],
               ),
             ),
@@ -188,6 +177,7 @@ class _ListCamposState extends State<ListCampos> {
     );
   }
 
+  // Método para alternar o menu suspenso
   void _toggleDropdownOverlay(
     BuildContext context,
     List<PopupMenuEntry<String>> items,

@@ -8,7 +8,8 @@ import 'package:sports_link/models/campo.dart';
 final List<Ponto> mockPontos = [
   Ponto(id: 1, idMapa: 1, latitude: 38.7169, longitude: -9.1399), // Lisboa
   Ponto(id: 2, idMapa: 1, latitude: 41.1496, longitude: -8.6109), // Porto
-  Ponto(id: 3, idMapa: 2, latitude: 40.6405, longitude: -8.6538), // Aveiro
+  Ponto(id: 3, idMapa: 1, latitude: 40.6405, longitude: -8.6538), // Aveiro
+  Ponto(id: 4, idMapa: 1, latitude: 41.263184, longitude: -7.584726), // Vila Real
 ];
 
 // CAMPOS
@@ -27,9 +28,9 @@ final List<Campo> mockCampos = [
     idArrendador: 3,
     preco: 50.0, // Preço associado
     diasFuncionamento: {
-      'Segunda-feira': [DateTime.parse('09:00'), DateTime.parse('18:00')],
-      'Quarta-feira': [DateTime.parse('09:00'), DateTime.parse('18:00')],
-      'Sexta-feira': [DateTime.parse('09:00'), DateTime.parse('18:00')],
+      'Segunda-feira': [TimeOfDay(hour: 9, minute: 0), TimeOfDay(hour: 18, minute: 0)],
+      'Quarta-feira': [TimeOfDay(hour: 9, minute: 0), TimeOfDay(hour: 18, minute: 0)],
+      'Sexta-feira': [TimeOfDay(hour: 9, minute: 0), TimeOfDay(hour: 18, minute: 0)],
     },
   ),
   CampoPub(
@@ -58,8 +59,8 @@ final List<Campo> mockCampos = [
     idArrendador: 3,
     preco: 45.0, // Preço associado
     diasFuncionamento: {
-      'Terça-feira': [DateTime.parse('10:00'), DateTime.parse('17:00')],
-      'Quinta-feira': [DateTime.parse('10:00'), DateTime.parse('17:00')],
+      'Terça-feira': [TimeOfDay(hour: 10, minute: 0), TimeOfDay(hour: 17, minute: 0)],
+      'Quinta-feira': [TimeOfDay(hour: 10, minute: 0), TimeOfDay(hour: 17, minute: 0)],
     },
   ),
   CampoPub(
@@ -71,7 +72,7 @@ final List<Campo> mockCampos = [
     largura: 70.0,
     ocupado: true,
     descricao: 'Campo com iluminação noturna',
-    ponto: mockPontos[0],
+    ponto: mockPontos[3],
     entidadePublicaResp: "Câmara Municipal",
   ),
   CampoPriv(
@@ -88,8 +89,8 @@ final List<Campo> mockCampos = [
     imagem: Image.network('https://example.com/campo_futsal.png'),
     preco: 35.0, // Preço associado
     diasFuncionamento: {
-      'Segunda-feira': [DateTime.parse('09:00'), DateTime.parse('18:00')],
-      'Quarta-feira': [DateTime.parse('09:00'), DateTime.parse('18:00')],
+      'Segunda-feira': [TimeOfDay(hour: 9, minute: 0), TimeOfDay(hour: 18, minute: 0)],
+      'Quarta-feira': [TimeOfDay(hour: 9, minute: 0), TimeOfDay(hour: 18, minute: 0)],
     },
   ),
   CampoPriv(
@@ -106,8 +107,8 @@ final List<Campo> mockCampos = [
     idArrendador: 3,
     preco: 40.0, // Preço associado
     diasFuncionamento: {
-      'Sexta-feira': [DateTime.parse('08:00'), DateTime.parse('16:00')],
-      'Sábado': [DateTime.parse('08:00'), DateTime.parse('16:00')],
+      'Sexta-feira': [TimeOfDay(hour: 8, minute: 0), TimeOfDay(hour: 16, minute: 0)],
+      'Sábado': [TimeOfDay(hour: 8, minute: 0), TimeOfDay(hour: 16, minute: 0)],
     },
   ),
   CampoPriv(
@@ -124,8 +125,8 @@ final List<Campo> mockCampos = [
     imagem: Image.network('https://example.com/campo_treino.png'),
     preco: 30.0, // Preço associado
     diasFuncionamento: {
-      'Terça-feira': [DateTime.parse('07:00'), DateTime.parse('15:00')],
-      'Quinta-feira': [DateTime.parse('07:00'), DateTime.parse('15:00')],
+      'Terça-feira': [TimeOfDay(hour: 7, minute: 0), TimeOfDay(hour: 15, minute: 0)],
+      'Quinta-feira': [TimeOfDay(hour: 7, minute: 0), TimeOfDay(hour: 15, minute: 0)],
     },
   ),
   CampoPub(
@@ -154,8 +155,8 @@ final List<Campo> mockCampos = [
     imagem: Image.network('https://example.com/campo_futebol_americano.png'),
     preco: 60.0, // Preço associado
     diasFuncionamento: {
-      'Segunda-feira': [DateTime.parse('09:00'), DateTime.parse('18:00')],
-      'Sexta-feira': [DateTime.parse('09:00'), DateTime.parse('18:00')],
+      'Segunda-feira': [TimeOfDay(hour: 9, minute: 0), TimeOfDay(hour: 18, minute: 0)],
+      'Sexta-feira': [TimeOfDay(hour: 9, minute: 0), TimeOfDay(hour: 18, minute: 0)],
     },
   ),
   CampoPub(
