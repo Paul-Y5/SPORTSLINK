@@ -4,6 +4,7 @@ import 'package:sports_link/models/campo.dart';
 import 'package:sports_link/models/ponto.dart';
 
 class CampoPriv extends Campo {
+  @override
   int idArrendador;
   Arrendador arrendador;
   double preco = 0.0;

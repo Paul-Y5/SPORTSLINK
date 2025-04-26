@@ -38,6 +38,7 @@ dependencies:
   flutter_map_location_marker: ^10.0.2
   latlong2: ^0.9.1
   cupertino_icons: ^1.0.8
+  intl: ^0.18.1
 
   flutter:
     sdk: flutter

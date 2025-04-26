@@ -1,11 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
+import 'package:sports_link/models/campo_priv.dart'; // CampoPriv
+import 'package:sports_link/screens/campo_details.dart'; // CampoDetails
 
-class MapView extends StatelessWidget {
-  final List<LatLng> campos; // Lista de localizações dos campos
-  final LatLng userLocation; // Localização inicial do usuário
-  final Function(LatLng) onCampoSelected; // Callback ao selecionar um campo
+
+class MapView extends StatefulWidget {
+  final List<CampoPriv> campos;
+  final LatLng userLocation;
+  final Function(CampoPriv) onCampoSelected;
 
   const MapView({
     super.key,
@@ -15,14 +18,27 @@ class MapView extends StatelessWidget {
   });
 
   @override
+  State<MapView> createState() => _MapViewState();
+}
+
+class _MapViewState extends State<MapView> {
+  CampoPriv? selectedCampo;
+
+  @override
   Widget build(BuildContext context) {
     return FlutterMap(
       options: MapOptions(
-        initialCenter: userLocation, // Centraliza no usuário
-        maxZoom: 24.0, // Zoom máximo
-        minZoom: 12.0, // Zoom mínimo
-        onTap: (_, point) {
-          debugPrint("Mapa clicado em: $point");
+        initialCenter: widget.userLocation,
+        initialZoom: 14.0,
+        maxZoom: 18.0,
+        minZoom: 5.0,
+        interactionOptions: const InteractionOptions(
+          flags: InteractiveFlag.all, // permite tudo: arrastar, zoom, scroll etc
+        ),
+        onTap: (tapPosition, point) {
+          setState(() {
+            selectedCampo = null;
+          });
         },
       ),
       children: [
@@ -34,31 +50,104 @@ class MapView extends StatelessWidget {
         // Marcadores dos campos
         MarkerLayer(
           markers: [
-            // Marcador para a localização do usuário
+            // Localização do Utilizador
             Marker(
-              point: userLocation,
+              point: widget.userLocation,
+              width: 50,
+              height: 50,
               child: const Icon(
                 Icons.my_location,
                 color: Colors.blue,
                 size: 30,
               ),
             ),
-            // Marcadores para os campos
-            ...campos.map(
-              (campo) => Marker(
-                point: campo,
+            // Campos
+            ...widget.campos.map((campo) {
+              return Marker(
+                point: LatLng(campo.ponto.latitude, campo.ponto.longitude),
+                width: 60,
+                height: 60,
                 child: GestureDetector(
-                  onTap: () => onCampoSelected(campo),
+                  onTap: () {
+                    setState(() {
+                      selectedCampo = campo;
+                    });
+                  },
                   child: const Icon(
                     Icons.location_pin,
                     color: Colors.orange,
                     size: 40,
                   ),
                 ),
-              ),
-            ),
+              );
+            }),
           ],
         ),
+        // Popup do campo selecionado
+        if (selectedCampo != null)
+          MarkerLayer(
+            markers: [
+              Marker(
+                point: LatLng(
+                  selectedCampo!.ponto.latitude,
+                  selectedCampo!.ponto.longitude,
+                ),
+                width: 200,
+                height: 120,
+                child: Card(
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  color: Colors.white,
+                  child: Column(
+                    children: [
+                      Expanded(
+                        child: ClipRRect(
+                          borderRadius: const BorderRadius.vertical(
+                            top: Radius.circular(12),
+                          ),
+                          child: SizedBox(
+                            width: double.infinity,
+                            child: selectedCampo!.imagem, // Imagem do campo
+                          ),
+                        ),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 8,
+                          vertical: 4,
+                        ),
+                        child: Column(
+                          children: [
+                            Text(
+                              selectedCampo!.nome,
+                              style: const TextStyle(
+                                fontWeight: FontWeight.bold,
+                              ),
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                            TextButton(
+                              onPressed: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder:
+                                        (_) =>
+                                            CampoDetails(campo: selectedCampo!),
+                                  ),
+                                );
+                              },
+                              child: const Text('Ver detalhes'),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          ),
       ],
     );
   }
