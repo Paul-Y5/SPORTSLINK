@@ -15,8 +15,8 @@ class CampoPub extends Campo {
     required super.ocupado,
     required super.descricao,
     required super.ponto,
-    String? imagem, // Permite null, mas o valor padrão será tratado na classe base
-  }) : super(imagem: imagem);
+    super.imagem, // Permite null, mas o valor padrão será tratado na classe base
+  });
 
   factory CampoPub.fromJson(Map<String, dynamic> json) {
     return CampoPub(

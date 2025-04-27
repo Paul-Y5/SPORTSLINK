@@ -10,7 +10,7 @@ class Utilizador {
   
   // URL da imagem de perfil
   // Se não houver imagem vai ser definido uma imagem padrão
-  String? urlIMG = 'default_image_url';
+  String? urlIMG = 'img/iconDefault.png';
 
   // About Utilizador
   String utilizador;

@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:sports_link/screens/home_page.dart';
+import 'package:sports_link/screens/main_page_1.dart';
+import 'package:sports_link/screens/perfil_page.dart'; // Importa a MainPage1
 
 class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
   final GlobalKey notificationButtonKey;
@@ -21,30 +24,49 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
       elevation: 0,
       leading: GestureDetector(
         onTap: () {
-          onMenuPressed(
-            context,
-            [
-              _buildMenuItem('Home', Icons.home, 'Home'),
-              _buildMenuItem('Perfil', Icons.person, 'Perfil'),
-              _buildMenuItem('Amigos', Icons.group, 'Amigos'),
-              _buildMenuItem('Partidas', Icons.sports_sharp, 'Partidas'),
-              _buildMenuItem('Definições & Ajuda', Icons.settings, 'Definições & Ajuda'),
-              _buildMenuItem('Sair', Icons.logout, 'Sair'),
-            ],
-          );
+          onMenuPressed(context, [
+            _buildMenuItem('Home', Icons.home, 'Home', onTap: () {
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(builder: (context) => const MainPage1()),
+              );
+            }),
+            _buildMenuItem('Perfil', Icons.person, 'Perfil', onTap: () {
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(builder: (context) => const PerfilPage()),
+              );
+            }),
+            _buildMenuItem('Amigos', Icons.group, 'Amigos'),
+            _buildMenuItem('Partidas', Icons.sports_sharp, 'Partidas Jogadas'),
+            if (true)
+              _buildMenuItem('Meus Campos', Icons.account_balance_rounded, 'Meus Campos'),
+            _buildMenuItem('Definições & Ajuda', Icons.settings, 'Definições & Ajuda'),
+            _buildMenuItem('Sair', Icons.logout, 'Sair', onTap: () {
+              // Adicione a lógica de logout aqui
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(builder: (context) => const HomePage()),
+              );
+            }),
+          ]);
         },
         child: const Icon(Icons.menu, color: Colors.orange),
       ),
       title: GestureDetector(
         onTap: () {
-          Navigator.pushNamed(context, '/main');
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (context) => const MainPage1()),
+          );
         },
         child: Image.asset(
           'img/SPORTSLINK.png',
-          height: 30, // Altura do logotipo
-          fit: BoxFit.contain, // Ajusta a imagem para evitar overflow
+          height: 30,
+          fit: BoxFit.contain,
         ),
       ),
+      centerTitle: true,
       actions: [
         Stack(
           children: [
@@ -82,24 +104,31 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
     );
   }
 
-  PopupMenuItem<String> _buildMenuItem(String value, IconData icon, String text) {
+  PopupMenuItem<String> _buildMenuItem(
+    String value,
+    IconData icon,
+    String text, {
+    VoidCallback? onTap,
+  }) {
     return PopupMenuItem(
       value: value,
       child: Container(
+        height: 40,
+        padding: const EdgeInsets.symmetric(horizontal: 8),
+        margin: const EdgeInsets.symmetric(vertical: 4),
         decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(8),
+          borderRadius: BorderRadius.circular(4),
           color: const Color.fromARGB(200, 0, 0, 0),
         ),
-        padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 10),
-        child: Row(
-          children: [
-            Icon(icon, color: Colors.white),
-            const SizedBox(width: 8),
-            Text(
-              text,
-              style: const TextStyle(color: Colors.white),
-            ),
-          ],
+        child: InkWell(
+          onTap: onTap,
+          child: Row(
+            children: [
+              Icon(icon, color: Colors.orange),
+              const SizedBox(width: 8),
+              Text(text, style: const TextStyle(color: Colors.white)),
+            ],
+          ),
         ),
       ),
     );

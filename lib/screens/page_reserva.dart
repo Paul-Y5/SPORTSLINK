@@ -37,7 +37,7 @@ class PageReservaState extends State<PageReserva> {
           setState(() {}); // Atualizar o estado após a inicialização
         })
         .catchError((e) {
-          print("Erro ao inicializar a formatação da data: $e");
+          debugPrint('Erro ao inicializar a formatação de data: $e');
         });
   }
 

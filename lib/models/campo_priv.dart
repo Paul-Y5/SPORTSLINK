@@ -20,11 +20,10 @@ class CampoPriv extends Campo {
     required super.ocupado,
     required super.descricao,
     required super.ponto,
-    String? imagem, // Permite null, mas o valor padrão será tratado na classe base
+    super.imagem, // Permite null, mas o valor padrão será tratado na classe base
     required this.preco,
     required this.diasFuncionamento,
-  })  : arrendador = Arrendador.defaultInstance(),
-        super(imagem: imagem);
+  })  : arrendador = Arrendador.defaultInstance();
 
   factory CampoPriv.fromJson(Map<String, dynamic> json) {
     return CampoPriv(
