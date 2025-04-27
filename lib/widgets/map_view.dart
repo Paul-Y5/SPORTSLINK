@@ -108,7 +108,10 @@ class _MapViewState extends State<MapView> {
                           ),
                           child: SizedBox(
                             width: double.infinity,
-                            child: selectedCampo!.imagem, // Imagem do campo
+                            child: Image.asset(
+                              selectedCampo!.imagem,
+                              fit: BoxFit.cover,
+                            ),
                           ),
                         ),
                       ),

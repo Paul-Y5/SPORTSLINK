@@ -45,7 +45,7 @@ class _CardCampoState extends State<CardCampo> {
             color: _isHovered ? Colors.orange[80] : Colors.white,
             child: ListTile(
               leading: CircleAvatar(
-                backgroundImage: widget.campo.imagem.image, // Define a imagem diretamente
+                backgroundImage: Image.asset(widget.campo.imagem).image,
                 radius: 50,
               ),
               title: Text(

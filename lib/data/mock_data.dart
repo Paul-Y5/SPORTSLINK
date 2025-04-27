@@ -25,7 +25,7 @@ final List<Campo> mockCampos = [
     ocupado: false,
     descricao: 'Relvado sintético, ideal para 11x11',
     ponto: mockPontos[0],
-    imagem: Image.network('https://example.com/campo_grande.png'),
+    imagem:'https://example.com/campo_grande.png',
     idArrendador: 3,
     preco: 50.0, // Preço associado
     diasFuncionamento: {
@@ -45,6 +45,7 @@ final List<Campo> mockCampos = [
     descricao: 'Relva natural, vista para o Douro',
     ponto: mockPontos[1],
     entidadePublicaResp: "Câmara Municipal",
+    imagem: 'https://example.com/campo_ribeirinho.png',
   ),
   CampoPriv(
     id: 3,
@@ -56,7 +57,7 @@ final List<Campo> mockCampos = [
     ocupado: false,
     descricao: 'Muito procurado por estudantes',
     ponto: mockPontos[2],
-    imagem: Image.network('https://example.com/campo_universitario.png'),
+    imagem: 'https://example.com/campo_universitario.png',
     idArrendador: 3,
     preco: 45.0, // Preço associado
     diasFuncionamento: {
@@ -64,7 +65,7 @@ final List<Campo> mockCampos = [
       'Quinta-feira': [TimeOfDay(hour: 10, minute: 0), TimeOfDay(hour: 17, minute: 0)],
     },
   ),
-  CampoPub(
+  CampoPriv(
     id: 4,
     idPonto: 1,
     idMapa: 1,
@@ -74,7 +75,14 @@ final List<Campo> mockCampos = [
     ocupado: true,
     descricao: 'Campo com iluminação noturna',
     ponto: mockPontos[3],
-    entidadePublicaResp: "Câmara Municipal",
+    imagem: 'img/icon_campo.jpg',
+    idArrendador: 4,
+    preco: 55.0, // Preço associado
+    diasFuncionamento: {
+      'Segunda-feira': [TimeOfDay(hour: 8, minute: 0), TimeOfDay(hour: 20, minute: 0)],
+      'Quarta-feira': [TimeOfDay(hour: 8, minute: 0), TimeOfDay(hour: 20, minute: 0)],
+      'Sábado': [TimeOfDay(hour: 8, minute: 0), TimeOfDay(hour: 20, minute: 0)],
+    },
   ),
   CampoPriv(
     id: 5,
@@ -87,7 +95,6 @@ final List<Campo> mockCampos = [
     descricao: 'Campo coberto, ideal para futsal',
     ponto: mockPontos[1],
     idArrendador: 4,
-    imagem: Image.network('https://example.com/campo_futsal.png'),
     preco: 35.0, // Preço associado
     diasFuncionamento: {
       'Segunda-feira': [TimeOfDay(hour: 9, minute: 0), TimeOfDay(hour: 18, minute: 0)],
@@ -104,7 +111,6 @@ final List<Campo> mockCampos = [
     ocupado: true,
     descricao: 'Campo de areia, ideal para futebol de praia',
     ponto: mockPontos[2],
-    imagem: Image.network('https://example.com/campo_praia.png'),
     idArrendador: 3,
     preco: 40.0, // Preço associado
     diasFuncionamento: {
@@ -123,14 +129,13 @@ final List<Campo> mockCampos = [
     descricao: 'Campo para treinos, com balizas ajustáveis',
     ponto: mockPontos[0],
     idArrendador: 3,
-    imagem: Image.network('https://example.com/campo_treino.png'),
     preco: 30.0, // Preço associado
     diasFuncionamento: {
       'Terça-feira': [TimeOfDay(hour: 7, minute: 0), TimeOfDay(hour: 15, minute: 0)],
       'Quinta-feira': [TimeOfDay(hour: 7, minute: 0), TimeOfDay(hour: 15, minute: 0)],
     },
   ),
-  CampoPub(
+  CampoPub (
     id: 8,
     idPonto: 2,
     idMapa: 1,
@@ -153,7 +158,6 @@ final List<Campo> mockCampos = [
     descricao: 'Campo com marcações para futebol americano',
     ponto: mockPontos[2],
     idArrendador: 3,
-    imagem: Image.network('https://example.com/campo_futebol_americano.png'),
     preco: 60.0, // Preço associado
     diasFuncionamento: {
       'Segunda-feira': [TimeOfDay(hour: 9, minute: 0), TimeOfDay(hour: 18, minute: 0)],

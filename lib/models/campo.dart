@@ -1,4 +1,3 @@
-import 'package:flutter/material.dart';
 import 'package:sports_link/models/ponto.dart';
 
 class Campo {
@@ -12,7 +11,7 @@ class Campo {
   String descricao;
 
   Ponto ponto;
-  Image imagem;
+  String imagem;
 
   Campo({
     required this.id,
@@ -24,9 +23,10 @@ class Campo {
     required this.ocupado,
     required this.descricao,
     required this.ponto,
-    this.imagem = const Image(image: AssetImage('assets/images/icon_campo.png')),
-  });
+    String? imagem,
+  }) : imagem = imagem ?? 'img/icon_campo.jpg';
 
+  // Factory para criar a partir de JSON
   factory Campo.fromJson(Map<String, dynamic> json) {
     return Campo(
       id: json['ID'] as int,
@@ -37,10 +37,15 @@ class Campo {
       largura: (json['Largura'] as num).toDouble(),
       ocupado: json['ocupado'] == 1,
       descricao: json['Descricao'] as String,
-      ponto: json['Ponto'] != null ? Ponto.fromJson(json['Ponto']) : Ponto.defaultInstance(),
+      ponto:json['Ponto'] != null
+              ? Ponto.fromJson(json['Ponto'])
+              : Ponto.defaultInstance(),
+      imagem:json['Imagem'] as String? ??
+          'assets/images/campo.png',
     );
   }
 
+  // Converter de volta para JSON
   Map<String, dynamic> toJson() {
     return {
       'ID': id,
@@ -52,6 +57,7 @@ class Campo {
       'ocupado': ocupado ? 1 : 0,
       'Descricao': descricao,
       'Ponto': ponto.toJson(),
+      'ImagemPath': imagem,
     };
   }
 
@@ -60,7 +66,7 @@ class Campo {
     return 'Campo{id: $id, idPonto: $idPonto, idMapa: $idMapa, nome: $nome, comprimento: $comprimento, largura: $largura, ocupado: $ocupado, descricao: $descricao}';
   }
 
-  // getters
+  // Getters
   String get getNome => nome;
   double get getComprimento => comprimento;
   double get getLargura => largura;
@@ -70,8 +76,4 @@ class Campo {
   int get getIdPonto => idPonto;
   int get getIdMapa => idMapa;
   Ponto? get getPonto => ponto;
-
-  get idArrendador => null;
-
 }
-

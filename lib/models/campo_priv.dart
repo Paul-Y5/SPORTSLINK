@@ -4,12 +4,10 @@ import 'package:sports_link/models/campo.dart';
 import 'package:sports_link/models/ponto.dart';
 
 class CampoPriv extends Campo {
-  @override
   int idArrendador;
   Arrendador arrendador;
-  double preco = 0.0;
-  Map<String, List<TimeOfDay>> diasFuncionamento = {"Segunda": [], "Terça": [], "Quarta": [], "Quinta": [], "Sexta": [], "Sábado": [], "Domingo": []};
-  
+  double preco;
+  Map<String, List<TimeOfDay>> diasFuncionamento;
 
   CampoPriv({
     required this.idArrendador,
@@ -22,23 +20,29 @@ class CampoPriv extends Campo {
     required super.ocupado,
     required super.descricao,
     required super.ponto,
-    required super.imagem,
+    String? imagem, // Permite null, mas o valor padrão será tratado na classe base
     required this.preco,
     required this.diasFuncionamento,
-  }) : arrendador = Arrendador.defaultInstance();
+  })  : arrendador = Arrendador.defaultInstance(),
+        super(imagem: imagem);
 
   factory CampoPriv.fromJson(Map<String, dynamic> json) {
     return CampoPriv(
       id: json['ID'] as int,
-      imagem: Image.network(json['Imagem'] != null ? json['Imagem'] as String : 'https://example.com/default_image.png'),
       idArrendador: json['ID_Arrendador'] as int,
       idPonto: json['ID_Ponto'] as int,
-      ponto: json['Ponto'] != null ? Ponto.fromJson(json['Ponto']) : Ponto.defaultInstance(),
       idMapa: json['ID_Mapa'] as int,
       nome: json['Nome'] as String,
       comprimento: (json['Comprimento'] as num).toDouble(),
       largura: (json['Largura'] as num).toDouble(),
+      ocupado: json['ocupado'] == 1,
       descricao: json['Descricao'] as String,
+      ponto: json['Ponto'] != null
+          ? Ponto.fromJson(json['Ponto'])
+          : Ponto.defaultInstance(),
+      imagem: json['Imagem'] != null && json['Imagem'].isNotEmpty
+          ? json['Imagem'] as String
+          : 'img/icon_campo.jpg', // Valor padrão para imagem
       preco: (json['Preco'] as num).toDouble(),
       diasFuncionamento: (json['DiasFuncionamento'] as Map<String, dynamic>).map(
         (key, value) => MapEntry(
@@ -49,7 +53,6 @@ class CampoPriv extends Campo {
           }).toList(),
         ),
       ),
-      ocupado: json['ocupado'] == 1,
     );
   }
 
@@ -57,11 +60,28 @@ class CampoPriv extends Campo {
   Map<String, dynamic> toJson() {
     final base = super.toJson();
     base['ID_Arrendador'] = idArrendador;
+    base['Preco'] = preco;
+    base['DiasFuncionamento'] = diasFuncionamento.map(
+      (key, value) => MapEntry(
+        key,
+        value.map((time) {
+          final now = DateTime.now();
+          final dateTime = DateTime(
+            now.year,
+            now.month,
+            now.day,
+            time.hour,
+            time.minute,
+          );
+          return dateTime.toIso8601String();
+        }).toList(),
+      ),
+    );
     return base;
   }
 
   @override
   String toString() {
-    return 'CampoPriv(${super.toString()}, idArrendador: $idArrendador)';
+    return 'CampoPriv(${super.toString()}, idArrendador: $idArrendador, preco: $preco, diasFuncionamento: $diasFuncionamento)';
   }
 }

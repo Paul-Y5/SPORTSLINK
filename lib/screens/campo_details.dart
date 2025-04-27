@@ -54,7 +54,7 @@ class _CampoDetailsState extends State<CampoDetails> {
                     // Imagem do campo
                     ClipRRect(
                       borderRadius: BorderRadius.circular(16),
-                      child: widget.campo.imagem,
+                      child: Image.asset(widget.campo.imagem),
                     ),
                     const SizedBox(height: 20),
 

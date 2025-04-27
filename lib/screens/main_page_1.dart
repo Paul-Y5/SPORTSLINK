@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:sports_link/data/my_user.dart';
 import 'package:sports_link/models/utilizador.dart';
+import 'package:sports_link/screens/add_campo.dart';
 import 'package:sports_link/screens/list_campos.dart';
+import 'package:sports_link/screens/list_partidas.dart';
 import 'package:sports_link/styles/carousel_bar.dart';
 import 'package:sports_link/styles/carouselbg.dart';
 import 'package:sports_link/utils/weather_fetch.dart';
@@ -102,7 +104,12 @@ class _MainPage1State extends State<MainPage1> {
                                     color: Colors.blue,
                                     fullWidth: false,
                                     onPressed: () {
-                                      // Lógica para encontrar partidas
+                                      Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder: (context) => const ListPartidas(),
+                                        ),
+                                      );
                                     },
                                   ),
                                 ),
@@ -118,7 +125,12 @@ class _MainPage1State extends State<MainPage1> {
                               color: Colors.green,
                               fullWidth: true,
                               onPressed: () {
-                                // Lógica para adicionar campo
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => const AddCampo(),
+                                  ),
+                                );
                               },
                             ),
                           ),
@@ -218,7 +230,7 @@ class _MainPage1State extends State<MainPage1> {
                   padding: const EdgeInsets.symmetric(vertical: 8.0),
                   child: MenuCard(
                     icon: Icons.public,
-                    text: 'Jogar em\nCampo Público',
+                    text: 'Jogar num\nCampo Público',
                     color: Colors.blue,
                     fullWidth: true,
                     onPressed: () {
