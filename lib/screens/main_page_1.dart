@@ -63,7 +63,7 @@ class _MainPage1State extends State<MainPage1> {
               },
               onMenuPressed: (context, items) {
                 _toggleDropdownOverlay(context, items);
-              },
+              }, user: currentUser,
             ),
             body: LayoutBuilder(
               builder: (context, constraints) {

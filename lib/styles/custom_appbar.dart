@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:sports_link/models/utilizador.dart';
 import 'package:sports_link/screens/home_page.dart';
 import 'package:sports_link/screens/main_page_1.dart';
 import 'package:sports_link/screens/perfil_page.dart'; // Importa a MainPage1
@@ -9,12 +10,15 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
   final Function(BuildContext) onNotificationPressed;
   final Function(BuildContext, List<PopupMenuEntry<String>>) onMenuPressed;
 
+  final Utilizador user;
+
   const CustomAppBar({
     super.key,
     required this.notificationButtonKey,
     required this.notificationCount,
     required this.onNotificationPressed,
     required this.onMenuPressed,
+    required this.user,
   });
 
   @override
@@ -34,7 +38,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
             _buildMenuItem('Perfil', Icons.person, 'Perfil', onTap: () {
               Navigator.pushReplacement(
                 context,
-                MaterialPageRoute(builder: (context) => const PerfilPage()),
+                MaterialPageRoute(builder: (context) => PerfilPage(user: user)),
               );
             }),
             _buildMenuItem('Amigos', Icons.group, 'Amigos'),

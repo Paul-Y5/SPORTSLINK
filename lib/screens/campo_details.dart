@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:sports_link/data/mock_data.dart';
 import 'package:sports_link/models/campo.dart';
 import 'package:sports_link/models/campo_priv.dart';
 import 'package:sports_link/models/campo_pub.dart';
 import 'package:sports_link/screens/page_reserva.dart';
+import 'package:sports_link/screens/perfil_page.dart';
 import 'package:sports_link/styles/carouselbg.dart';
 import 'package:sports_link/widgets/menu_card.dart';
 
@@ -90,9 +92,16 @@ class _CampoDetailsState extends State<CampoDetails> {
 
                           // Informações específicas para CampoPriv
                           if (widget.campo is CampoPriv) ...[
-                            Text(
-                              'Responsável: ${_getNomeArrendador()}',
-                              style: const TextStyle(fontSize: 16),
+                            GestureDetector(
+                              onTap: _openArrendadorProfile,
+                              child: Text(
+                                'Responsável: ${_getNomeArrendador()}',
+                                style: const TextStyle(
+                                  fontSize: 16,
+                                  color: Colors.blue,
+                                  decoration: TextDecoration.underline,
+                                ),
+                              ),
                             ),
                             const SizedBox(height: 8),
                             Text(
@@ -114,14 +123,19 @@ class _CampoDetailsState extends State<CampoDetails> {
                               onPressed: _scheduleReservation,
                               style: ElevatedButton.styleFrom(
                                 backgroundColor: Colors.orange,
-                                padding: const EdgeInsets.symmetric(vertical: 16),
+                                padding: const EdgeInsets.symmetric(
+                                  vertical: 16,
+                                ),
                                 shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(16),
                                 ),
                               ),
                               child: const Text(
                                 'Agendar Reserva',
-                                style: TextStyle(fontSize: 18, color: Colors.black),
+                                style: TextStyle(
+                                  fontSize: 18,
+                                  color: Colors.black,
+                                ),
                               ),
                             ),
                           ],
@@ -191,7 +205,17 @@ class _CampoDetailsState extends State<CampoDetails> {
     return 'Horário não disponível';
   }
 
-  void _openMap() {
+  void _openMap() async {
+    final userPosition = await Geolocator.getCurrentPosition(
+      locationSettings: const LocationSettings(accuracy: LocationAccuracy.high),
+    );
+
+    final startPoint = LatLng(userPosition.latitude, userPosition.longitude);
+    final endPoint = LatLng(
+      widget.campo.ponto.latitude,
+      widget.campo.ponto.longitude,
+    );
+
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -210,15 +234,11 @@ class _CampoDetailsState extends State<CampoDetails> {
             width: 300,
             child: FlutterMap(
               options: MapOptions(
-                initialCenter: LatLng(
-                  widget.campo.ponto.latitude,
-                  widget.campo.ponto.longitude,
-                ),
-                minZoom: 15.0,
+                initialCenter: endPoint,
+                minZoom: 13.0,
                 maxZoom: 20.0,
                 interactionOptions: const InteractionOptions(
-                  flags:
-                    InteractiveFlag.none
+                  flags: InteractiveFlag.pinchZoom | InteractiveFlag.drag,
                 ),
               ),
               children: [
@@ -230,15 +250,29 @@ class _CampoDetailsState extends State<CampoDetails> {
                 MarkerLayer(
                   markers: [
                     Marker(
-                      point: LatLng(
-                        widget.campo.ponto.latitude,
-                        widget.campo.ponto.longitude,
+                      point: startPoint,
+                      child: const Icon(
+                        Icons.person_pin_circle,
+                        color: Colors.blue,
+                        size: 40,
                       ),
+                    ),
+                    Marker(
+                      point: endPoint,
                       child: const Icon(
                         Icons.location_pin,
                         color: Colors.orange,
                         size: 40,
                       ),
+                    ),
+                  ],
+                ),
+                PolylineLayer(
+                  polylines: [
+                    Polyline(
+                      points: [startPoint, endPoint],
+                      strokeWidth: 4.0,
+                      color: Colors.orange,
                     ),
                   ],
                 ),
@@ -259,7 +293,25 @@ class _CampoDetailsState extends State<CampoDetails> {
   void _scheduleReservation() {
     Navigator.push(
       context,
-      MaterialPageRoute(builder: (context) => PageReserva(campo: widget.campo as CampoPriv)),
+      MaterialPageRoute(
+        builder: (context) => PageReserva(campo: widget.campo as CampoPriv),
+      ),
     );
+  }
+
+  void _openArrendadorProfile() {
+    if (widget.campo is CampoPriv) {
+      final idArrendador = (widget.campo as CampoPriv).idArrendador;
+      final arrendador = mockArrendadores.firstWhere(
+        (a) => a.id == idArrendador,
+      );
+
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => PerfilPage(user: arrendador),
+        ),
+      );
+    }
   }
 }

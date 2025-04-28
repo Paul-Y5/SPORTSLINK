@@ -1,11 +1,16 @@
 import 'package:flutter/material.dart';
+import 'package:sports_link/models/arrendador.dart';
+import 'package:sports_link/models/jogador.dart';
+import 'package:sports_link/models/utilizador.dart';
+import 'package:sports_link/screens/pagina_conquistas.dart';
 import 'package:sports_link/styles/carouselbg.dart';
 import 'package:sports_link/styles/custom_appbar.dart';
-import 'package:sports_link/widgets/notification_dropdown.dart'
-    as notification_dropdown;
+import 'package:sports_link/widgets/notification_dropdown.dart' as notification_dropdown;
 
 class PerfilPage extends StatefulWidget {
-  const PerfilPage({super.key});
+  final Utilizador user;
+
+  const PerfilPage({super.key, required this.user});
 
   @override
   State<PerfilPage> createState() => _PerfilPageState();
@@ -36,16 +41,16 @@ class _PerfilPageState extends State<PerfilPage> {
               notificationButtonKey: notificationButtonKey,
               notificationCount: notificationCount,
               onNotificationPressed: _showNotificationDropdown,
-              onMenuPressed: _toggleDropdownOverlay,
+              onMenuPressed: _toggleDropdownOverlay, user: widget.user,
             ),
             body: Column(
               children: [
-                const SizedBox(height: 40), // Reduzido espaço aqui!
+                const SizedBox(height: 40),
                 _buildProfileHeader(),
                 const SizedBox(height: 10),
-                const Text(
-                  'Utilizador',
-                  style: TextStyle(
+                Text(
+                  widget.user.nome, // 👈 Nome dinâmico
+                  style: const TextStyle(
                     color: Colors.white,
                     fontSize: 22,
                     fontWeight: FontWeight.bold,
@@ -103,16 +108,18 @@ class _PerfilPageState extends State<PerfilPage> {
       padding: const EdgeInsets.symmetric(horizontal: 40),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceAround,
-        children: const [
-          _InfoCard(value: '12', label: 'Jogos'),
-          _InfoCard(value: '10', label: 'Amigos'),
-          _InfoCard(value: '9.9', label: 'Rating'),
+        children: [
+          _InfoCard(value: widget.user.partidas.length.toString(), label: 'Jogos'),
+          _InfoCard(value: widget.user.amigos.length.toString(), label: 'Amigos'),
+          _InfoCard(value: widget.user.mediaAvaliacoes.toStringAsFixed(1), label: 'Rating'),
         ],
       ),
     );
   }
 
   Widget _buildProfileDetails() {
+    final user = widget.user as Jogador;
+
     return SingleChildScrollView(
       padding: const EdgeInsets.symmetric(horizontal: 20),
       child: Column(
@@ -129,17 +136,31 @@ class _PerfilPageState extends State<PerfilPage> {
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
-              children: const [
-                _DetailText(title: 'Idade', value: '22 anos'),
-                SizedBox(height: 6),
-                _DetailText(title: 'Peso', value: '80 Kg'),
-                SizedBox(height: 6),
-                _DetailText(title: 'Altura', value: '1.82 m'),
-                SizedBox(height: 6),
+              children: [
+                _DetailText(title: 'Idade', value: '${user.idade} anos'),
+                const SizedBox(height: 6),
+                _DetailText(title: 'Peso', value: '${user.peso} Kg'),
+                const SizedBox(height: 6),
+                _DetailText(title: 'Altura', value: '${user.altura} m'),
+                const SizedBox(height: 6),
                 _DetailText(
                   title: 'Desporto(s) Favorito(s)',
-                  value: 'Basquetebol',
+                  value: user.desportos.join(', '),
                 ),
+                if (user is Arrendador) ...[
+                  const SizedBox(height: 6),
+                  _DetailText(
+                    title: 'Número de Campos',
+                    value: user.camposPrivados.length.toString(),
+                  ),
+                  const SizedBox(height: 6),
+                  _DetailText(
+                    title: 'Campos Associados',
+                    value: user.camposPrivados
+                        .map((campo) => campo.nome)
+                        .join(', '),
+                  ),
+                ],
               ],
             ),
           ),
@@ -153,9 +174,9 @@ class _PerfilPageState extends State<PerfilPage> {
               color: const Color.fromARGB(163, 0, 0, 0),
               borderRadius: BorderRadius.circular(12),
             ),
-            child: const Text(
-              'Jogador experiente com paixão por esportes. Sempre pronto para um desafio!',
-              style: TextStyle(color: Colors.white, fontSize: 14),
+            child: Text(
+              user.descricao,
+              style: const TextStyle(color: Colors.white, fontSize: 14),
             ),
           ),
           const SizedBox(height: 24),
@@ -171,7 +192,12 @@ class _PerfilPageState extends State<PerfilPage> {
             icon: Icons.adjust_sharp,
             label: 'Conquistas',
             onPressed: () {
-              // TODO
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const PaginaConquistas(conquistas: []),
+                ),
+              );
             },
           ),
           const SizedBox(height: 20),
@@ -179,6 +205,7 @@ class _PerfilPageState extends State<PerfilPage> {
       ),
     );
   }
+
 
   Widget _buildEditableSectionTitle(String title) {
     return Row(

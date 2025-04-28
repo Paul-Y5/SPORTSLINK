@@ -92,6 +92,7 @@ class _ListCamposState extends State<ListCampos> {
           Scaffold(
             backgroundColor: const Color.fromARGB(0, 0, 0, 0),
             appBar: CustomAppBar(
+              user: currentUser,
               notificationButtonKey: notificationButtonKey,
               notificationCount: notificationCount,
               onNotificationPressed: (context) {

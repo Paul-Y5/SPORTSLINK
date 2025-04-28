@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:intl/date_symbol_data_local.dart';
+import 'package:sports_link/data/my_user.dart';
 import 'package:table_calendar/table_calendar.dart';
 
 import 'package:sports_link/models/campo_priv.dart';
@@ -59,7 +60,7 @@ class PageReservaState extends State<PageReserva> {
               },
               onMenuPressed: (context, items) {
                 _toggleDropdownOverlay(context, items);
-              },
+              }, user: getMyUser(), // Adicione o usuário atual aqui
             ),
             body: SingleChildScrollView(
               // Adicionado para evitar overflow
