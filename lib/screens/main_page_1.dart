@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:sports_link/data/my_user.dart';
+import 'package:sports_link/models/arrendador.dart';
 import 'package:sports_link/models/jogador.dart';
 import 'package:sports_link/models/utilizador.dart';
 import 'package:sports_link/screens/add_campo.dart';
@@ -14,7 +15,8 @@ import 'package:sports_link/controllers/controller_dropdown.dart' as dpd;
 import 'package:sports_link/widgets/menu_card.dart';
 
 class MainPage1 extends StatefulWidget {
-  const MainPage1({super.key});
+  final int id;
+  const MainPage1({super.key, required this.id});
 
   @override
   State<MainPage1> createState() => _MainPage1State();
@@ -22,7 +24,6 @@ class MainPage1 extends StatefulWidget {
 
 class _MainPage1State extends State<MainPage1> {
   late Utilizador currentUser;
-  int notificationCount = 3;
   bool isDropdownOpen = false;
   String weatherStatus = '';
   String weatherFeedback = '';
@@ -33,8 +34,7 @@ class _MainPage1State extends State<MainPage1> {
   @override
   void initState() {
     super.initState();
-    currentUser = getMyUser(1);
-
+    currentUser = getMyUser(widget.id);
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       fetchWeatherData();
@@ -48,10 +48,10 @@ class _MainPage1State extends State<MainPage1> {
       extendBodyBehindAppBar: true,
       body: Stack(
         children: [
-          const Carouselbg(), // Fundo dinâmico
+          const Carouselbg(),
           if (isDropdownOpen)
-            ModalBarrier(
-              color: const Color.fromARGB(128, 0, 0, 0),
+            const ModalBarrier(
+              color: Color.fromARGB(128, 0, 0, 0),
               dismissible: false,
             ),
           Scaffold(
@@ -63,28 +63,31 @@ class _MainPage1State extends State<MainPage1> {
               },
               onMenuPressed: (context, items) {
                 dpd.toggleDropdownOverlay(context, items);
-              }, user: currentUser as Jogador, // Adicione o usuário atual aqui
+              },
+              user: currentUser as Jogador,
             ),
             body: LayoutBuilder(
               builder: (context, constraints) {
                 return SingleChildScrollView(
                   child: ConstrainedBox(
-                    constraints: BoxConstraints(minHeight: constraints.maxHeight),
+                    constraints: BoxConstraints(
+                      minHeight: constraints.maxHeight,
+                    ),
                     child: IntrinsicHeight(
                       child: Column(
-                        mainAxisAlignment: MainAxisAlignment.start,
                         children: [
-                          // Informações do clima ocupando toda a largura
                           WeatherInfo(
                             currentUser: currentUser,
                             city: currentCity,
                             weatherStatus: weatherStatus,
-                            weatherFeedback: weatherFeedback
+                            weatherFeedback: weatherFeedback,
                           ),
                           const SizedBox(height: 20),
-                          // Menu de opções
                           Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 16,
+                              vertical: 10,
+                            ),
                             child: Row(
                               children: [
                                 Expanded(
@@ -93,7 +96,8 @@ class _MainPage1State extends State<MainPage1> {
                                     text: 'Criar\nPartida',
                                     color: Colors.orange,
                                     fullWidth: false,
-                                    onPressed: () => _showNavigationPopup(context),
+                                    onPressed:
+                                        () => _showNavigationPopup(context),
                                   ),
                                 ),
                                 const SizedBox(width: 10),
@@ -107,7 +111,8 @@ class _MainPage1State extends State<MainPage1> {
                                       Navigator.push(
                                         context,
                                         MaterialPageRoute(
-                                          builder: (context) => const ListPartidas(),
+                                          builder:
+                                              (context) => const ListPartidas(),
                                         ),
                                       );
                                     },
@@ -118,10 +123,10 @@ class _MainPage1State extends State<MainPage1> {
                           ),
                           const SizedBox(height: 10),
                           Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 0),
+                            padding: const EdgeInsets.symmetric(horizontal: 16),
                             child: MenuCard(
                               icon: Icons.add_location_alt,
-                              text: 'Adicionar Campo',
+                              text: 'Adicionar Campo Público',
                               color: Colors.green,
                               fullWidth: true,
                               onPressed: () {
@@ -135,11 +140,27 @@ class _MainPage1State extends State<MainPage1> {
                             ),
                           ),
                           const SizedBox(height: 120),
+                          if (currentUser is Jogador &&
+                              currentUser is! Arrendador)
+                            Padding(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 16,
+                              ),
+                              child: MenuCard(
+                                icon: Icons.add_location_alt,
+                                text: 'Tornar-me Arrendador',
+                                color: Colors.red,
+                                fullWidth: true,
+                                onPressed:
+                                    () => showArrendadorFormPopup(context),
+                              ),
+                            ),
+                          const SizedBox(height: 120),
                           CarouselBar(
                             newsItems: [
                               '🔥 Novas funcionalidades disponíveis!',
                               '⚽ Partidas abertas neste fim de semana!',
-                              '📢 Atualize seu perfil e ganhe recompensas!',
+                              '📢 Atualiza o teu perfil e ganha recompensas!',
                             ],
                           ),
                         ],
@@ -155,8 +176,6 @@ class _MainPage1State extends State<MainPage1> {
     );
   }
 
-  //Lógica da página
-  // Método para mostrar o popup de navegação
   void _showNavigationPopup(BuildContext context) {
     showDialog(
       context: context,
@@ -185,11 +204,13 @@ class _MainPage1State extends State<MainPage1> {
                     color: Colors.orange,
                     fullWidth: true,
                     onPressed: () {
-                      Navigator.pop(context); // Fecha o popup primeiro
+                      Navigator.pop(context);
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (context) => const ListCampos(filtroTipo: 'privado'),
+                          builder:
+                              (context) =>
+                                  const ListCampos(filtroTipo: 'privado'),
                         ),
                       );
                     },
@@ -207,7 +228,9 @@ class _MainPage1State extends State<MainPage1> {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (context) => const ListCampos(filtroTipo: 'publico'),
+                          builder:
+                              (context) =>
+                                  const ListCampos(filtroTipo: 'publico'),
                         ),
                       );
                     },
@@ -221,16 +244,99 @@ class _MainPage1State extends State<MainPage1> {
     );
   }
 
-  // Método para pesquisar os dados do clima
+  void showArrendadorFormPopup(BuildContext context) {
+    final TextEditingController ibanController = TextEditingController();
+    final formKey = GlobalKey<FormState>();
+    bool termosAceites = false;
+
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return StatefulBuilder(
+          builder: (context, setState) {
+            return AlertDialog(
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(16),
+              ),
+              title: const Text('Tornar-me Arrendador'),
+              content: Form(
+                key: formKey,
+                child: SizedBox(
+                  width: 300,
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      TextFormField(
+                        controller: ibanController,
+                        decoration: const InputDecoration(labelText: 'IBAN'),
+                        validator: (value) {
+                          if (value == null || value.length < 15) {
+                            return 'IBAN inválido.';
+                          }
+                          return null;
+                        },
+                      ),
+                      const SizedBox(height: 12),
+                      Row(
+                        children: [
+                          Checkbox(
+                            value: termosAceites,
+                            onChanged: (value) {
+                              setState(() {
+                                termosAceites = value ?? false;
+                              });
+                            },
+                          ),
+                          const Expanded(
+                            child: Text(
+                              'Aceito os Termos e Condições',
+                              style: TextStyle(fontSize: 14),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              actions: [
+                TextButton(
+                  child: const Text('Cancelar'),
+                  onPressed: () => Navigator.of(context).pop(),
+                ),
+                ElevatedButton(
+                  onPressed:
+                      termosAceites
+                          ? () {
+                            if (formKey.currentState!.validate()) {
+                              Navigator.of(context).pop();
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(
+                                  content: Text(
+                                    'Pedido de arrendador enviado!',
+                                  ),
+                                ),
+                              );
+                              // Aqui podes guardar o IBAN ou enviar para backend.
+                            }
+                          }
+                          : null,
+                  child: const Text('Submeter'),
+                ),
+              ],
+            );
+          },
+        );
+      },
+    );
+  }
+
   Future<void> fetchWeatherData() async {
     final weatherData = await weatherService.getLocationAndFetchWeather();
     setState(() {
-      weatherStatus = weatherData['weatherStatus']!;
-      weatherFeedback = weatherData['weatherFeedback']!;
+      weatherStatus = weatherData['weatherStatus'] ?? '';
+      weatherFeedback = weatherData['weatherFeedback'] ?? '';
       currentCity = weatherData['city'] ?? 'Cidade desconhecida';
     });
   }
-
-
 }
-

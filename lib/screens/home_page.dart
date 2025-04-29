@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:sports_link/data/mock_data.dart';
 import 'package:sports_link/screens/main_page_1.dart';
 import 'package:sports_link/styles/carouselbg.dart';
 import 'package:sports_link/styles/styles_btn.dart';
@@ -160,39 +161,46 @@ class LoginPageState extends State<LoginPage> {
       final email = emailController.text.trim();
       final password = passwordController.text;
 
-      // Simular credenciais válidas (substitir por lógica real de autenticação)
-      const validEmail = 'user@example.com';
-      const validPassword = 'password123';
+      StringBuffer userIdBuffer = StringBuffer();
+      final result = verificarLogin(email, password, userId: userIdBuffer);
 
-      if (email == validEmail && password == validPassword) {
-        // Messagem de sucesso e esperar 2 segundos (depois será o tempo de autenticação real)
+      if (result == LoginResult.success) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
             content: Text('A autenticação está a ser processada...'),
             backgroundColor: Colors.blue,
+            duration: Duration(seconds: 2),
           ),
         );
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Login bem-sucedido!'),
-            backgroundColor: Colors.green,
-          ),
-        );
+
         Future.delayed(const Duration(seconds: 2), () {
           if (!mounted) return;
-          // adicionar a lógica de navegação para a página principal
-          Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(builder: (context) => const MainPage1()),
+
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Login bem-sucedido!'),
+              backgroundColor: Colors.green,
+            ),
           );
+
+          Future.delayed(const Duration(seconds: 1), () {
+            if (!mounted) return;
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(
+                builder: (context) => MainPage1(id: int.parse(userIdBuffer.toString())),
+              ),
+            );
+          });
         });
       } else {
-        // Credenciais inválidas
+        String errorMessage =
+            result == LoginResult.wrongPassword
+                ? 'Senha incorreta. Tente novamente.'
+                : 'Email não encontrado. Verifique novamente.';
+
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Email ou password inválidos'),
-            backgroundColor: Colors.red,
-          ),
+          SnackBar(content: Text(errorMessage), backgroundColor: Colors.red),
         );
       }
     }

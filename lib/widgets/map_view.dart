@@ -44,8 +44,7 @@ class _MapViewState extends State<MapView> {
       ),
       children: [
         TileLayer(
-          urlTemplate: "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
-          subdomains: ['a', 'b', 'c'],
+          urlTemplate: "https://tile.openstreetmap.org/{z}/{x}/{y}.png",
         ),
         MarkerLayer(
           markers: [
@@ -136,7 +135,10 @@ class _MapViewState extends State<MapView> {
                                   ),
                                 );
                               },
-                              child: const Text('Ver detalhes'),
+                              child: const Text('Ver detalhes', 
+                                  style: TextStyle(
+                                    color: Colors.orange,
+                                  )),
                             ),
                           ],
                         ),

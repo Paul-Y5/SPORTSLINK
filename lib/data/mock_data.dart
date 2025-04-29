@@ -165,3 +165,34 @@ final Map<int, Utilizador> mockUsers = {
     createDate: DateTime.now(),
   ),
 };
+
+
+enum LoginResult { success, wrongPassword, userNotFound }
+
+LoginResult verificarLogin(
+  String email,
+  String password, {
+  StringBuffer? userId,
+}) {
+  late final Utilizador user;
+  try {
+    user = mockUsers.values.firstWhere((user) => user.email == email);
+  } catch (e) {
+    return LoginResult.userNotFound;
+  }
+
+  if (!mockUsers.containsKey(user.id)) {
+    return LoginResult.userNotFound;
+  }
+
+
+  if (user.password != password) {
+    return LoginResult.wrongPassword;
+  }
+
+  if (userId != null) {
+    userId.write(user.id);
+  }
+
+  return LoginResult.success;
+}

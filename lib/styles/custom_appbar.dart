@@ -30,7 +30,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
             _buildMenuItem('Home', Icons.home, 'Home', onTap: () {
               Navigator.pushReplacement(
                 context,
-                MaterialPageRoute(builder: (context) => const MainPage1()),
+                MaterialPageRoute(builder: (context) => MainPage1(id: user.id,)),
               );
             }),
             _buildMenuItem('Perfil', Icons.person, 'Perfil', onTap: () {
@@ -59,7 +59,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
         onTap: () {
           Navigator.pushReplacement(
             context,
-            MaterialPageRoute(builder: (context) => const MainPage1()),
+            MaterialPageRoute(builder: (context) => MainPage1(id: user.id,)),
           );
         },
         child: Image.asset(
