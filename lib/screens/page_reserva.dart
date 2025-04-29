@@ -60,7 +60,7 @@ class PageReservaState extends State<PageReserva> {
               },
               onMenuPressed: (context, items) {
                 _toggleDropdownOverlay(context, items);
-              }, user: getMyUser(), // Adicione o usuário atual aqui
+              }, user: getMyUser(1), // Adicione o usuário atual aqui
             ),
             body: SingleChildScrollView(
               // Adicionado para evitar overflow

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:sports_link/data/my_user.dart';
+import 'package:sports_link/models/jogador.dart';
 import 'package:sports_link/models/utilizador.dart';
 import 'package:sports_link/screens/add_campo.dart';
 import 'package:sports_link/screens/list_campos.dart';
@@ -32,7 +33,7 @@ class _MainPage1State extends State<MainPage1> {
   @override
   void initState() {
     super.initState();
-    currentUser = getMyUser();
+    currentUser = getMyUser(1);
 
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -63,7 +64,7 @@ class _MainPage1State extends State<MainPage1> {
               },
               onMenuPressed: (context, items) {
                 _toggleDropdownOverlay(context, items);
-              }, user: currentUser,
+              }, user: currentUser as Jogador, // Adicione o usuário atual aqui
             ),
             body: LayoutBuilder(
               builder: (context, constraints) {

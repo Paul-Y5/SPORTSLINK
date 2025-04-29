@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:latlong2/latlong.dart';
+import 'package:sports_link/models/utilizador.dart';
 import 'package:sports_link/screens/campo_details.dart';
 import 'package:sports_link/styles/carouselbg.dart';
 import 'package:geolocator/geolocator.dart';
@@ -7,7 +8,6 @@ import 'package:sports_link/data/mock_data.dart';
 import 'package:sports_link/data/my_user.dart';
 import 'package:sports_link/models/campo.dart';
 import 'package:sports_link/models/campo_priv.dart';
-import 'package:sports_link/models/utilizador.dart';
 import 'package:sports_link/styles/custom_appbar.dart';
 import 'package:sports_link/widgets/notification_dropdown.dart' as notification_dropdown;
 import 'package:sports_link/widgets/map_view.dart' as map_view;
@@ -40,7 +40,7 @@ class _ListCamposState extends State<ListCampos> {
   @override
   void initState() {
     super.initState();
-    currentUser = getMyUser();
+    currentUser = getMyUser(1);
     _getCurrentLocation(); // Obter a localização atual do utilizador
   }
 

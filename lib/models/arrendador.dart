@@ -87,20 +87,4 @@ class Arrendador extends Jogador {
     return 'Arrendador{id: $id, nome: $nome, email: $email, numTele: $numTele, password: $password, nacionalidade: $nacionalidade, idade: $idade, descricao: $descricao, noCampos: $noCampos, iban: $iban}';
   }
 
-  static defaultInstance() {
-    return Arrendador(
-      id: 0,
-      nome: 'default',
-      email: 'default',
-      numTele: 0,
-      password: 'default',
-      nacionalidade: 'default',
-      idade: 0,
-      descricao: 'default',
-      noCampos: 0,
-      iban: 0,
-      utilizador: '',
-      createDate: null,
-    );
-  }
 }

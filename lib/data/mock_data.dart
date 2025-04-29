@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:sports_link/models/arrendador.dart';
+import 'package:sports_link/models/jogador.dart';
 import 'package:sports_link/models/ponto.dart';
 import 'package:sports_link/models/campo_priv.dart';
 import 'package:sports_link/models/campo_pub.dart';
 import 'package:sports_link/models/campo.dart';
+import 'package:sports_link/models/utilizador.dart';
 
 // PONTOS
 final List<Ponto> mockPontos = [
@@ -25,9 +27,9 @@ final List<Campo> mockCampos = [
     ocupado: false,
     descricao: 'Relvado sintético, ideal para 11x11',
     ponto: mockPontos[0],
-    imagem:'https://example.com/campo_grande.png',
-    idArrendador: 3,
-    preco: 50.0, // Preço associado
+    imagem: 'https://example.com/campo_grande.png',
+    idArrendador: 1, // Associado ao arrendador com ID 1
+    preco: 50.0,
     diasFuncionamento: {
       'Segunda-feira': [TimeOfDay(hour: 9, minute: 0), TimeOfDay(hour: 18, minute: 0)],
       'Quarta-feira': [TimeOfDay(hour: 9, minute: 0), TimeOfDay(hour: 18, minute: 0)],
@@ -58,8 +60,8 @@ final List<Campo> mockCampos = [
     descricao: 'Muito procurado por estudantes',
     ponto: mockPontos[2],
     imagem: 'https://example.com/campo_universitario.png',
-    idArrendador: 3,
-    preco: 45.0, // Preço associado
+    idArrendador: 1, // Associado ao arrendador com ID 1
+    preco: 45.0,
     diasFuncionamento: {
       'Terça-feira': [TimeOfDay(hour: 10, minute: 0), TimeOfDay(hour: 17, minute: 0)],
       'Quinta-feira': [TimeOfDay(hour: 10, minute: 0), TimeOfDay(hour: 17, minute: 0)],
@@ -76,8 +78,8 @@ final List<Campo> mockCampos = [
     descricao: 'Campo com iluminação noturna',
     ponto: mockPontos[3],
     imagem: 'img/icon_campo.jpg',
-    idArrendador: 4,
-    preco: 55.0, // Preço associado
+    idArrendador: 2, // Associado ao arrendador com ID 2
+    preco: 55.0,
     diasFuncionamento: {
       'Segunda-feira': [TimeOfDay(hour: 8, minute: 0), TimeOfDay(hour: 20, minute: 0)],
       'Quarta-feira': [TimeOfDay(hour: 8, minute: 0), TimeOfDay(hour: 20, minute: 0)],
@@ -94,93 +96,19 @@ final List<Campo> mockCampos = [
     ocupado: false,
     descricao: 'Campo coberto, ideal para futsal',
     ponto: mockPontos[1],
-    idArrendador: 4,
-    preco: 35.0, // Preço associado
+    idArrendador: 2, // Associado ao arrendador com ID 2
+    preco: 35.0,
     diasFuncionamento: {
       'Segunda-feira': [TimeOfDay(hour: 9, minute: 0), TimeOfDay(hour: 18, minute: 0)],
       'Quarta-feira': [TimeOfDay(hour: 9, minute: 0), TimeOfDay(hour: 18, minute: 0)],
     },
   ),
-  CampoPriv(
-    id: 6,
-    idPonto: 3,
-    idMapa: 2,
-    nome: 'Campo de Praia',
-    comprimento: 50.0,
-    largura: 30.0,
-    ocupado: true,
-    descricao: 'Campo de areia, ideal para futebol de praia',
-    ponto: mockPontos[2],
-    idArrendador: 3,
-    preco: 40.0, // Preço associado
-    diasFuncionamento: {
-      'Sexta-feira': [TimeOfDay(hour: 8, minute: 0), TimeOfDay(hour: 16, minute: 0)],
-      'Sábado': [TimeOfDay(hour: 8, minute: 0), TimeOfDay(hour: 16, minute: 0)],
-    },
-  ),
-  CampoPriv(
-    id: 7,
-    idPonto: 1,
-    idMapa: 1,
-    nome: 'Campo de Treino',
-    comprimento: 70.0,
-    largura: 40.0,
-    ocupado: false,
-    descricao: 'Campo para treinos, com balizas ajustáveis',
-    ponto: mockPontos[0],
-    idArrendador: 3,
-    preco: 30.0, // Preço associado
-    diasFuncionamento: {
-      'Terça-feira': [TimeOfDay(hour: 7, minute: 0), TimeOfDay(hour: 15, minute: 0)],
-      'Quinta-feira': [TimeOfDay(hour: 7, minute: 0), TimeOfDay(hour: 15, minute: 0)],
-    },
-  ),
-  CampoPub (
-    id: 8,
-    idPonto: 2,
-    idMapa: 1,
-    nome: 'Campo de Areia',
-    comprimento: 60.0,
-    largura: 30.0,
-    ocupado: true,
-    descricao: 'Campo de areia, ideal para treinos de resistência',
-    ponto: mockPontos[1],
-    entidadePublicaResp: "Câmara Municipal do Porto",
-  ),
-  CampoPriv(
-    id: 9,
-    idPonto: 3,
-    idMapa: 2,
-    nome: 'Campo de Futebol Americano',
-    comprimento: 120.0,
-    largura: 50.0,
-    ocupado: false,
-    descricao: 'Campo com marcações para futebol americano',
-    ponto: mockPontos[2],
-    idArrendador: 3,
-    preco: 60.0, // Preço associado
-    diasFuncionamento: {
-      'Segunda-feira': [TimeOfDay(hour: 9, minute: 0), TimeOfDay(hour: 18, minute: 0)],
-      'Sexta-feira': [TimeOfDay(hour: 9, minute: 0), TimeOfDay(hour: 18, minute: 0)],
-    },
-  ),
-  CampoPub(
-    id: 10,
-    idPonto: 1,
-    idMapa: 1,
-    nome: 'Campo de Rugby',
-    comprimento: 130.0,
-    largura: 70.0,
-    ocupado: true,
-    descricao: 'Campo com marcações para rugby',
-    ponto: mockPontos[0],
-    entidadePublicaResp: "Câmara Municipal de Lisboa",
-  ),
 ];
 
-// Arrendadores
-final List<Arrendador> mockArrendadores = [
-  Arrendador(
+// UTILIZADORES
+final Map<int, Utilizador> mockUsers = {
+  // Arrendadores
+  1: Arrendador(
     id: 1,
     nome: 'João Silva',
     email: 'joao.silva@example.com',
@@ -195,41 +123,8 @@ final List<Arrendador> mockArrendadores = [
     createDate: DateTime.now(),
   )..adicionarMetodoPagamento('metodo1', 'Cartão de Crédito')
     ..adicionarMetodoPagamento('metodo2', 'MB Way'),
-
-  Arrendador(
+  2: Arrendador(
     id: 2,
-    nome: 'Maria Oliveira',
-    email: 'maria.oliveira@example.com',
-    numTele: 913456789,
-    password: 'senha456',
-    nacionalidade: 'Brasileira',
-    idade: 29,
-    descricao: 'Especialista em gestão de campos desportivos.',
-    noCampos: 2,
-    iban: 987654321,
-    utilizador: 'mariaoliveira',
-    createDate: DateTime.now(),
-  )..adicionarMetodoPagamento('metodo1', 'Transferência Bancária')
-    ..adicionarMetodoPagamento('metodo2', 'Cartão de Débito'),
-
-  Arrendador(
-    id: 3,
-    nome: 'Carlos Santos',
-    email: 'carlos.santos@example.com',
-    numTele: 914567890,
-    password: 'senha789',
-    nacionalidade: 'Angolano',
-    idade: 42,
-    descricao: 'Arrendador com experiência em eventos desportivos.',
-    noCampos: 5,
-    iban: 112233445,
-    utilizador: 'carlossantos',
-    createDate: DateTime.now(),
-  )..adicionarMetodoPagamento('metodo1', 'Dinheiro')
-    ..adicionarMetodoPagamento('metodo2', 'Cartão de Crédito'),
-
-  Arrendador(
-    id: 4,
     nome: 'Ana Costa',
     email: 'ana.costa@example.com',
     numTele: 915678901,
@@ -243,4 +138,30 @@ final List<Arrendador> mockArrendadores = [
     createDate: DateTime.now(),
   )..adicionarMetodoPagamento('metodo1', 'MB Way')
     ..adicionarMetodoPagamento('metodo2', 'Transferência Bancária'),
-];
+
+  // Jogadores
+  3: Jogador(
+    id: 3,
+    nome: 'Maria Oliveira',
+    email: 'maria.oliveira@example.com',
+    numTele: 913456789,
+    password: 'senha456',
+    nacionalidade: 'Brasileira',
+    idade: 29,
+    descricao: 'Jogadora com paixão por esportes coletivos.',
+    utilizador: 'mariaoliveira',
+    createDate: DateTime.now(),
+  ),
+  4: Jogador(
+    id: 4,
+    nome: 'Carlos Santos',
+    email: 'carlos.santos@example.com',
+    numTele: 914567890,
+    password: 'senha789',
+    nacionalidade: 'Angolano',
+    idade: 42,
+    descricao: 'Jogador experiente em eventos desportivos.',
+    utilizador: 'carlossantos',
+    createDate: DateTime.now(),
+  ),
+};

@@ -3,6 +3,7 @@ import 'package:flutter_map/flutter_map.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:sports_link/data/mock_data.dart';
+import 'package:sports_link/models/arrendador.dart';
 import 'package:sports_link/models/campo.dart';
 import 'package:sports_link/models/campo_priv.dart';
 import 'package:sports_link/models/campo_pub.dart';
@@ -171,7 +172,7 @@ class _CampoDetailsState extends State<CampoDetails> {
   String _getNomeArrendador() {
     if (widget.campo is CampoPriv) {
       final arrendadorCampo = (widget.campo as CampoPriv).idArrendador;
-      for (var arrendador in mockArrendadores) {
+      for (var arrendador in mockUsers.values) {
         if (arrendador.id == arrendadorCampo) {
           return arrendador.nome;
         }
@@ -183,7 +184,8 @@ class _CampoDetailsState extends State<CampoDetails> {
   String _getMetodosPagamento() {
     if (widget.campo is CampoPriv) {
       final arrendadorCampo = (widget.campo as CampoPriv).idArrendador;
-      for (var arrendador in mockArrendadores) {
+      for (var arrendador in mockUsers.values) {
+        arrendador as Arrendador;
         if (arrendador.id == arrendadorCampo) {
           return arrendador.metodosPagamento.values.join(', ');
         }
@@ -302,7 +304,7 @@ class _CampoDetailsState extends State<CampoDetails> {
   void _openArrendadorProfile() {
     if (widget.campo is CampoPriv) {
       final idArrendador = (widget.campo as CampoPriv).idArrendador;
-      final arrendador = mockArrendadores.firstWhere(
+      final arrendador = mockUsers.values.firstWhere(
         (a) => a.id == idArrendador,
       );
 

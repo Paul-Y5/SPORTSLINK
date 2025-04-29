@@ -5,7 +5,7 @@ import 'package:sports_link/models/ponto.dart';
 
 class CampoPriv extends Campo {
   int idArrendador;
-  Arrendador arrendador;
+  late Arrendador arrendador;
   double preco;
   Map<String, List<TimeOfDay>> diasFuncionamento;
 
@@ -23,36 +23,32 @@ class CampoPriv extends Campo {
     super.imagem, // Permite null, mas o valor padrão será tratado na classe base
     required this.preco,
     required this.diasFuncionamento,
-  })  : arrendador = Arrendador.defaultInstance();
+  });
 
   factory CampoPriv.fromJson(Map<String, dynamic> json) {
     return CampoPriv(
-      id: json['ID'] as int,
       idArrendador: json['ID_Arrendador'] as int,
+      id: json['ID'] as int,
       idPonto: json['ID_Ponto'] as int,
       idMapa: json['ID_Mapa'] as int,
       nome: json['Nome'] as String,
       comprimento: (json['Comprimento'] as num).toDouble(),
       largura: (json['Largura'] as num).toDouble(),
-      ocupado: json['ocupado'] == 1,
+      ocupado: json['Ocupado'] as bool,
       descricao: json['Descricao'] as String,
-      ponto: json['Ponto'] != null
-          ? Ponto.fromJson(json['Ponto'])
-          : Ponto.defaultInstance(),
-      imagem: json['Imagem'] != null && json['Imagem'].isNotEmpty
-          ? json['Imagem'] as String
-          : 'img/icon_campo.jpg', // Valor padrão para imagem
+      ponto: Ponto.fromJson(json['ponto']),
       preco: (json['Preco'] as num).toDouble(),
       diasFuncionamento: (json['DiasFuncionamento'] as Map<String, dynamic>).map(
         (key, value) => MapEntry(
           key,
-          (value as List<dynamic>).map((e) {
-            final dateTime = DateTime.parse(e as String);
-            return TimeOfDay(hour: dateTime.hour, minute: dateTime.minute);
+          (value as List<dynamic>).map((time) {
+            final dateTime = DateTime.parse(time);
+            return TimeOfDay.fromDateTime(dateTime);
           }).toList(),
         ),
       ),
     );
+    
   }
 
   @override
