@@ -7,15 +7,16 @@ import 'package:geolocator/geolocator.dart';
 import 'package:sports_link/data/mock_data.dart';
 import 'package:sports_link/data/my_user.dart';
 import 'package:sports_link/models/campo.dart';
-import 'package:sports_link/models/campo_priv.dart';
 import 'package:sports_link/styles/custom_appbar.dart';
-import 'package:sports_link/widgets/notification_dropdown.dart' as notification_dropdown;
+import 'package:sports_link/controllers/controller_dropdown.dart' as dpd;
 import 'package:sports_link/widgets/map_view.dart' as map_view;
 import 'package:sports_link/widgets/list_view.dart' as list_view;
 import 'package:sports_link/utils/filter_campos.dart' as filter_campos;
 
 class ListCampos extends StatefulWidget {
-  const ListCampos({super.key});
+  final String filtroTipo;
+
+  const ListCampos({super.key, required this.filtroTipo});
 
   @override
   State<ListCampos> createState() => _ListCamposState();
@@ -31,24 +32,24 @@ class _ListCamposState extends State<ListCampos> {
   final TextEditingController searchController = TextEditingController();
 
   bool isAscending = true;
-  bool isMapView = false; // Controla a exibição do mapa
+  bool isMapView = false;
   int camposVisiveis = 5;
 
   double latitude = 0.0;
   double longitude = 0.0;
 
+  String filtroTipo = 'todos'; // 'todos', 'publico', 'privado'
+
   @override
   void initState() {
     super.initState();
     currentUser = getMyUser(1);
-    _getCurrentLocation(); // Obter a localização atual do utilizador
+    _getCurrentLocation();
   }
 
-  // Método para obter a localização atual do utilizador
   Future<void> _getCurrentLocation() async {
     try {
       LocationPermission permission = await Geolocator.requestPermission();
-
       if (permission == LocationPermission.always ||
           permission == LocationPermission.whileInUse) {
         Position position = await Geolocator.getCurrentPosition(
@@ -64,11 +65,9 @@ class _ListCamposState extends State<ListCampos> {
         return;
       }
     } catch (e) {
-      // Caso ocorra um erro, a localização será definida como Aveiro
       debugPrint('Erro ao obter localização: $e');
     }
 
-    // Localização padrão: Aveiro
     setState(() {
       latitude = 40.6405;
       longitude = -8.6538;
@@ -77,11 +76,13 @@ class _ListCamposState extends State<ListCampos> {
 
   @override
   Widget build(BuildContext context) {
-    final List<CampoPriv> camposFiltrados = filter_campos.filterCampos(
+    final List<Campo> camposFiltrados = filter_campos.filterCampos(
       campos: campos,
       query: searchController.text,
       isAscending: isAscending,
+      filtroTipo: widget.filtroTipo,
     );
+
 
     return Scaffold(
       extendBody: true,
@@ -94,80 +95,82 @@ class _ListCamposState extends State<ListCampos> {
             appBar: CustomAppBar(
               user: currentUser,
               notificationButtonKey: notificationButtonKey,
-              notificationCount: notificationCount,
               onNotificationPressed: (context) {
-                _showNotificationDropdown(context);
+                dpd.showNotificationDropdown(context, notificationButtonKey);
               },
               onMenuPressed: (context, items) {
-                _toggleDropdownOverlay(context, items);
+                dpd.toggleDropdownOverlay(context, items);
               },
             ),
             body: SafeArea(
               child: Column(
                 children: [
-                  // Barra de pesquisa e botão de alternância
                   Padding(
                     padding: const EdgeInsets.all(12.0),
-                    child: Row(
+                    child: Column(
                       children: [
-                        // Barra de pesquisa
-                        Expanded(
-                          child: TextField(
-                            controller: searchController,
-                            onChanged: (_) => setState(() {}),
-                            decoration: InputDecoration(
-                              hintText: 'Pesquisar campos...',
-                              prefixIcon: const Icon(Icons.search),
-                              filled: true,
-                              fillColor: Colors.white,
-                              border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(12),
-                                borderSide: BorderSide.none,
-                              ),
-                              contentPadding: const EdgeInsets.symmetric(
-                                horizontal: 16,
+                        Row(
+                          children: [
+                            Expanded(
+                              child: TextField(
+                                controller: searchController,
+                                onChanged: (_) => setState(() {}),
+                                decoration: InputDecoration(
+                                  hintText: 'Pesquisar campos...',
+                                  prefixIcon: const Icon(Icons.search),
+                                  filled: true,
+                                  fillColor: Colors.white,
+                                  border: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(12),
+                                    borderSide: BorderSide.none,
+                                  ),
+                                  contentPadding: const EdgeInsets.symmetric(
+                                    horizontal: 16,
+                                  ),
+                                ),
                               ),
                             ),
-                          ),
+                            const SizedBox(width: 8),
+                            IconButton(
+                              icon: Icon(
+                                isMapView ? Icons.view_list : Icons.map,
+                              ),
+                              color: const Color.fromARGB(255, 255, 152, 0),
+                              onPressed: () {
+                                setState(() {
+                                  isMapView = !isMapView;
+                                });
+                              },
+                            ),
+                          ],
                         ),
-                        const SizedBox(width: 8),
-                        // Botão de alternância de visualização
-                        IconButton(
-                          icon: Icon(isMapView ? Icons.view_list : Icons.map),
-                          color: const Color.fromARGB(255, 255, 152, 0),
-                          onPressed: () {
-                            setState(() {
-                              isMapView = !isMapView;
-                            });
-                          },
-                        ),
+                        const SizedBox(height: 8),
                       ],
                     ),
                   ),
-                  // Conteúdo principal
                   Expanded(
-                    child: isMapView
-                        ? map_view.MapView(
-                            campos: camposFiltrados, // Lista de CampoPriv
-                            userLocation: LatLng(latitude, longitude),
-                            onCampoSelected: (campo) {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (_) => CampoDetails(campo: campo),
-                                ),
-                              );
-                            },
-                          )
+                    child:
+                        isMapView? map_view.MapView(
+                          campos: camposFiltrados,
+                          userLocation: LatLng(latitude, longitude),
+                          onCampoSelected: (campo) {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (_) => CampoDetails(campo: campo),
+                              ),
+                            );
+                          },
+                        )
                         : list_view.buildListViewWithLoadMore(
-                            camposFiltrados,
-                            camposVisiveis,
-                            () {
-                              setState(() {
-                                camposVisiveis += 5; // Carregar mais 5 campos
-                              });
-                            },
-                          ),
+                          camposFiltrados,
+                          camposVisiveis,
+                          () {
+                            setState(() {
+                              camposVisiveis += 5;
+                            });
+                          },
+                        ),
                   ),
                 ],
               ),
@@ -175,38 +178,6 @@ class _ListCamposState extends State<ListCampos> {
           ),
         ],
       ),
-    );
-  }
-
-  // Método para alternar o menu suspenso
-  void _toggleDropdownOverlay(
-    BuildContext context,
-    List<PopupMenuEntry<String>> items,
-  ) {
-    setState(() {
-      isDropdownOpen = true;
-    });
-
-    showMenu(
-      context: context,
-      position: const RelativeRect.fromLTRB(0, 80, 0, 0),
-      items: items,
-    ).then((_) {
-      setState(() {
-        isDropdownOpen = false;
-      });
-    });
-  }
-
-  void _showNotificationDropdown(BuildContext context) {
-    notification_dropdown.showNotificationDropdown(
-      context: context,
-      notificationButtonKey: notificationButtonKey,
-      onClose: () {
-        setState(() {
-          isDropdownOpen = false;
-        });
-      },
     );
   }
 }

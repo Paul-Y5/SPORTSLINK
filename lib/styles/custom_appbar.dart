@@ -6,7 +6,6 @@ import 'package:sports_link/screens/perfil_page.dart'; // Importa a MainPage1
 
 class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
   final GlobalKey notificationButtonKey;
-  final int notificationCount;
   final Function(BuildContext) onNotificationPressed;
   final Function(BuildContext, List<PopupMenuEntry<String>>) onMenuPressed;
 
@@ -15,7 +14,6 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
   const CustomAppBar({
     super.key,
     required this.notificationButtonKey,
-    required this.notificationCount,
     required this.onNotificationPressed,
     required this.onMenuPressed,
     required this.user,
@@ -82,7 +80,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
                 onNotificationPressed(context);
               },
             ),
-            if (notificationCount > 0)
+            if (user.notificacoes.isNotEmpty)
               Positioned(
                 right: 8,
                 top: 8,
@@ -93,7 +91,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
                     shape: BoxShape.circle,
                   ),
                   child: Text(
-                    '$notificationCount',
+                    user.notificacoes.length > 20 ? '20+' : user.notificacoes.length.toString(),
                     style: const TextStyle(
                       color: Colors.white,
                       fontSize: 12,
@@ -140,4 +138,5 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
 
   @override
   Size get preferredSize => const Size.fromHeight(kToolbarHeight);
+  
 }

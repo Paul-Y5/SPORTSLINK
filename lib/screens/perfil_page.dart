@@ -6,8 +6,7 @@ import 'package:sports_link/models/utilizador.dart';
 import 'package:sports_link/screens/pagina_conquistas.dart';
 import 'package:sports_link/styles/carouselbg.dart';
 import 'package:sports_link/styles/custom_appbar.dart';
-import 'package:sports_link/widgets/notification_dropdown.dart'
-    as notification_dropdown;
+import 'package:sports_link/controllers/controller_dropdown.dart' as dpd;
 
 class PerfilPage extends StatefulWidget {
   final Utilizador user;
@@ -21,7 +20,6 @@ class PerfilPage extends StatefulWidget {
 class _PerfilPageState extends State<PerfilPage> {
   final GlobalKey notificationButtonKey = GlobalKey();
   bool isDropdownOpen = false;
-  int notificationCount = 3;
 
   @override
   Widget build(BuildContext context) {
@@ -41,9 +39,8 @@ class _PerfilPageState extends State<PerfilPage> {
             backgroundColor: Colors.transparent,
             appBar: CustomAppBar(
               notificationButtonKey: notificationButtonKey,
-              notificationCount: notificationCount,
-              onNotificationPressed: _showNotificationDropdown,
-              onMenuPressed: _toggleDropdownOverlay,
+              onNotificationPressed: (context) => dpd.showNotificationDropdown(context, notificationButtonKey),
+              onMenuPressed: dpd.toggleDropdownOverlay,
               user: widget.user,
             ),
             body: Column(
@@ -89,7 +86,7 @@ class _PerfilPageState extends State<PerfilPage> {
             right: 0,
             child: GestureDetector(
               onTap: () {
-                debugPrint('Editar foto de perfil');
+                //TODO
               },
               child: Container(
                 padding: const EdgeInsets.all(4),
@@ -239,30 +236,7 @@ class _PerfilPageState extends State<PerfilPage> {
       ],
     );
   }
-
-  // Controle de Dropdowns
-  void _toggleDropdownOverlay(
-    BuildContext context,
-    List<PopupMenuEntry<String>> items,
-  ) {
-    setState(() => isDropdownOpen = true);
-    showMenu(
-      context: context,
-      position: const RelativeRect.fromLTRB(0, 80, 0, 0),
-      items: items,
-    ).then((_) => setState(() => isDropdownOpen = false));
-  }
-
-  void _showNotificationDropdown(BuildContext context) {
-    notification_dropdown.showNotificationDropdown(
-      context: context,
-      notificationButtonKey: notificationButtonKey,
-      onClose: () => setState(() => isDropdownOpen = false),
-    );
-  }
 }
-
-// --- Widgets auxiliares
 
 class _InfoCard extends StatelessWidget {
   final String value;

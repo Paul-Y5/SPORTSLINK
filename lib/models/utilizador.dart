@@ -8,7 +8,8 @@ class Utilizador {
   String password;
   String nacionalidade;
 
-  
+  List<String> notificacoes = [];
+
   // URL da imagem de perfil
   // Se não houver imagem vai ser definido uma imagem padrão
   String? urlIMG = 'img/iconDefault.png';

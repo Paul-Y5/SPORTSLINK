@@ -10,7 +10,7 @@ import 'package:sports_link/styles/carouselbg.dart';
 import 'package:sports_link/utils/weather_fetch.dart';
 import 'package:sports_link/widgets/weather_info.dart';
 import 'package:sports_link/styles/custom_appbar.dart';
-import 'package:sports_link/widgets/notification_dropdown.dart' as notification_dropdown;
+import 'package:sports_link/controllers/controller_dropdown.dart' as dpd;
 import 'package:sports_link/widgets/menu_card.dart';
 
 class MainPage1 extends StatefulWidget {
@@ -58,12 +58,11 @@ class _MainPage1State extends State<MainPage1> {
             backgroundColor: Colors.transparent,
             appBar: CustomAppBar(
               notificationButtonKey: notificationButtonKey,
-              notificationCount: notificationCount,
               onNotificationPressed: (context) {
-                _showNotificationDropdown(context);
+                dpd.showNotificationDropdown(context, notificationButtonKey);
               },
               onMenuPressed: (context, items) {
-                _toggleDropdownOverlay(context, items);
+                dpd.toggleDropdownOverlay(context, items);
               }, user: currentUser as Jogador, // Adicione o usuário atual aqui
             ),
             body: LayoutBuilder(
@@ -157,37 +156,6 @@ class _MainPage1State extends State<MainPage1> {
   }
 
   //Lógica da página
-
-  // Método para abrir o menu suspenso
-  void _toggleDropdownOverlay(BuildContext context, List<PopupMenuEntry<String>> items) {
-    setState(() {
-      isDropdownOpen = true;
-    });
-
-    showMenu(
-      context: context,
-      position: const RelativeRect.fromLTRB(0, 80, 0, 0),
-      items: items,
-    ).then((_) {
-      setState(() {
-        isDropdownOpen = false;
-      });
-    });
-  }
-
-  // Método para mostrar o menu de notificações
-  void _showNotificationDropdown(BuildContext context) {
-    notification_dropdown.showNotificationDropdown(
-      context: context,
-      notificationButtonKey: notificationButtonKey,
-      onClose: () {
-        setState(() {
-          isDropdownOpen = false;
-        });
-      },
-    );
-  }
-
   // Método para mostrar o popup de navegação
   void _showNavigationPopup(BuildContext context) {
     showDialog(
@@ -221,7 +189,7 @@ class _MainPage1State extends State<MainPage1> {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (context) => const ListCampos(),
+                          builder: (context) => const ListCampos(filtroTipo: 'privado'),
                         ),
                       );
                     },
@@ -239,7 +207,7 @@ class _MainPage1State extends State<MainPage1> {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (context) => const ListCampos(),
+                          builder: (context) => const ListCampos(filtroTipo: 'publico'),
                         ),
                       );
                     },

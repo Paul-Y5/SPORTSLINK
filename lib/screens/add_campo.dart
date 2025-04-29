@@ -11,8 +11,7 @@ class _AddCampoState extends State<AddCampo> {
   final TextEditingController campoNameController = TextEditingController();
   final TextEditingController campoLocationController = TextEditingController();
   final TextEditingController campoPriceController = TextEditingController();
-  final TextEditingController campoDescriptionController =
-      TextEditingController();
+  final TextEditingController campoDescriptionController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {

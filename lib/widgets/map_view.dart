@@ -1,14 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
+import 'package:sports_link/models/campo.dart';
 import 'package:sports_link/models/campo_priv.dart'; // CampoPriv
 import 'package:sports_link/screens/campo_details.dart'; // CampoDetails
 
 
 class MapView extends StatefulWidget {
-  final List<CampoPriv> campos;
+  final List<Campo> campos;
   final LatLng userLocation;
-  final Function(CampoPriv) onCampoSelected;
+  final Function(Campo) onCampoSelected;
 
   const MapView({
     super.key,
@@ -22,7 +23,7 @@ class MapView extends StatefulWidget {
 }
 
 class _MapViewState extends State<MapView> {
-  CampoPriv? selectedCampo;
+  Campo? selectedCampo;
 
   @override
   Widget build(BuildContext context) {
@@ -33,7 +34,7 @@ class _MapViewState extends State<MapView> {
         maxZoom: 18.0,
         minZoom: 5.0,
         interactionOptions: const InteractionOptions(
-          flags: InteractiveFlag.all, // permite tudo: arrastar, zoom, scroll etc
+          flags: InteractiveFlag.all,
         ),
         onTap: (tapPosition, point) {
           setState(() {
@@ -42,15 +43,12 @@ class _MapViewState extends State<MapView> {
         },
       ),
       children: [
-        // Camada de tiles do mapa
         TileLayer(
           urlTemplate: "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
           subdomains: ['a', 'b', 'c'],
         ),
-        // Marcadores dos campos
         MarkerLayer(
           markers: [
-            // Localização do Utilizador
             Marker(
               point: widget.userLocation,
               width: 50,
@@ -61,7 +59,6 @@ class _MapViewState extends State<MapView> {
                 size: 30,
               ),
             ),
-            // Campos
             ...widget.campos.map((campo) {
               return Marker(
                 point: LatLng(campo.ponto.latitude, campo.ponto.longitude),
@@ -73,9 +70,9 @@ class _MapViewState extends State<MapView> {
                       selectedCampo = campo;
                     });
                   },
-                  child: const Icon(
+                  child: Icon(
                     Icons.location_pin,
-                    color: Colors.orange,
+                    color: campo is CampoPriv ? Colors.orange : Colors.green,
                     size: 40,
                   ),
                 ),
@@ -83,7 +80,6 @@ class _MapViewState extends State<MapView> {
             }),
           ],
         ),
-        // Popup do campo selecionado
         if (selectedCampo != null)
           MarkerLayer(
             markers: [

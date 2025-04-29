@@ -7,8 +7,7 @@ import 'package:table_calendar/table_calendar.dart';
 import 'package:sports_link/models/campo_priv.dart';
 import 'package:sports_link/styles/carouselbg.dart';
 import 'package:sports_link/styles/custom_appbar.dart';
-import 'package:sports_link/widgets/notification_dropdown.dart'
-   as notification_dropdown;
+import 'package:sports_link/controllers/controller_dropdown.dart' as dpd;
 
 class PageReserva extends StatefulWidget {
   final CampoPriv campo;
@@ -54,12 +53,11 @@ class PageReservaState extends State<PageReserva> {
             backgroundColor: Colors.transparent,
             appBar: CustomAppBar(
               notificationButtonKey: notificationButtonKey,
-              notificationCount: notificationCount,
               onNotificationPressed: (context) {
-                _showNotificationDropdown(context);
+                dpd.showNotificationDropdown(context, notificationButtonKey);
               },
               onMenuPressed: (context, items) {
-                _toggleDropdownOverlay(context, items);
+                dpd.toggleDropdownOverlay(context, items);
               }, user: getMyUser(1), // Adicione o usuário atual aqui
             ),
             body: SingleChildScrollView(
@@ -218,38 +216,5 @@ class PageReservaState extends State<PageReserva> {
         );
       },
     );
-  }
-
-  // Método para mostrar o menu de notificações
-  void _showNotificationDropdown(BuildContext context) {
-    notification_dropdown.showNotificationDropdown(
-      context: context,
-      notificationButtonKey: notificationButtonKey,
-      onClose: () {
-        setState(() {
-          isDropdownOpen = false;
-        });
-      },
-    );
-  }
-
-  // Método para mostrar o menu de navegação
-  void _toggleDropdownOverlay(
-    BuildContext context,
-    List<PopupMenuEntry<String>> items,
-  ) {
-    setState(() {
-      isDropdownOpen = true;
-    });
-
-    showMenu(
-      context: context,
-      position: const RelativeRect.fromLTRB(0, 80, 0, 0),
-      items: items,
-    ).then((_) {
-      setState(() {
-        isDropdownOpen = false;
-      });
-    });
   }
 }

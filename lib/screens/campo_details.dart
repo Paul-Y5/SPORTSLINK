@@ -168,7 +168,6 @@ class _CampoDetailsState extends State<CampoDetails> {
   }
 
   // Métodos auxiliares:
-
   String _getNomeArrendador() {
     if (widget.campo is CampoPriv) {
       final arrendadorCampo = (widget.campo as CampoPriv).idArrendador;
