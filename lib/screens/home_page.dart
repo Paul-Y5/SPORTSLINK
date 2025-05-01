@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:sports_link/data/mock_data.dart';
+import 'package:sports_link/controllers/user_provider.dart';
 import 'package:sports_link/screens/main_page_1.dart';
 import 'package:sports_link/styles/carouselbg.dart';
 import 'package:sports_link/styles/styles_btn.dart';
@@ -163,7 +165,9 @@ class LoginPageState extends State<LoginPage> {
 
       StringBuffer userIdBuffer = StringBuffer();
       final result = verificarLogin(email, password, userId: userIdBuffer);
-
+      final user = mockUsers[int.parse(userIdBuffer.toString())]!;
+      Provider.of<UserProvider>(context, listen: false).setUser(user);
+      
       if (result == LoginResult.success) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(

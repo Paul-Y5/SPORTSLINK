@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:sports_link/models/arrendador.dart';
+import 'package:sports_link/models/desportos.dart';
 import 'package:sports_link/models/jogador.dart';
 import 'package:sports_link/models/ponto.dart';
 import 'package:sports_link/models/campo_priv.dart';
@@ -163,7 +164,10 @@ final Map<int, Utilizador> mockUsers = {
     descricao: 'Jogador experiente em eventos desportivos.',
     utilizador: 'carlossantos',
     createDate: DateTime.now(),
-  ),
+  ).setAltura(1.85)
+    ..setPeso(80.0)
+    ..adicionarDesporto(Desportos.futebol)
+    ..adicionarDesporto(Desportos.basquetebol),
 };
 
 

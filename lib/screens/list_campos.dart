@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:latlong2/latlong.dart';
-import 'package:sports_link/models/utilizador.dart';
+import 'package:provider/provider.dart';
+import 'package:sports_link/controllers/user_provider.dart';
 import 'package:sports_link/screens/campo_details.dart';
 import 'package:sports_link/styles/carouselbg.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:sports_link/data/mock_data.dart';
-import 'package:sports_link/data/my_user.dart';
 import 'package:sports_link/models/campo.dart';
 import 'package:sports_link/styles/custom_appbar.dart';
 import 'package:sports_link/controllers/controller_dropdown.dart' as dpd;
@@ -23,8 +23,6 @@ class ListCampos extends StatefulWidget {
 }
 
 class _ListCamposState extends State<ListCampos> {
-  late Utilizador currentUser;
-  int notificationCount = 3;
   bool isDropdownOpen = false;
   final GlobalKey notificationButtonKey = GlobalKey();
 
@@ -38,12 +36,9 @@ class _ListCamposState extends State<ListCampos> {
   double latitude = 0.0;
   double longitude = 0.0;
 
-  String filtroTipo = 'todos'; // 'todos', 'publico', 'privado'
-
   @override
   void initState() {
     super.initState();
-    currentUser = getMyUser(1);
     _getCurrentLocation();
   }
 
@@ -76,13 +71,15 @@ class _ListCamposState extends State<ListCampos> {
 
   @override
   Widget build(BuildContext context) {
+    // Obter o utilizador atual do Provider
+    final currentUser = Provider.of<UserProvider>(context).user;
+
     final List<Campo> camposFiltrados = filter_campos.filterCampos(
       campos: campos,
       query: searchController.text,
       isAscending: isAscending,
       filtroTipo: widget.filtroTipo,
     );
-
 
     return Scaffold(
       extendBody: true,
@@ -93,10 +90,11 @@ class _ListCamposState extends State<ListCampos> {
           Scaffold(
             backgroundColor: const Color.fromARGB(0, 0, 0, 0),
             appBar: CustomAppBar(
-              user: currentUser,
+              user: currentUser!,
               notificationButtonKey: notificationButtonKey,
               onNotificationPressed: (context) {
-                dpd.showNotificationDropdown(context, notificationButtonKey);
+                dpd.showNotificationDropdown(
+                    context, notificationButtonKey, currentUser);
               },
               onMenuPressed: (context, items) {
                 dpd.toggleDropdownOverlay(context, items);
@@ -149,28 +147,28 @@ class _ListCamposState extends State<ListCampos> {
                     ),
                   ),
                   Expanded(
-                    child:
-                        isMapView? map_view.MapView(
-                          campos: camposFiltrados,
-                          userLocation: LatLng(latitude, longitude),
-                          onCampoSelected: (campo) {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (_) => CampoDetails(campo: campo),
-                              ),
-                            );
-                          },
-                        )
+                    child: isMapView
+                        ? map_view.MapView(
+                            campos: camposFiltrados,
+                            userLocation: LatLng(latitude, longitude),
+                            onCampoSelected: (campo) {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (_) => CampoDetails(campo: campo),
+                                ),
+                              );
+                            },
+                          )
                         : list_view.buildListViewWithLoadMore(
-                          camposFiltrados,
-                          camposVisiveis,
-                          () {
-                            setState(() {
-                              camposVisiveis += 5;
-                            });
-                          },
-                        ),
+                            camposFiltrados,
+                            camposVisiveis,
+                            () {
+                              setState(() {
+                                camposVisiveis += 5;
+                              });
+                            },
+                          ),
                   ),
                 ],
               ),

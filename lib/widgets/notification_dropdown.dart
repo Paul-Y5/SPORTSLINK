@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:sports_link/models/utilizador.dart';
 import 'package:sports_link/widgets/notification_item.dart'
     as notification_item;
 
@@ -6,6 +7,7 @@ void showNotificationDropdown({
   required BuildContext context,
   required GlobalKey notificationButtonKey,
   required Function() onClose,
+  required Utilizador user,
 }) {
   final RenderBox buttonBox =
       notificationButtonKey.currentContext!.findRenderObject() as RenderBox;
@@ -20,15 +22,28 @@ void showNotificationDropdown({
       buttonPosition.dx + buttonSize.width,
       0,
     ),
-    items: _buildNotificationItems(),
+    items: _buildNotificationItems(user.notificacoes),
   ).then((_) => onClose());
 }
 
-List<PopupMenuItem<String>> _buildNotificationItems() {
+List<PopupMenuItem<String>> _buildNotificationItems(
+  List<String> notifications,
+) {
+  if (notifications.isEmpty) {
+    return [
+      const PopupMenuItem<String>(
+        value: 'none',
+        child: ListTile(
+          leading: Icon(Icons.notifications_off, color: Colors.grey),
+          title: Text('Sem notificações no momento'),
+        ),
+      ),
+    ];
+  }
+
   return [
-    _buildNotificationItem('Reserva #1234 confirmada com sucesso'),
-    _buildNotificationItem('Nova mensagem de Rafael'),
-    _buildNotificationItem('Partida #5678 foi cancelada'),
+    for (String notification in notifications)
+      _buildNotificationItem(notification),
   ];
 }
 

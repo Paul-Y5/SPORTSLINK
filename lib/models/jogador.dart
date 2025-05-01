@@ -67,6 +67,96 @@ class Jogador extends Utilizador {
     return 'Jogador{id: $id, nome: $nome, email: $email, numTele: $numTele, password: $password, nacionalidade: $nacionalidade, idade: $idade, descricao: $descricao}';
   }
 
+  // Setters
+Jogador setAltura(double altura) {
+    this.altura = altura;
+    return this;
+  }
+
+  Jogador setPeso(double peso) {
+    this.peso = peso;
+    return this;
+  }
+
+  Jogador setDescricao(String descricao) {
+    this.descricao = descricao;
+    return this;
+  }
+
+  Jogador setIdade(int idade) {
+    this.idade = idade;
+    return this;
+  }
+
+  Jogador setNacionalidade(String nacionalidade) {
+    this.nacionalidade = nacionalidade;
+    return this;
+  }
+
+  Jogador setUtilizador(String utilizador) {
+    this.utilizador = utilizador;
+    return this;
+  }
+
+  Jogador setCreateDate(DateTime createDate) {
+    this.createDate = createDate;
+    return this;
+  }
+
+  Jogador setNumTele(int numTele) {
+    this.numTele = numTele;
+    return this;
+  }
+
+  Jogador setEmail(String email) {
+    this.email = email;
+    return this;
+  }
+
+  Jogador setNome(String nome) {
+    this.nome = nome;
+    return this;
+  }
+
+  // Método para adicionar um amigo
+  void adicionarAmigo(Utilizador amigo) {
+    amigos.add(amigo);
+  }
+
+  // Método para remover um amigo
+  void removerAmigo(Utilizador amigo) {
+    amigos.remove(amigo);
+  }
+
+  // Método para adicionar uma partida
+  void adicionarPartida(Partida partida) {
+    partidas.add(partida);
+  }
+
+  // Método para remover uma partida
+  void removerPartida(Partida partida) {
+    partidas.remove(partida);
+  }
+
+
+  // Método para adicionar um desporto
+  void adicionarDesporto(Desportos desporto) {
+    if (!desportos.contains(desporto)) {
+      desportos.add(desporto);
+    } else {
+      debugPrint('Desporto já adicionado!');
+    }
+  }
+
+  // Método para remover um desporto
+  void removerDesporto(Desportos desporto) {
+    if (desportos.contains(desporto)) {
+      desportos.remove(desporto);
+    } else {
+      debugPrint('Desporto não encontrado!');
+    }
+  }
+
   // Método para adicionar uma conquista
   void adicionarConquista(Conquista conquista) {
     conquistas.add(conquista);
@@ -131,4 +221,5 @@ class Jogador extends Utilizador {
       mediaAvaliacoes = 0.0;
     }
   }
+
 }

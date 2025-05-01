@@ -1,8 +1,17 @@
 import 'package:flutter/material.dart';
-import 'screens/home_page.dart';
+import 'package:provider/provider.dart';
+import 'package:sports_link/screens/home_page.dart';
+import 'package:sports_link/controllers/user_provider.dart';
 
 void main() {
-  runApp(const MyApp());
+  runApp(
+    MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (_) => UserProvider()),
+      ],
+      child: const MyApp(),
+    ),
+  );
 }
 
 class MyApp extends StatelessWidget {
@@ -12,7 +21,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      initialRoute: '/home',  /* /home para app funcionar a partir da página de login */
+      initialRoute: '/home',
       routes: {
         '/home': (context) => HomePage(),
       },

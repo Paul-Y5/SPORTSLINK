@@ -59,7 +59,7 @@ class _MainPage1State extends State<MainPage1> {
             appBar: CustomAppBar(
               notificationButtonKey: notificationButtonKey,
               onNotificationPressed: (context) {
-                dpd.showNotificationDropdown(context, notificationButtonKey);
+                dpd.showNotificationDropdown(context, notificationButtonKey, currentUser);
               },
               onMenuPressed: (context, items) {
                 dpd.toggleDropdownOverlay(context, items);

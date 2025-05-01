@@ -39,7 +39,7 @@ class _PerfilPageState extends State<PerfilPage> {
             backgroundColor: Colors.transparent,
             appBar: CustomAppBar(
               notificationButtonKey: notificationButtonKey,
-              onNotificationPressed: (context) => dpd.showNotificationDropdown(context, notificationButtonKey),
+              onNotificationPressed: (context) => dpd.showNotificationDropdown(context, notificationButtonKey, widget.user),
               onMenuPressed: dpd.toggleDropdownOverlay,
               user: widget.user,
             ),

@@ -129,9 +129,7 @@ class _MapViewState extends State<MapView> {
                                 Navigator.push(
                                   context,
                                   MaterialPageRoute(
-                                    builder:
-                                        (_) =>
-                                            CampoDetails(campo: selectedCampo!),
+                                    builder:(_) =>CampoDetails(campo: selectedCampo!),
                                   ),
                                 );
                               },

@@ -1,18 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:intl/date_symbol_data_local.dart';
-import 'package:sports_link/data/my_user.dart';
 import 'package:table_calendar/table_calendar.dart';
 
 import 'package:sports_link/models/campo_priv.dart';
+import 'package:sports_link/models/utilizador.dart';
 import 'package:sports_link/styles/carouselbg.dart';
 import 'package:sports_link/styles/custom_appbar.dart';
 import 'package:sports_link/controllers/controller_dropdown.dart' as dpd;
 
 class PageReserva extends StatefulWidget {
   final CampoPriv campo;
+  final Utilizador user;
 
-  const PageReserva({super.key, required this.campo});
+  const PageReserva({super.key, required this.campo, required this.user});
 
   @override
   PageReservaState createState() => PageReservaState();
@@ -26,15 +27,13 @@ class PageReservaState extends State<PageReserva> {
 
   final GlobalKey notificationButtonKey = GlobalKey();
   bool isDropdownOpen = false;
-  int notificationCount = 0;
 
   @override
   void initState() {
     super.initState();
-    // Inicializando a formatação de data para o português
     initializeDateFormatting('pt_PT', null)
         .then((_) {
-          setState(() {}); // Atualizar o estado após a inicialização
+          setState(() {});
         })
         .catchError((e) {
           debugPrint('Erro ao inicializar a formatação de data: $e');
@@ -48,20 +47,24 @@ class PageReservaState extends State<PageReserva> {
       extendBodyBehindAppBar: true,
       body: Stack(
         children: [
-          const Carouselbg(), // Fundo dinâmico
+          const Carouselbg(),
           Scaffold(
             backgroundColor: Colors.transparent,
             appBar: CustomAppBar(
               notificationButtonKey: notificationButtonKey,
               onNotificationPressed: (context) {
-                dpd.showNotificationDropdown(context, notificationButtonKey);
+                dpd.showNotificationDropdown(
+                  context,
+                  notificationButtonKey,
+                  widget.user,
+                );
               },
               onMenuPressed: (context, items) {
                 dpd.toggleDropdownOverlay(context, items);
-              }, user: getMyUser(1), // Adicione o usuário atual aqui
+              },
+              user: widget.user,
             ),
             body: SingleChildScrollView(
-              // Adicionado para evitar overflow
               child: Padding(
                 padding: const EdgeInsets.all(16.0),
                 child: Column(
@@ -75,8 +78,6 @@ class PageReservaState extends State<PageReserva> {
                       ),
                     ),
                     const SizedBox(height: 20),
-
-                    // Calendário com fundo
                     Container(
                       decoration: BoxDecoration(
                         color: const Color.fromARGB(165, 255, 255, 255),
@@ -88,9 +89,7 @@ class PageReservaState extends State<PageReserva> {
                         focusedDay: focusedDay,
                         calendarFormat: CalendarFormat.month,
                         startingDayOfWeek: StartingDayOfWeek.monday,
-                        selectedDayPredicate: (day) {
-                          return isSameDay(today, day);
-                        },
+                        selectedDayPredicate: (day) => isSameDay(today, day),
                         onDaySelected: (selectedDay, focusedDayUpdate) {
                           setState(() {
                             today = selectedDay;
@@ -105,7 +104,6 @@ class PageReservaState extends State<PageReserva> {
                               'EEEE',
                               'pt_PT',
                             ).format(day);
-
                             if (widget.campo.diasFuncionamento.containsKey(
                               dayOfWeek,
                             )) {
@@ -127,19 +125,16 @@ class PageReservaState extends State<PageReserva> {
                         ),
                       ),
                     ),
-
                     const SizedBox(height: 20),
-                    // Botão para escolher horário
                     ElevatedButton(
                       onPressed: () => _showAvailableTimes(context),
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.orange, // Cor de fundo do botão
-                        foregroundColor: Colors.black, // Cor do texto
+                        backgroundColor: Colors.orange,
+                        foregroundColor: Colors.black,
                       ),
                       child: const Text('Escolher horário'),
                     ),
                     const SizedBox(height: 20),
-                    // Botão para confirmar reserva
                     ElevatedButton(
                       onPressed: () {
                         if (selectedStartTime != null) {
@@ -161,8 +156,8 @@ class PageReservaState extends State<PageReserva> {
                         }
                       },
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.orange, // Cor de fundo do botão
-                        foregroundColor: Colors.black, // Cor do texto
+                        backgroundColor: Colors.orange,
+                        foregroundColor: Colors.black,
                       ),
                       child: const Text('Confirmar Reserva'),
                     ),

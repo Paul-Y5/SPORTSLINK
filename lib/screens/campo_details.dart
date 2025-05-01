@@ -2,11 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:latlong2/latlong.dart';
+import 'package:provider/provider.dart';
 import 'package:sports_link/data/mock_data.dart';
+import 'package:sports_link/controllers/user_provider.dart';
 import 'package:sports_link/models/arrendador.dart';
 import 'package:sports_link/models/campo.dart';
 import 'package:sports_link/models/campo_priv.dart';
 import 'package:sports_link/models/campo_pub.dart';
+import 'package:sports_link/models/utilizador.dart';
 import 'package:sports_link/screens/page_reserva.dart';
 import 'package:sports_link/screens/perfil_page.dart';
 import 'package:sports_link/styles/carouselbg.dart';
@@ -24,13 +27,14 @@ class CampoDetails extends StatefulWidget {
 class _CampoDetailsState extends State<CampoDetails> {
   @override
   Widget build(BuildContext context) {
+
     return Scaffold(
       extendBody: true,
       extendBodyBehindAppBar: true,
       backgroundColor: Colors.transparent,
       body: Stack(
         children: [
-          const Carouselbg(), // Fundo dinâmico
+          const Carouselbg(),
           Scaffold(
             backgroundColor: Colors.transparent,
             body: SingleChildScrollView(
@@ -53,15 +57,11 @@ class _CampoDetailsState extends State<CampoDetails> {
                       ),
                     ),
                     const SizedBox(height: 20),
-
-                    // Imagem do campo
                     ClipRRect(
                       borderRadius: BorderRadius.circular(16),
                       child: Image.asset(widget.campo.imagem),
                     ),
                     const SizedBox(height: 20),
-
-                    // Localização com mini mapa
                     MenuCard(
                       icon: Icons.location_on,
                       text: 'Localização',
@@ -70,8 +70,6 @@ class _CampoDetailsState extends State<CampoDetails> {
                       onPressed: _openMap,
                     ),
                     const SizedBox(height: 10),
-
-                    // Card de Informações
                     Container(
                       padding: const EdgeInsets.all(16),
                       decoration: BoxDecoration(
@@ -91,7 +89,7 @@ class _CampoDetailsState extends State<CampoDetails> {
                           ),
                           const SizedBox(height: 10),
 
-                          // Informações específicas para CampoPriv
+                          // CampoPriv
                           if (widget.campo is CampoPriv) ...[
                             GestureDetector(
                               onTap: _openArrendadorProfile,
@@ -141,7 +139,7 @@ class _CampoDetailsState extends State<CampoDetails> {
                             ),
                           ],
 
-                          // Informações específicas para CampoPub
+                          // CampoPub
                           if (widget.campo is CampoPub) ...[
                             Text(
                               'Entidade Responsável: ${(widget.campo as CampoPub).entidadePublicaResp}',
@@ -167,12 +165,11 @@ class _CampoDetailsState extends State<CampoDetails> {
     );
   }
 
-  // Métodos auxiliares:
   String _getNomeArrendador() {
     if (widget.campo is CampoPriv) {
-      final arrendadorCampo = (widget.campo as CampoPriv).idArrendador;
+      final idArrendador = (widget.campo as CampoPriv).idArrendador;
       for (var arrendador in mockUsers.values) {
-        if (arrendador.id == arrendadorCampo) {
+        if (arrendador.id == idArrendador) {
           return arrendador.nome;
         }
       }
@@ -182,10 +179,10 @@ class _CampoDetailsState extends State<CampoDetails> {
 
   String _getMetodosPagamento() {
     if (widget.campo is CampoPriv) {
-      final arrendadorCampo = (widget.campo as CampoPriv).idArrendador;
+      final idArrendador = (widget.campo as CampoPriv).idArrendador;
       for (var arrendador in mockUsers.values) {
         arrendador as Arrendador;
-        if (arrendador.id == arrendadorCampo) {
+        if (arrendador.id == idArrendador) {
           return arrendador.metodosPagamento.values.join(', ');
         }
       }
@@ -218,6 +215,7 @@ class _CampoDetailsState extends State<CampoDetails> {
     );
 
     showDialog(
+      // ignore: use_build_context_synchronously
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
@@ -295,7 +293,7 @@ class _CampoDetailsState extends State<CampoDetails> {
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => PageReserva(campo: widget.campo as CampoPriv),
+        builder: (context) => PageReserva(campo: widget.campo as CampoPriv, user: Provider.of<UserProvider>(context).user as Utilizador),
       ),
     );
   }
@@ -303,15 +301,13 @@ class _CampoDetailsState extends State<CampoDetails> {
   void _openArrendadorProfile() {
     if (widget.campo is CampoPriv) {
       final idArrendador = (widget.campo as CampoPriv).idArrendador;
-      final arrendador = mockUsers.values.firstWhere(
-        (a) => a.id == idArrendador,
-      );
+      final arrendador =
+          mockUsers.values.firstWhere((a) => a.id == idArrendador)
+              as Arrendador;
 
       Navigator.push(
         context,
-        MaterialPageRoute(
-          builder: (context) => PerfilPage(user: arrendador),
-        ),
+        MaterialPageRoute(builder: (context) => PerfilPage(user: arrendador)),
       );
     }
   }
