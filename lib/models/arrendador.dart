@@ -6,7 +6,7 @@ import 'package:sports_link/models/reserva.dart';
 class Arrendador extends Jogador {
   // Atributos específicos do Arrendador
   int noCampos;
-  int iban;
+  String iban;
 
   List<CampoPriv> camposPrivados = [];
   List<Reserva> reservas = [];
@@ -60,7 +60,7 @@ class Arrendador extends Jogador {
       idade: json['idade'] as int,
       descricao: json['descricao'] as String,
       noCampos: json['noCampos'] as int,
-      iban: json['iban'] as int,
+      iban: json['iban'] as String,
       utilizador: '',
       createDate: null,
     );

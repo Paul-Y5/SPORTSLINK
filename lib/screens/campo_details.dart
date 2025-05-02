@@ -3,16 +3,18 @@ import 'package:flutter_map/flutter_map.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:provider/provider.dart';
+import 'package:sports_link/controllers/controller_dropdown.dart' as dpd;
 import 'package:sports_link/data/mock_data.dart';
 import 'package:sports_link/controllers/user_provider.dart';
 import 'package:sports_link/models/arrendador.dart';
 import 'package:sports_link/models/campo.dart';
 import 'package:sports_link/models/campo_priv.dart';
 import 'package:sports_link/models/campo_pub.dart';
-import 'package:sports_link/models/utilizador.dart';
+import 'package:sports_link/models/jogador.dart';
 import 'package:sports_link/screens/page_reserva.dart';
 import 'package:sports_link/screens/perfil_page.dart';
 import 'package:sports_link/styles/carouselbg.dart';
+import 'package:sports_link/styles/custom_appbar.dart';
 import 'package:sports_link/widgets/menu_card.dart';
 
 class CampoDetails extends StatefulWidget {
@@ -25,8 +27,13 @@ class CampoDetails extends StatefulWidget {
 }
 
 class _CampoDetailsState extends State<CampoDetails> {
+  bool isDropdownOpen = false; // Variável para controlar o estado do dropdown
+  final GlobalKey notificationButtonKey = GlobalKey(); // Chave para o botão de notificações
+
   @override
   Widget build(BuildContext context) {
+    // Obter o utilizador atual do Provider
+    final currentUser = Provider.of<UserProvider>(context).user;
 
     return Scaffold(
       extendBody: true,
@@ -35,8 +42,26 @@ class _CampoDetailsState extends State<CampoDetails> {
       body: Stack(
         children: [
           const Carouselbg(),
+          if (isDropdownOpen)
+            const ModalBarrier(
+              color: Color.fromARGB(128, 0, 0, 0),
+              dismissible: false,
+            ),
           Scaffold(
             backgroundColor: Colors.transparent,
+            appBar: CustomAppBar(
+              notificationButtonKey: notificationButtonKey,
+              onNotificationPressed: (context) {
+                dpd.showNotificationDropdown(context, notificationButtonKey, currentUser);
+              },
+              onMenuPressed: (context, items) {
+                setState(() {
+                  isDropdownOpen = !isDropdownOpen;
+                });
+                dpd.toggleDropdownOverlay(context, items);
+              },
+              user: currentUser as Jogador,
+            ),
             body: SingleChildScrollView(
               child: Padding(
                 padding: const EdgeInsets.symmetric(
@@ -89,7 +114,6 @@ class _CampoDetailsState extends State<CampoDetails> {
                           ),
                           const SizedBox(height: 10),
 
-                          // CampoPriv
                           if (widget.campo is CampoPriv) ...[
                             GestureDetector(
                               onTap: _openArrendadorProfile,
@@ -123,10 +147,10 @@ class _CampoDetailsState extends State<CampoDetails> {
                               style: ElevatedButton.styleFrom(
                                 backgroundColor: Colors.orange,
                                 padding: const EdgeInsets.symmetric(
-                                  vertical: 16,
+                                  vertical: 12,
                                 ),
                                 shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(16),
+                                  borderRadius: BorderRadius.circular(12),
                                 ),
                               ),
                               child: const Text(
@@ -136,10 +160,9 @@ class _CampoDetailsState extends State<CampoDetails> {
                                   color: Colors.black,
                                 ),
                               ),
-                            ),
+                            ),                       
                           ],
 
-                          // CampoPub
                           if (widget.campo is CampoPub) ...[
                             Text(
                               'Entidade Responsável: ${(widget.campo as CampoPub).entidadePublicaResp}',
@@ -293,7 +316,9 @@ class _CampoDetailsState extends State<CampoDetails> {
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => PageReserva(campo: widget.campo as CampoPriv, user: Provider.of<UserProvider>(context).user as Utilizador),
+        builder:
+            (context) =>
+                PageReserva(campo: widget.campo as CampoPriv, user: Provider.of<UserProvider>(context).user as Jogador),
       ),
     );
   }
@@ -311,4 +336,5 @@ class _CampoDetailsState extends State<CampoDetails> {
       );
     }
   }
+
 }

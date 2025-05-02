@@ -3,9 +3,11 @@ import 'package:sports_link/models/ponto.dart';
 
 class CampoPub extends Campo {
   String entidadePublicaResp;
+  bool partidaEmCurso; // NOVO CAMPO
 
   CampoPub({
     required this.entidadePublicaResp,
+    this.partidaEmCurso = false, // valor inicial padrão
     required super.id,
     required super.idPonto,
     required super.idMapa,
@@ -15,7 +17,7 @@ class CampoPub extends Campo {
     required super.ocupado,
     required super.descricao,
     required super.ponto,
-    super.imagem, // Permite null, mas o valor padrão será tratado na classe base
+    super.imagem,
   });
 
   factory CampoPub.fromJson(Map<String, dynamic> json) {
@@ -28,9 +30,13 @@ class CampoPub extends Campo {
       largura: (json['Largura'] as num).toDouble(),
       ocupado: json['ocupado'] == 1,
       descricao: json['Descricao'] as String,
-      imagem: json['Imagem'] as String?, // Passa o valor diretamente
+      imagem: json['Imagem'] as String?,
       entidadePublicaResp: json['Entidade_publica_resp'] as String,
-      ponto: json['Ponto'] != null ? Ponto.fromJson(json['Ponto']) : Ponto.defaultInstance(),
+      ponto:
+          json['Ponto'] != null
+              ? Ponto.fromJson(json['Ponto'])
+              : Ponto.defaultInstance(),
+      partidaEmCurso: json['Partida_em_curso'] == true, // pode vir de JSON
     );
   }
 
@@ -38,11 +44,12 @@ class CampoPub extends Campo {
   Map<String, dynamic> toJson() {
     final base = super.toJson();
     base['Entidade_publica_resp'] = entidadePublicaResp;
+    base['Partida_em_curso'] = partidaEmCurso; // incluir no JSON
     return base;
   }
 
   @override
   String toString() {
-    return 'CampoPub(${super.toString()}, entidadePublicaResp: $entidadePublicaResp)';
+    return 'CampoPub(${super.toString()}, entidadePublicaResp: $entidadePublicaResp, partidaEmCurso: $partidaEmCurso)';
   }
 }

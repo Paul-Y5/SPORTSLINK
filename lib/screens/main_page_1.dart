@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:sports_link/data/mock_data.dart';
 import 'package:sports_link/data/my_user.dart';
 import 'package:sports_link/models/arrendador.dart';
 import 'package:sports_link/models/jogador.dart';
@@ -100,7 +101,7 @@ class _MainPage1State extends State<MainPage1> {
                                         () => _showNavigationPopup(context),
                                   ),
                                 ),
-                                const SizedBox(width: 10),
+                                const SizedBox(width: 20),
                                 Expanded(
                                   child: MenuCard(
                                     icon: Icons.search,
@@ -121,7 +122,7 @@ class _MainPage1State extends State<MainPage1> {
                               ],
                             ),
                           ),
-                          const SizedBox(height: 10),
+                          const SizedBox(height: 20),
                           Padding(
                             padding: const EdgeInsets.symmetric(horizontal: 16),
                             child: MenuCard(
@@ -139,7 +140,7 @@ class _MainPage1State extends State<MainPage1> {
                               },
                             ),
                           ),
-                          const SizedBox(height: 120),
+                          const SizedBox(height: 10),
                           if (currentUser is Jogador &&
                               currentUser is! Arrendador)
                             Padding(
@@ -147,7 +148,7 @@ class _MainPage1State extends State<MainPage1> {
                                 horizontal: 16,
                               ),
                               child: MenuCard(
-                                icon: Icons.add_location_alt,
+                                icon: Icons.face_retouching_natural_rounded,
                                 text: 'Tornar-me Arrendador',
                                 color: Colors.red,
                                 fullWidth: true,
@@ -155,7 +156,7 @@ class _MainPage1State extends State<MainPage1> {
                                     () => showArrendadorFormPopup(context),
                               ),
                             ),
-                          const SizedBox(height: 120),
+                          const SizedBox(height: 0),
                           CarouselBar(
                             newsItems: [
                               '🔥 Novas funcionalidades disponíveis!',
@@ -270,7 +271,7 @@ class _MainPage1State extends State<MainPage1> {
                         controller: ibanController,
                         decoration: const InputDecoration(labelText: 'IBAN'),
                         validator: (value) {
-                          if (value == null || value.length < 15) {
+                          if (value == null || value.length < 15 || value.length > 34 || !RegExp(r'^[A-Z]{2}\d{2}[A-Z0-9]{1,30}$').hasMatch(value)) {
                             return 'IBAN inválido.';
                           }
                           return null;
@@ -301,10 +302,17 @@ class _MainPage1State extends State<MainPage1> {
               ),
               actions: [
                 TextButton(
-                  child: const Text('Cancelar'),
+                  style: TextButton.styleFrom(
+                    foregroundColor: Colors.red,
+                  ),
                   onPressed: () => Navigator.of(context).pop(),
+                  child: const Text('Cancelar', style: TextStyle(color: Colors.black)),
                 ),
                 ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: termosAceites ? Colors.orange : Colors.grey,
+                    disabledBackgroundColor: Colors.grey,
+                  ),
                   onPressed:
                       termosAceites
                           ? () {
@@ -313,15 +321,31 @@ class _MainPage1State extends State<MainPage1> {
                               ScaffoldMessenger.of(context).showSnackBar(
                                 const SnackBar(
                                   content: Text(
-                                    'Pedido de arrendador enviado!',
+                                    'A tua conta de arrendador foi criada com sucesso!\nTerás acesso a novas funcionalidades depois das informações serem validadas.',
+                                    style: TextStyle(color: Colors.black),
                                   ),
                                 ),
                               );
-                              // Aqui podes guardar o IBAN ou enviar para backend.
+                              if (currentUser is Jogador) {
+                                final jogador = currentUser as Jogador;
+                              mockUsers[widget.id] = Arrendador(
+                                id: widget.id,
+                                nome: jogador.nome,
+                                email: jogador.email,
+                                iban: ibanController.text, 
+                                noCampos: 0,
+                                numTele: jogador.numTele,
+                                password: jogador.password,
+                                nacionalidade: jogador.nacionalidade,
+                                idade: jogador.idade,
+                                descricao: jogador.descricao,
+                                utilizador: jogador.utilizador,
+                                createDate: jogador.createDate,
+                              );}
                             }
                           }
                           : null,
-                  child: const Text('Submeter'),
+                  child: const Text('Submeter', style: TextStyle(color: Colors.black)),
                 ),
               ],
             );

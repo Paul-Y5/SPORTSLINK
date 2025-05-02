@@ -119,7 +119,7 @@ final Map<int, Utilizador> mockUsers = {
     idade: 35,
     descricao: 'Arrendador experiente com vários campos disponíveis.',
     noCampos: 3,
-    iban: 123456789,
+    iban: "BR99123456789",
     utilizador: 'joaosilva',
     createDate: DateTime.now(),
   )..adicionarMetodoPagamento('metodo1', 'Cartão de Crédito')
@@ -134,7 +134,7 @@ final Map<int, Utilizador> mockUsers = {
     idade: 37,
     descricao: 'Gestora de campos desportivos com foco em futebol.',
     noCampos: 4,
-    iban: 556677889,
+    iban: "PT50556677889",
     utilizador: 'anacosta',
     createDate: DateTime.now(),
   )..adicionarMetodoPagamento('metodo1', 'MB Way')

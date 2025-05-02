@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:sports_link/models/arrendador.dart';
 import 'package:sports_link/models/utilizador.dart';
+import 'package:sports_link/screens/arr_campos_list.dart';
 import 'package:sports_link/screens/home_page.dart';
 import 'package:sports_link/screens/main_page_1.dart';
 import 'package:sports_link/screens/perfil_page.dart'; // Importa a MainPage1
@@ -41,8 +43,14 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
             }),
             _buildMenuItem('Amigos', Icons.group, 'Amigos'),
             _buildMenuItem('Partidas', Icons.sports_sharp, 'Partidas Jogadas'),
-            if (true)
-              _buildMenuItem('Meus Campos', Icons.account_balance_rounded, 'Meus Campos'),
+            if (user is Arrendador)
+              _buildMenuItem('Meus Campos', Icons.account_balance_rounded, 'Meus Campos',
+                  onTap: () {
+                    Navigator.pushReplacement(
+                      context,
+                      MaterialPageRoute(builder: (context) => ArrCamposList()),
+                    );
+                  }),
             _buildMenuItem('Definições & Ajuda', Icons.settings, 'Definições & Ajuda'),
             _buildMenuItem('Sair', Icons.logout, 'Sair', onTap: () {
               // Adicione a lógica de logout aqui
