@@ -8,6 +8,7 @@ class CampoPriv extends Campo {
   late Arrendador arrendador;
   double preco;
   Map<String, List<TimeOfDay>> diasFuncionamento;
+  Map<String, List<TimeOfDay>>? reservas;
 
   CampoPriv({
     required this.idArrendador,

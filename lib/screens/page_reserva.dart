@@ -24,9 +24,9 @@ class PageReservaState extends State<PageReserva> {
   DateTime focusedDay = DateTime.now();
   TimeOfDay? selectedStartTime;
   TimeOfDay? selectedEndTime;
+  String? metodoPagamentoSelecionado;
 
   final GlobalKey notificationButtonKey = GlobalKey();
-  bool isDropdownOpen = false;
 
   @override
   void initState() {
@@ -70,7 +70,7 @@ class PageReservaState extends State<PageReserva> {
                 child: Column(
                   children: [
                     Text(
-                      'Agendar para o campo: ${widget.campo.nome}',
+                      widget.campo.nome,
                       style: const TextStyle(
                         fontSize: 22,
                         fontWeight: FontWeight.bold,
@@ -100,32 +100,97 @@ class PageReservaState extends State<PageReserva> {
                         },
                         calendarBuilders: CalendarBuilders(
                           defaultBuilder: (context, day, focusedDay) {
-                            final String dayOfWeek = DateFormat(
-                              'EEEE',
-                              'pt_PT',
-                            ).format(day);
-                            if (widget.campo.diasFuncionamento.containsKey(
+                            final String dayOfWeek =
+                                DateFormat(
+                                  'EEEE',
+                                  'pt_PT',
+                                ).format(day).toLowerCase();
+
+                            if (!widget.campo.diasFuncionamento.containsKey(
                               dayOfWeek,
                             )) {
-                              return Container(
-                                margin: const EdgeInsets.all(6.0),
-                                alignment: Alignment.center,
-                                decoration: BoxDecoration(
-                                  color: Colors.green,
-                                  borderRadius: BorderRadius.circular(10),
-                                ),
-                                child: Text(
-                                  '${day.day}',
-                                  style: const TextStyle(color: Colors.black),
-                                ),
-                              );
+                              return null;
                             }
-                            return null;
+
+                            final totalSlots =
+                                widget
+                                    .campo
+                                    .diasFuncionamento[dayOfWeek]
+                                    ?.length ??
+                                0;
+
+                            final reservasDoDia =
+                                widget.campo.reservas?[DateFormat(
+                                  'yyyy-MM-dd',
+                                ).format(day)] ??
+                                [];
+
+                            final int reservasCount = reservasDoDia.length;
+
+                            Color backgroundColor;
+
+                            if (reservasCount == 0) {
+                              backgroundColor = Colors.green;
+                            } else if (reservasCount < totalSlots) {
+                              backgroundColor = Colors.orange;
+                            } else {
+                              backgroundColor = Colors.red;
+                            }
+
+                            return Container(
+                              margin: const EdgeInsets.all(6.0),
+                              alignment: Alignment.center,
+                              decoration: BoxDecoration(
+                                color: backgroundColor,
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                              child: Text(
+                                '${day.day}',
+                                style: const TextStyle(color: Colors.white),
+                              ),
+                            );
                           },
                         ),
                       ),
                     ),
                     const SizedBox(height: 20),
+
+                    // Método de Pagamento
+                    if (widget.campo.arrendador.metodosPagamento.isNotEmpty)
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Text(
+                            'Método de Pagamento',
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          const SizedBox(height: 8),
+                          DropdownButton<String>(
+                            value: metodoPagamentoSelecionado,
+                            hint: const Text('Selecionar método de pagamento'),
+                            isExpanded: true,
+                            items:
+                                widget.campo.arrendador.metodosPagamento.entries
+                                    .map((entry) {
+                                      return DropdownMenuItem<String>(
+                                        value: entry.key,
+                                        child: Text(entry.value),
+                                      );
+                                    })
+                                    .toList(),
+                            onChanged: (value) {
+                              setState(() {
+                                metodoPagamentoSelecionado = value;
+                              });
+                            },
+                          ),
+                          const SizedBox(height: 20),
+                        ],
+                      ),
+
                     ElevatedButton(
                       onPressed: () => _showAvailableTimes(context),
                       style: ElevatedButton.styleFrom(
@@ -137,11 +202,12 @@ class PageReservaState extends State<PageReserva> {
                     const SizedBox(height: 20),
                     ElevatedButton(
                       onPressed: () {
-                        if (selectedStartTime != null) {
+                        if (selectedStartTime != null &&
+                            metodoPagamentoSelecionado != null) {
                           ScaffoldMessenger.of(context).showSnackBar(
                             SnackBar(
                               content: Text(
-                                'Reserva confirmada para ${widget.campo.nome} em ${DateFormat('yyyy-MM-dd').format(today)} às ${selectedStartTime!.format(context)}',
+                                'Reserva confirmada para ${widget.campo.nome} em ${DateFormat('yyyy-MM-dd').format(today)} às ${selectedStartTime!.format(context)}\nMétodo: ${widget.campo.arrendador.metodosPagamento[metodoPagamentoSelecionado]!}',
                               ),
                             ),
                           );
@@ -149,7 +215,7 @@ class PageReservaState extends State<PageReserva> {
                           ScaffoldMessenger.of(context).showSnackBar(
                             const SnackBar(
                               content: Text(
-                                'Por favor, selecione a data e o horário',
+                                'Por favor, selecione a data, horário e método de pagamento',
                               ),
                             ),
                           );
@@ -172,11 +238,11 @@ class PageReservaState extends State<PageReserva> {
   }
 
   void _showAvailableTimes(BuildContext context) {
-    final String dayOfWeek = DateFormat('EEEE', 'pt_PT').format(today);
-    final availableTimes =
-        widget.campo.diasFuncionamento[dayOfWeek] as List<List<TimeOfDay>>?;
+    final String dayOfWeek =
+        DateFormat('EEEE', 'pt_PT').format(today).toLowerCase();
+    final timeRange = widget.campo.diasFuncionamento[dayOfWeek];
 
-    if (availableTimes == null || availableTimes.isEmpty) {
+    if (timeRange == null || timeRange.length < 2) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text('Não há horários disponíveis para este dia.'),
@@ -190,23 +256,17 @@ class PageReservaState extends State<PageReserva> {
       builder: (BuildContext context) {
         return AlertDialog(
           title: const Text('Escolher horário'),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children:
-                availableTimes.map((timeRange) {
-                  return ListTile(
-                    title: Text(
-                      '${timeRange[0].format(context)} - ${timeRange[1].format(context)}',
-                    ),
-                    onTap: () {
-                      setState(() {
-                        selectedStartTime = timeRange[0];
-                        selectedEndTime = timeRange[1];
-                      });
-                      Navigator.pop(context);
-                    },
-                  );
-                }).toList(),
+          content: ListTile(
+            title: Text(
+              '${timeRange[0].format(context)} - ${timeRange[1].format(context)}',
+            ),
+            onTap: () {
+              setState(() {
+                selectedStartTime = timeRange[0];
+                selectedEndTime = timeRange[1];
+              });
+              Navigator.pop(context);
+            },
           ),
         );
       },
