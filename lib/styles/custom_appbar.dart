@@ -42,7 +42,9 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
               );
             }),
             _buildMenuItem('Amigos', Icons.group, 'Amigos'),
-            _buildMenuItem('Partidas', Icons.sports_sharp, 'Partidas Jogadas'),
+            _buildMenuItem('Partidas', Icons.sports_sharp, 'Partidas', onTap: () {
+              // Adicione a lógica para navegar para a tela de partidas
+            }),
             if (user is Arrendador)
               _buildMenuItem('Meus Campos', Icons.account_balance_rounded, 'Meus Campos',
                   onTap: () {

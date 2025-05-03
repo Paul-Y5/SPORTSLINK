@@ -1,0 +1,152 @@
+import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:sports_link/controllers/user_provider.dart';
+import 'package:sports_link/models/jogador.dart';
+import 'package:sports_link/models/partida.dart';
+
+class ListaPartidasPage extends StatefulWidget {
+  const ListaPartidasPage({super.key});
+
+  @override
+  State<ListaPartidasPage> createState() => _ListaPartidasPageState();
+}
+
+class _ListaPartidasPageState extends State<ListaPartidasPage> {
+  late List<Partida> partidasPublicas;
+  late List<Partida> partidasPrivadas;
+
+  @override
+  void initState() {
+    final currentUser = Provider.of<UserProvider>(context).user as Jogador;
+
+    super.initState();
+    // Inicializar as listas de partidas
+    partidasPublicas = currentUser.partidas
+        .where((partida) => partida.tipo == TipoPartida.publica)
+        .toList();
+    partidasPrivadas = currentUser.partidas
+        .where((partida) => partida.tipo == TipoPartida.privada)
+        .toList();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Minhas Partidas'),
+        backgroundColor: Colors.orange,
+      ),
+      body: ListView(
+        children: [
+          // Exibindo partidas públicas
+          if (partidasPublicas.isNotEmpty) ...[
+            _buildPartidasHeader('Partidas Públicas'),
+            _buildPartidasList(partidasPublicas),
+          ],
+          // Exibindo partidas privadas
+          if (partidasPrivadas.isNotEmpty) ...[
+            _buildPartidasHeader('Partidas Privadas'),
+            _buildPartidasList(partidasPrivadas),
+          ],
+        ],
+      ),
+    );
+  }
+
+  // Função para criar o cabeçalho das partidas
+  Widget _buildPartidasHeader(String title) {
+    return Padding(
+      padding: const EdgeInsets.all(8.0),
+      child: Text(
+        title,
+        style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+      ),
+    );
+  }
+
+  // Função para construir a lista de partidas
+  Widget _buildPartidasList(List<Partida> partidas) {
+    return Column(
+      children: partidas.map((partida) {
+        return Card(
+          margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+          child: ListTile(
+            title: Text('Partida ${partida.id} - ${partida.campo.nome}'),
+            subtitle: Text(
+              '${partida.data.toLocal()} - ${partida.hora.format(context)}',
+            ),
+            trailing: Icon(_getEstadoIcon(partida.estado)),
+            onTap: () {
+              // Lógica para navegar para os detalhes da partida
+              _navigateToPartidaDetalhes(partida);
+            },
+          ),
+        );
+      }).toList(),
+    );
+  }
+
+  // Função para obter o ícone de acordo com o estado da partida
+  IconData _getEstadoIcon(EstadoPartida estado) {
+    switch (estado) {
+      case EstadoPartida.agendada:
+        return Icons.schedule;
+      case EstadoPartida.aguardando:
+        return Icons.people;
+      case EstadoPartida.emAndamento:
+        return Icons.sports;
+      case EstadoPartida.terminada:
+        return Icons.check_circle;
+      case EstadoPartida.cancelada:
+        return Icons.cancel;
+      }
+  }
+
+  // Função para navegar para os detalhes da partida
+  void _navigateToPartidaDetalhes(Partida partida) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => PartidaDetalhesPage(partida: partida),
+      ),
+    );
+  }
+}
+
+// Exemplo de uma página de detalhes da partida
+class PartidaDetalhesPage extends StatelessWidget {
+  final Partida partida;
+
+  const PartidaDetalhesPage({super.key, required this.partida});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('Detalhes da Partida ${partida.id}'),
+        backgroundColor: Colors.orange,
+      ),
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'Campo: ${partida.campo.nome}',
+              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 8),
+            Text('Data: ${partida.data.toLocal()}'),
+            Text('Hora: ${partida.hora.format(context)}'),
+            const SizedBox(height: 16),
+            Text(
+              'Estado: ${partida.estado.name}',
+              style: const TextStyle(fontSize: 16),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:sports_link/models/arrendador.dart';
 import 'package:sports_link/models/desportos.dart';
 import 'package:sports_link/models/jogador.dart';
+import 'package:sports_link/models/partida.dart';
 import 'package:sports_link/models/ponto.dart';
 import 'package:sports_link/models/campo_priv.dart';
 import 'package:sports_link/models/campo_pub.dart';
@@ -103,6 +104,34 @@ final List<Campo> mockCampos = [
       'Segunda-feira': [TimeOfDay(hour: 9, minute: 0), TimeOfDay(hour: 18, minute: 0)],
       'Quarta-feira': [TimeOfDay(hour: 9, minute: 0), TimeOfDay(hour: 18, minute: 0)],
     },
+  ),
+];
+
+// PARTIDAS
+final List<Partida> mockPartidas = [
+  Partida(
+    id: 1,
+    data: DateTime.now(),
+    hora: TimeOfDay(hour: 10, minute: 0),
+    duracao: 90.0,
+    campo: mockCampos[0],
+    resultado: '2-1',
+    jogadores: [],
+    chat: [],
+    estado: EstadoPartida.agendada,
+    tipo: TipoPartida.publica,
+  ),
+  Partida(
+    id: 2,
+    data: DateTime.now().add(Duration(days: 1)),
+    hora: TimeOfDay(hour: 15, minute: 0),
+    duracao: 60.0,
+    campo: mockCampos[1],
+    resultado: null,
+    jogadores: [],
+    chat: [],
+    estado: EstadoPartida.agendada,
+    tipo: TipoPartida.privada,
   ),
 ];
 

@@ -12,6 +12,7 @@ import 'package:sports_link/models/campo_priv.dart';
 import 'package:sports_link/models/campo_pub.dart';
 import 'package:sports_link/models/jogador.dart';
 import 'package:sports_link/screens/page_reserva.dart';
+import 'package:sports_link/screens/partida_page.dart';
 import 'package:sports_link/screens/perfil_page.dart';
 import 'package:sports_link/styles/carouselbg.dart';
 import 'package:sports_link/styles/custom_appbar.dart';
@@ -160,7 +161,7 @@ class _CampoDetailsState extends State<CampoDetails> {
                                   color: Colors.black,
                                 ),
                               ),
-                            ),                       
+                            ),
                           ],
 
                           if (widget.campo is CampoPub) ...[
@@ -172,6 +173,28 @@ class _CampoDetailsState extends State<CampoDetails> {
                             Text(
                               'Estado: ${(widget.campo as CampoPub).ocupado ? "Ocupado" : "Disponível"}',
                               style: const TextStyle(fontSize: 16),
+                            ),
+                            const SizedBox(height: 20),
+                            ElevatedButton(
+                              onPressed: (widget.campo as CampoPub).ocupado
+                                  ? null // Desabilitar o botão se o campo estiver ocupado
+                                  : _showStartMatchPopup, // Função para abrir o popup
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: Colors.orange,
+                                padding: const EdgeInsets.symmetric(
+                                  vertical: 12,
+                                ),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                              ),
+                              child: const Text(
+                                'Começar Partida',
+                                style: TextStyle(
+                                  fontSize: 18,
+                                  color: Colors.black,
+                                ),
+                              ),
                             ),
                           ],
                         ],
@@ -337,4 +360,129 @@ class _CampoDetailsState extends State<CampoDetails> {
     }
   }
 
+  void _showStartMatchPopup() {
+  final TextEditingController tempoEsperaController = TextEditingController();
+  final TextEditingController minJogadoresController = TextEditingController();
+  CampoPub? campoSelecionado;
+
+  showDialog(
+    context: context,
+    builder: (BuildContext context) {
+      return AlertDialog(
+        title: const Text('Configurar Partida'),
+        content: SingleChildScrollView(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Text(
+                'Tempo de Espera (minutos):',
+                style: TextStyle(fontWeight: FontWeight.bold),
+              ),
+              TextField(
+                controller: tempoEsperaController,
+                keyboardType: TextInputType.number,
+                decoration: const InputDecoration(
+                  hintText: 'Ex: 10',
+                ),
+              ),
+              const SizedBox(height: 16),
+              const Text(
+                'Número Mínimo de Jogadores:',
+                style: TextStyle(fontWeight: FontWeight.bold),
+              ),
+              TextField(
+                controller: minJogadoresController,
+                keyboardType: TextInputType.number,
+                decoration: const InputDecoration(
+                  hintText: 'Ex: 4',
+                ),
+              ),
+              const SizedBox(height: 16),
+              const Text(
+                'Selecionar Campo Público Disponível:',
+                style: TextStyle(fontWeight: FontWeight.bold),
+              ),
+              DropdownButton<CampoPub>(
+                isExpanded: true,
+                value: campoSelecionado,
+                hint: const Text('Selecione um campo'),
+                items: mockCampos
+                    .whereType<CampoPub>()
+                    .where((campo) => !campo.ocupado)
+                    .map((campo) {
+                  return DropdownMenuItem<CampoPub>(
+                    value: campo,
+                    child: Text(campo.nome),
+                  );
+                }).toList(),
+                onChanged: (CampoPub? novoCampo) {
+                  setState(() {
+                    campoSelecionado = novoCampo;
+                  });
+                },
+              ),
+            ],
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: const Text('Cancelar'),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              if (tempoEsperaController.text.isEmpty ||
+                  minJogadoresController.text.isEmpty ||
+                  campoSelecionado == null) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text('Preencha todos os campos!'),
+                  ),
+                );
+                return;
+              }
+
+              // Confirmar informações e redirecionar para a página da partida
+              Navigator.of(context).pop();
+              _startMatch(
+                int.parse(tempoEsperaController.text),
+                int.parse(minJogadoresController.text),
+                campoSelecionado!,
+              );
+            },
+            style: ElevatedButton.styleFrom(backgroundColor: Colors.orange),
+            child: const Text('Confirmar'),
+          ),
+        ],
+      );
+    },
+  );
+}
+
+  void _startMatch(int tempoEspera, int minJogadores, CampoPub campoSelecionado) {
+    setState(() {
+      campoSelecionado.ocupado = true; // Atualizar o estado do campo para ocupado
+    });
+
+    // Exibir mensagem de sucesso
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(
+          'Partida iniciada no campo ${campoSelecionado.nome}!',
+        ),
+      ),
+    );
+
+    // Redirecionar para a página da partida
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => PartidaPage(
+          campo: campoSelecionado,
+          tempoEspera: tempoEspera,
+          minJogadores: minJogadores,
+        ),
+      ),
+    );
+  }
 }
