@@ -3,6 +3,7 @@ import 'package:intl/intl.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:sports_link/data/my_user.dart';
 import 'package:sports_link/models/arrendador.dart';
+import 'package:sports_link/utils/general.dart';
 import 'package:table_calendar/table_calendar.dart';
 
 import 'package:sports_link/models/campo_priv.dart';
@@ -40,10 +41,6 @@ class PageReservaState extends State<PageReserva> {
         .catchError((e) {
           debugPrint('Erro ao inicializar a formatação de data: $e');
         });
-  }
-
-  String getDiaSemanaPt(DateTime date) {
-    return DateFormat('EEEE', 'pt_PT').format(date).toLowerCase();
   }
 
   @override
@@ -143,8 +140,20 @@ class PageReservaState extends State<PageReserva> {
       ),
       child: TableCalendar(
         firstDay: DateTime.now(),
-        lastDay: DateTime.utc(2025, 12, 31),
+        lastDay: DateTime.now().add(const Duration(days: 365 * 2)),
         focusedDay: focusedDay,
+        headerVisible: true,
+        headerStyle: const HeaderStyle(
+          titleCentered: true,
+          titleTextStyle: TextStyle(
+            color: Color.fromARGB(255, 0, 0, 0),
+            fontSize: 20,
+            fontWeight: FontWeight.bold,
+          ),
+          formatButtonVisible: false,
+          leftChevronIcon: Icon(Icons.chevron_left, color: Colors.orange),
+          rightChevronIcon: Icon(Icons.chevron_right, color: Colors.orange),
+        ),
         calendarFormat: CalendarFormat.month,
         startingDayOfWeek: StartingDayOfWeek.monday,
         selectedDayPredicate: (day) => isSameDay(today, day),
@@ -156,11 +165,31 @@ class PageReservaState extends State<PageReserva> {
             selectedEndTime = null;
           });
         },
+        calendarStyle: const CalendarStyle(
+          todayDecoration: BoxDecoration(),
+          selectedDecoration: BoxDecoration(),
+          defaultDecoration: BoxDecoration(),
+          weekendDecoration: BoxDecoration(),
+        ),
         calendarBuilders: CalendarBuilders(
           defaultBuilder: (context, day, _) {
             final dayOfWeek = getDiaSemanaPt(day);
+            debugPrint(
+              'Dia: $day - Dia da semana: $dayOfWeek - Funciona? ${widget.campo.diasFuncionamento.containsKey(dayOfWeek)}',
+            );
+            debugPrint(
+              "CHAVES DO diasFuncionamento: ${widget.campo.diasFuncionamento.keys.toList()}",
+            );
+
             if (!widget.campo.diasFuncionamento.containsKey(dayOfWeek)) {
-              return null;
+              return Container(
+                margin: const EdgeInsets.all(6.0),
+                alignment: Alignment.center,
+                child: Text(
+                  '${day.day}',
+                  style: const TextStyle(color: Colors.black),
+                ),
+              );
             }
 
             final totalSlots =
@@ -169,6 +198,10 @@ class PageReservaState extends State<PageReserva> {
                 widget.campo.reservas?[DateFormat('yyyy-MM-dd').format(day)] ??
                 [];
             final reservasCount = reservasDoDia.length;
+
+            debugPrint(
+              'Dia: $day - Total de slots: $totalSlots - Reservas: $reservasCount',
+            );
 
             Color backgroundColor;
             if (reservasCount == 0) {
@@ -192,12 +225,27 @@ class PageReservaState extends State<PageReserva> {
               ),
             );
           },
+          todayBuilder:
+              (context, day, _) => Container(
+                margin: const EdgeInsets.all(6.0),
+                alignment: Alignment.center,
+                decoration: BoxDecoration(
+                  color: Colors.grey, // cor de fundo cinza para o dia atual
+                  borderRadius: BorderRadius.circular(22),
+                ),
+                child: Text(
+                  '${day.day}',
+                  style: const TextStyle(
+                    color: Colors.white,
+                  ), // texto branco sobre fundo cinza
+                ),
+              ),
           selectedBuilder:
               (context, day, _) => Container(
                 margin: const EdgeInsets.all(6.0),
                 alignment: Alignment.center,
                 decoration: BoxDecoration(
-                  color: Colors.blue,
+                  color: const Color.fromARGB(255, 0, 0, 0),
                   borderRadius: BorderRadius.circular(10),
                 ),
                 child: Text(
@@ -209,7 +257,7 @@ class PageReservaState extends State<PageReserva> {
               (context, day, _) => Center(
                 child: Text(
                   '${day.day}',
-                  style: TextStyle(color: Colors.grey.withOpacity(0.5)),
+                  style: TextStyle(color: Colors.grey[500]),
                 ),
               ),
         ),
@@ -230,7 +278,7 @@ class PageReservaState extends State<PageReserva> {
       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
       children: [
         item(Colors.green, "Disponível"),
-        item(Colors.orange, "Parcial"),
+        item(Colors.orange, "Com reservas"),
         item(Colors.red, "Indisponível"),
       ],
     );
@@ -295,8 +343,21 @@ class PageReservaState extends State<PageReserva> {
             ),
             onTap: () {
               setState(() {
-                selectedStartTime = timeRange[0];
-                selectedEndTime = timeRange[1];
+                if (timeRange[0].hour < timeRange[1].hour || 
+                    (timeRange[0].hour == timeRange[1].hour && timeRange[0].minute < timeRange[1].minute)) {
+                  selectedStartTime = timeRange[0];
+                  selectedEndTime = timeRange[1];
+                } else {
+                  selectedStartTime = timeRange[1];
+                  selectedEndTime = timeRange[0];
+                }
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text(
+                      'Horário selecionado: ${selectedStartTime!.format(context)} - ${selectedEndTime!.format(context)}',
+                    ),
+                  ),
+                );
               });
               Navigator.pop(context);
             },
