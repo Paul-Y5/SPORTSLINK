@@ -1,67 +1,74 @@
 import 'package:flutter/material.dart';
+import 'package:sports_link/data/my_user.dart';
 import 'package:sports_link/models/campo.dart';
+import 'package:sports_link/models/campo_pub.dart';
+import 'package:sports_link/models/campo_priv.dart';
 import 'package:sports_link/screens/campo_details.dart';
 
-class CardCampo extends StatefulWidget {
+class CardCampo extends StatelessWidget {
   final Campo campo;
 
   const CardCampo({super.key, required this.campo});
 
   @override
-  State<CardCampo> createState() => _CardCampoState();
-}
-
-class _CardCampoState extends State<CardCampo> {
-  bool _isHovered = false; // estado do hoover
-
-  @override
   Widget build(BuildContext context) {
-    return MouseRegion(
-      onEnter: (_) {
-        setState(() {
-          _isHovered = true; 
-        });
-      },
-      onExit: (_) {
-        setState(() {
-          _isHovered = false; 
-        });
-      },
-      child: GestureDetector(
-        onTap: () {
-          // Redireciona para a página de detalhes ao clicar no card
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => CampoDetails(campo: widget.campo),
-            ),
-          );
-        },
-        child: SizedBox(
-          height: 120,
-          child: Card(
-            margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
-            elevation: _isHovered ? 8 : 4, 
-            color: _isHovered ? Colors.orange[80] : Colors.white,
-            child: ListTile(
-              leading: CircleAvatar(
-                backgroundImage: Image.asset(widget.campo.imagem).image,
-                radius: 50,
-              ),
-              title: Text(
-                widget.campo.nome,
-                style: const TextStyle(fontSize: 20), 
-              ),
-              subtitle: const Text(
-                "Informações sobre o campo",
-                style: TextStyle(fontSize: 16), 
-              ),
-              trailing: Icon(
-                Icons.arrow_forward_ios,
-                color: _isHovered ? Colors.orange : const Color.fromARGB(255, 0, 0, 0), // Altera a cor no hover
-              ),
-            ),
+    return Card(
+      margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12),
+      ),
+      elevation: 4,
+      child: ListTile(
+        contentPadding: const EdgeInsets.all(12),
+        title: Text(
+          campo.nome,
+          style: const TextStyle(
+            fontSize: 18,
+            fontWeight: FontWeight.bold,
+            color: Colors.orange,
           ),
+        ),
+        subtitle: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'Localização: ${campo.ponto.latitude.toStringAsFixed(4)}, ${campo.ponto.longitude.toStringAsFixed(4)}',
+              style: const TextStyle(
+                fontSize: 14,
+                color: Colors.black54,
+              ),
+            ),
+            if (campo is CampoPub)
+              Text(
+                'Entidade: ${(campo as CampoPub).entidadePublicaResp}',
+                style: const TextStyle(
+                  fontSize: 14,
+                  color: Colors.black54,
+                ),
+              )
+            else if (campo is CampoPriv)
+              Text(
+                'Proprietário: ${getMyUser((campo as CampoPriv).idArrendador).nome}',
+                style: const TextStyle(
+                  fontSize: 14,
+                  color: Colors.black54,
+                ),
+              ),
+          ],
+        ),
+        trailing: IconButton(
+          icon: const Icon(
+            Icons.arrow_forward_ios,
+            color: Colors.orange,
+          ),
+          onPressed: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (_) => CampoDetails(campo: campo),
+              ),
+            );
+          },
         ),
       ),
     );

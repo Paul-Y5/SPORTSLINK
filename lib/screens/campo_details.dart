@@ -11,6 +11,7 @@ import 'package:sports_link/models/campo.dart';
 import 'package:sports_link/models/campo_priv.dart';
 import 'package:sports_link/models/campo_pub.dart';
 import 'package:sports_link/models/jogador.dart';
+import 'package:sports_link/models/partida.dart';
 import 'package:sports_link/screens/page_reserva.dart';
 import 'package:sports_link/screens/partida_page.dart';
 import 'package:sports_link/screens/perfil_page.dart';
@@ -477,7 +478,15 @@ class _CampoDetailsState extends State<CampoDetails> {
       context,
       MaterialPageRoute(
         builder: (context) => PartidaPage(
-          campo: campoSelecionado,
+          partida: Partida(
+            id: 1,
+            campo: campoSelecionado,
+            data: DateTime.now(),
+            hora: TimeOfDay.now(),
+            estado: EstadoPartida.aguardando,
+            jogadores: [UserProvider().user as Jogador],
+            tipo: TipoPartida.publica,
+          ),
           tempoEspera: tempoEspera,
           minJogadores: minJogadores,
         ),

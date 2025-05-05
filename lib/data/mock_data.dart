@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:sports_link/models/arrendador.dart';
 import 'package:sports_link/models/desportos.dart';
 import 'package:sports_link/models/jogador.dart';
+import 'package:sports_link/models/msg.dart';
 import 'package:sports_link/models/partida.dart';
 import 'package:sports_link/models/ponto.dart';
 import 'package:sports_link/models/campo_priv.dart';
@@ -115,10 +116,13 @@ final List<Partida> mockPartidas = [
     hora: TimeOfDay(hour: 10, minute: 0),
     duracao: 90.0,
     campo: mockCampos[0],
-    resultado: '2-1',
-    jogadores: [],
-    chat: [],
-    estado: EstadoPartida.agendada,
+    jogadores: [getMockUsers(4)],
+    chat: [Msg(
+      remetente: getMockUsers(4),
+      timestamp: DateTime.now(),
+      conteudo: 'Olá, estou interessado na partida!',
+    )],
+    estado: EstadoPartida.aguardando,
     tipo: TipoPartida.publica,
   ),
   Partida(
@@ -134,6 +138,14 @@ final List<Partida> mockPartidas = [
     tipo: TipoPartida.privada,
   ),
 ];
+
+getMockUsers(int id) {
+  if (mockUsers.containsKey(id)) {
+    return mockUsers[id];
+  } else {
+    throw Exception('Utilizador não encontrado');
+  }
+}
 
 // UTILIZADORES
 final Map<int, Utilizador> mockUsers = {
