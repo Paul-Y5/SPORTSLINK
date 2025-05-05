@@ -17,15 +17,24 @@ class _ListaPartidasPageState extends State<ListaPartidasPage> {
 
   @override
   void initState() {
+    super.initState();
+    partidasPublicas = [];
+    partidasPrivadas = [];
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
     final currentUser = Provider.of<UserProvider>(context).user as Jogador;
 
-    super.initState();
-    partidasPublicas = currentUser.partidas
-        .where((partida) => partida.tipo == TipoPartida.publica)
-        .toList();
-    partidasPrivadas = currentUser.partidas
-        .where((partida) => partida.tipo == TipoPartida.privada)
-        .toList();
+    setState(() {
+      partidasPublicas = currentUser.partidas
+          .where((partida) => partida.tipo == TipoPartida.publica)
+          .toList();
+      partidasPrivadas = currentUser.partidas
+          .where((partida) => partida.tipo == TipoPartida.privada)
+          .toList();
+    });
   }
 
   @override
