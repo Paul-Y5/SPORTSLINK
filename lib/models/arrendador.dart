@@ -87,4 +87,8 @@ class Arrendador extends Jogador {
     return 'Arrendador{id: $id, nome: $nome, email: $email, numTele: $numTele, password: $password, nacionalidade: $nacionalidade, idade: $idade, descricao: $descricao, noCampos: $noCampos, iban: $iban}';
   }
 
+  void adicionarCampoPrivado(CampoPriv campo) {
+    camposPrivados.add(campo);
+  }
+
 }

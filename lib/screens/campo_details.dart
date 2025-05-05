@@ -53,7 +53,7 @@ class _CampoDetailsState extends State<CampoDetails> {
             appBar: CustomAppBar(
               notificationButtonKey: notificationButtonKey,
               onNotificationPressed: (context) {
-                dpd.showNotificationDropdown(context, notificationButtonKey, currentUser);
+                dpd.showNotificationDropdown(context, notificationButtonKey, currentUser!);
               },
               onMenuPressed: (context, items) {
                 setState(() {
@@ -61,7 +61,6 @@ class _CampoDetailsState extends State<CampoDetails> {
                 });
                 dpd.toggleDropdownOverlay(context, items);
               },
-              user: currentUser as Jogador,
             ),
             body: SingleChildScrollView(
               child: Padding(

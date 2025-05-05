@@ -170,18 +170,25 @@ final Map<int, Utilizador> mockUsers = {
     ..adicionarMetodoPagamento('metodo2', 'Transferência Bancária'),
 
   // Jogadores
-  3: Jogador(
-    id: 3,
-    nome: 'Maria Oliveira',
-    email: 'maria.oliveira@example.com',
-    numTele: 913456789,
-    password: 'senha456',
-    nacionalidade: 'Brasileira',
-    idade: 29,
-    descricao: 'Jogadora com paixão por esportes coletivos.',
-    utilizador: 'mariaoliveira',
-    createDate: DateTime.now(),
-  ),
+  3: (() {
+    final jogador = Jogador(
+      id: 3,
+      nome: 'Maria Oliveira',
+      email: 'maria.oliveira@example.com',
+      numTele: 913456789,
+      password: 'senha456',
+      nacionalidade: 'Brasileira',
+      idade: 29,
+      descricao: 'Jogadora com paixão por esportes coletivos.',
+      utilizador: 'mariaoliveira',
+      createDate: DateTime.now(),
+    );
+    jogador.adicionarDesporto(Desportos.futebol);
+    jogador.adicionarDesporto(Desportos.basquetebol);
+    jogador.setAltura(1.70);
+    jogador.setPeso(65.0);
+    return jogador;
+  })(),
   4: Jogador(
     id: 4,
     nome: 'Carlos Santos',
@@ -198,7 +205,6 @@ final Map<int, Utilizador> mockUsers = {
     ..adicionarDesporto(Desportos.futebol)
     ..adicionarDesporto(Desportos.basquetebol),
 };
-
 
 enum LoginResult { success, wrongPassword, userNotFound }
 

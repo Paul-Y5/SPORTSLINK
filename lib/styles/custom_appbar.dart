@@ -1,28 +1,30 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:sports_link/controllers/user_provider.dart';
 import 'package:sports_link/models/arrendador.dart';
-import 'package:sports_link/models/utilizador.dart';
+import 'package:sports_link/models/jogador.dart';
 import 'package:sports_link/screens/arr_campos_list.dart';
 import 'package:sports_link/screens/home_page.dart';
 import 'package:sports_link/screens/main_page_1.dart';
-import 'package:sports_link/screens/perfil_page.dart'; // Importa a MainPage1
+import 'package:sports_link/screens/partidas_jogador.dart';
+import 'package:sports_link/screens/perfil_page.dart';
 
 class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
   final GlobalKey notificationButtonKey;
   final Function(BuildContext) onNotificationPressed;
   final Function(BuildContext, List<PopupMenuEntry<String>>) onMenuPressed;
 
-  final Utilizador user;
-
   const CustomAppBar({
     super.key,
     required this.notificationButtonKey,
     required this.onNotificationPressed,
     required this.onMenuPressed,
-    required this.user,
   });
 
   @override
   Widget build(BuildContext context) {
+    final user = Provider.of<UserProvider>(context).user;
+
     return AppBar(
       backgroundColor: Colors.transparent,
       elevation: 0,
@@ -32,28 +34,49 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
             _buildMenuItem('Home', Icons.home, 'Home', onTap: () {
               Navigator.pushReplacement(
                 context,
-                MaterialPageRoute(builder: (context) => MainPage1(id: user.id,)),
+                MaterialPageRoute(builder: (context) => MainPage1(id: user!.id)),
               );
             }),
             _buildMenuItem('Perfil', Icons.person, 'Perfil', onTap: () {
               Navigator.pushReplacement(
                 context,
-                MaterialPageRoute(builder: (context) => PerfilPage(user: user)),
+                MaterialPageRoute(builder: (context) => PerfilPage(user: user!)),
               );
             }),
-            _buildMenuItem('Amigos', Icons.group, 'Amigos'),
-            _buildMenuItem('Partidas', Icons.sports_sharp, 'Partidas', onTap: () {
-              // Adicione a lógica para navegar para a tela de partidas
+            _buildMenuItem('Amigos', Icons.group, 'Amigos', onTap: () {
+              // lógica para abrir a página de amigos aqui
             }),
-            if (user is Arrendador)
-              _buildMenuItem('Meus Campos', Icons.account_balance_rounded, 'Meus Campos',
-                  onTap: () {
-                    Navigator.pushReplacement(
-                      context,
-                      MaterialPageRoute(builder: (context) => ArrCamposList()),
-                    );
-                  }),
-            _buildMenuItem('Definições & Ajuda', Icons.settings, 'Definições & Ajuda'),
+            if (user is Jogador) ...[
+              _buildMenuItem(
+                'Partidas',
+                Icons.sports_sharp,
+                'Partidas${user.partidas.isNotEmpty ? ' (${user.partidas.length})' : ''}',
+                onTap: () {
+                  debugPrint('Numero de partidas: ${user.partidas.length}');
+                  Navigator.pushReplacement(
+                    context,
+                    MaterialPageRoute(builder: (context) => const ListaPartidasPage()),
+                  );
+                },
+              ),
+            ],
+            if (user is Arrendador) ...[
+              _buildMenuItem(
+                'Campos',
+                Icons.sports_baseball,
+                'Campos${user.camposPrivados.isNotEmpty ? ' (${user.camposPrivados.length})' : ''}',
+                onTap: () {
+                  Navigator.pushReplacement(
+                    context,
+                    MaterialPageRoute(builder: (context) => const ArrCamposList()),
+                  );
+                },
+              ),
+            ],
+
+            _buildMenuItem('Definições & Ajuda', Icons.settings, 'Definições & Ajuda', onTap: () {
+              // Adicione a lógica para abrir as definições e ajuda aqui
+            }),
             _buildMenuItem('Sair', Icons.logout, 'Sair', onTap: () {
               // Adicione a lógica de logout aqui
               Navigator.pushReplacement(
@@ -69,7 +92,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
         onTap: () {
           Navigator.pushReplacement(
             context,
-            MaterialPageRoute(builder: (context) => MainPage1(id: user.id,)),
+            MaterialPageRoute(builder: (context) => MainPage1(id: user!.id)),
           );
         },
         child: Image.asset(
@@ -90,7 +113,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
                 onNotificationPressed(context);
               },
             ),
-            if (user.notificacoes.isNotEmpty)
+            if (user!.notificacoes.isNotEmpty)
               Positioned(
                 right: 8,
                 top: 8,
@@ -148,5 +171,4 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
 
   @override
   Size get preferredSize => const Size.fromHeight(kToolbarHeight);
-  
 }

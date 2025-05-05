@@ -30,6 +30,28 @@ class ArrCamposList extends StatelessWidget {
       appBar: AppBar(
         title: const Text('Meus Campos'),
         backgroundColor: Colors.orange,
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.add),
+            onPressed: () {
+              showDialog(
+                context: context,
+                builder: (BuildContext context) {
+                  return AlertDialog(
+                    title: const Text('Adicionar Campo'),
+                    content: const Text('Funcionalidade em desenvolvimento.'),
+                    actions: [
+                      TextButton(
+                        onPressed: () => Navigator.pop(context),
+                        child: const Text('Fechar'),
+                      ),
+                    ],
+                  );
+                },
+              );
+            },
+          ),
+        ],
       ),
       body: camposAssociados.isEmpty
           ? const Center(

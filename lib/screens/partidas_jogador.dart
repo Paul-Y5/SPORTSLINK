@@ -20,7 +20,6 @@ class _ListaPartidasPageState extends State<ListaPartidasPage> {
     final currentUser = Provider.of<UserProvider>(context).user as Jogador;
 
     super.initState();
-    // Inicializar as listas de partidas
     partidasPublicas = currentUser.partidas
         .where((partida) => partida.tipo == TipoPartida.publica)
         .toList();
@@ -39,12 +38,12 @@ class _ListaPartidasPageState extends State<ListaPartidasPage> {
       ),
       body: ListView(
         children: [
-          // Exibindo partidas públicas
+          // Exibir partidas públicas
           if (partidasPublicas.isNotEmpty) ...[
             _buildPartidasHeader('Partidas Públicas'),
             _buildPartidasList(partidasPublicas),
           ],
-          // Exibindo partidas privadas
+          // Exibir partidas privadas
           if (partidasPrivadas.isNotEmpty) ...[
             _buildPartidasHeader('Partidas Privadas'),
             _buildPartidasList(partidasPrivadas),

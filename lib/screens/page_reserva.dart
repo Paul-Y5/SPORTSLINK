@@ -191,7 +191,6 @@ class PageReservaState extends State<PageReserva> {
               onMenuPressed: (context, items) {
                 dpd.toggleDropdownOverlay(context, items);
               },
-              user: widget.user,
             ),
             body: SingleChildScrollView(
               padding: const EdgeInsets.all(16.0),
@@ -263,12 +262,24 @@ class PageReservaState extends State<PageReserva> {
                           'metodo': metodo,
                           'cliente': widget.user.nome,
                         };
+
+                        debugPrint('RESERVA: $reserva');
+
+                        widget.campo.reservas ??= {};
                         widget.campo.reservas![data] = [
                           ...?widget.campo.reservas![data],
                           reserva,
                         ];
+                        widget.campo.diasFuncionamento[getDiaSemanaPt(today)]?.add(selectedStartTime!);
+                        Arrendador arrendador = getMyUser(widget.campo.idArrendador) as Arrendador;
+                        arrendador.notificacoes.add(
+                          'Reserva confirmada para ${widget.campo.nome} em $data, $horario. Total: $total€',
+                        );
+
+                        debugPrint('Reservas do campo: ${widget.campo.reservas}');
 
                         Jogador j = getMyUser(widget.user.id) as Jogador;
+                        
                         Partida partida = Partida(
                           id: 0,
                           data: today,
@@ -283,6 +294,7 @@ class PageReservaState extends State<PageReserva> {
                         widget.user.notificacoes.add(
                           'Reserva confirmada para ${widget.campo.nome} em $data, $horario. Total: $total€',
                         );
+                        debugPrint('Jogador: ${j.nome} - Partidas: ${j.partidas}');
 
                         showDialog(
                           context: context,
@@ -303,13 +315,13 @@ class PageReservaState extends State<PageReserva> {
                               actions: [
                                 TextButton(
                                   onPressed: () {
-                                    Navigator.of(context).pop(); // Fecha o popup
+                                    Navigator.of(context).pop();
                                     Navigator.push(
                                       context, 
                                       MaterialPageRoute(builder: (context) => MainPage1(id: widget.user.id)),
                                     );
                                   },
-                                  child: const Text('OK'),
+                                  child: const Text('OK', style: TextStyle(color: Colors.orange)),
                                 ),
                               ],
                             );

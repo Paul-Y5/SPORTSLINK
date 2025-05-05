@@ -65,7 +65,6 @@ class _MainPage1State extends State<MainPage1> {
               onMenuPressed: (context, items) {
                 dpd.toggleDropdownOverlay(context, items);
               },
-              user: currentUser as Jogador,
             ),
             body: LayoutBuilder(
               builder: (context, constraints) {

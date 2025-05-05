@@ -165,10 +165,10 @@ class LoginPageState extends State<LoginPage> {
 
       StringBuffer userIdBuffer = StringBuffer();
       final result = verificarLogin(email, password, userId: userIdBuffer);
-      final user = mockUsers[int.parse(userIdBuffer.toString())]!;
-      Provider.of<UserProvider>(context, listen: false).setUser(user);
-      
       if (result == LoginResult.success) {
+        final user = mockUsers[int.parse(userIdBuffer.toString())]!;
+        Provider.of<UserProvider>(context, listen: false).setUser(user);
+        
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
             content: Text('A autenticação está a ser processada...'),
@@ -183,6 +183,7 @@ class LoginPageState extends State<LoginPage> {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
               content: Text('Login bem-sucedido!'),
+              duration: Duration(seconds: 2),
               backgroundColor: Colors.green,
             ),
           );
@@ -199,12 +200,16 @@ class LoginPageState extends State<LoginPage> {
         });
       } else {
         String errorMessage =
-            result == LoginResult.wrongPassword
+            result == LoginResult.wrongPassword || result == LoginResult.userNotFound
                 ? 'Senha incorreta. Tente novamente.'
                 : 'Email não encontrado. Verifique novamente.';
 
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(errorMessage), backgroundColor: Colors.red),
+          SnackBar(
+            content: Text(errorMessage),
+            backgroundColor: Colors.red,
+            duration: Duration(seconds: 2),
+          ),
         );
       }
     }

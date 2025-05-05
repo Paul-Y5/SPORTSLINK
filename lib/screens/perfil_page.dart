@@ -41,7 +41,6 @@ class _PerfilPageState extends State<PerfilPage> {
               notificationButtonKey: notificationButtonKey,
               onNotificationPressed: (context) => dpd.showNotificationDropdown(context, notificationButtonKey, widget.user),
               onMenuPressed: dpd.toggleDropdownOverlay,
-              user: widget.user,
             ),
             body: Column(
               children: [
