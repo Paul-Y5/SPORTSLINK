@@ -91,4 +91,8 @@ class Arrendador extends Jogador {
     camposPrivados.add(campo);
   }
 
+  void adicionarCampo(CampoPriv campo) {
+    camposPrivados.add(campo);
+  }
+
 }

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:sports_link/models/arrendador.dart';
 import 'package:sports_link/models/campo_priv.dart';
+import 'package:sports_link/models/ponto.dart';
 import 'package:sports_link/screens/campo_details.dart';
 import 'package:sports_link/controllers/user_provider.dart';
 
@@ -33,23 +34,302 @@ class ArrCamposList extends StatelessWidget {
         actions: [
           IconButton(
             icon: const Icon(Icons.add),
-            onPressed: () {
+onPressed: () {
+              final nomeController = TextEditingController();
+              final precoController = TextEditingController();
+              final larguraController = TextEditingController();
+              final comprimentoController = TextEditingController();
+              final latitudeController = TextEditingController();
+              final longitudeController = TextEditingController();
+              final descricaoController = TextEditingController();
+
+              final Map<String, bool> diasSelecionados = {
+                'Segunda': false,
+                'Terça': false,
+                'Quarta': false,
+                'Quinta': false,
+                'Sexta': false,
+                'Sábado': false,
+                'Domingo': false,
+              };
+
+              final Map<String, List<TimeOfDay>> horarios = {};
+
               showDialog(
                 context: context,
                 builder: (BuildContext context) {
-                  return AlertDialog(
-                    title: const Text('Adicionar Campo'),
-                    content: const Text('Funcionalidade em desenvolvimento.'),
-                    actions: [
-                      TextButton(
-                        onPressed: () => Navigator.pop(context),
-                        child: const Text('Fechar'),
-                      ),
-                    ],
+                  return StatefulBuilder(
+                    builder: (context, setState) {
+                      return AlertDialog(
+                        title: const Text('Adicionar Campo Privado'),
+                        content: SingleChildScrollView(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              TextField(
+                                controller: nomeController,
+                                decoration: const InputDecoration(
+                                  labelText: 'Nome do Campo',
+                                ),
+                              ),
+                              const SizedBox(height: 12),
+                              TextField(
+                                controller: precoController,
+                                decoration: const InputDecoration(
+                                  labelText: 'Preço por Hora (€)',
+                                ),
+                                keyboardType: TextInputType.numberWithOptions(
+                                  decimal: true,
+                                ),
+                              ),
+                              const SizedBox(height: 12),
+                              TextField(
+                                controller: larguraController,
+                                decoration: const InputDecoration(
+                                  labelText: 'Largura (m)',
+                                ),
+                                keyboardType: TextInputType.numberWithOptions(
+                                  decimal: true,
+                                ),
+                              ),
+                              const SizedBox(height: 12),
+                              TextField(
+                                controller: comprimentoController,
+                                decoration: const InputDecoration(
+                                  labelText: 'Comprimento (m)',
+                                ),
+                                keyboardType: TextInputType.numberWithOptions(
+                                  decimal: true,
+                                ),
+                              ),
+                              const SizedBox(height: 12),
+                              TextField(
+                                controller: latitudeController,
+                                decoration: const InputDecoration(
+                                  labelText: 'Latitude',
+                                ),
+                                keyboardType: TextInputType.numberWithOptions(
+                                  decimal: true,
+                                ),
+                              ),
+                              const SizedBox(height: 12),
+                              TextField(
+                                controller: longitudeController,
+                                decoration: const InputDecoration(
+                                  labelText: 'Longitude',
+                                ),
+                                keyboardType: TextInputType.numberWithOptions(
+                                  decimal: true,
+                                ),
+                              ),
+                              const SizedBox(height: 12),
+                              TextField(
+                                controller: descricaoController,
+                                decoration: const InputDecoration(
+                                  labelText: 'Descrição do Campo',
+                                ),
+                                maxLines: 2,
+                              ),
+                              const SizedBox(height: 16),
+                              const Text(
+                                'Dias de Funcionamento:',
+                                style: TextStyle(fontWeight: FontWeight.bold),
+                              ),
+                              const SizedBox(height: 8),
+                              Column(
+                                children:
+                                    diasSelecionados.entries.map((entry) {
+                                      final dia = entry.key;
+                                      final ativo = entry.value;
+                                      return Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          CheckboxListTile(
+                                            title: Text(dia),
+                                            value: ativo,
+                                            onChanged: (bool? value) {
+                                              setState(() {
+                                                diasSelecionados[dia] = value!;
+                                                if (value) {
+                                                  horarios[dia] = [
+                                                    const TimeOfDay(
+                                                      hour: 9,
+                                                      minute: 0,
+                                                    ),
+                                                    const TimeOfDay(
+                                                      hour: 18,
+                                                      minute: 0,
+                                                    ),
+                                                  ];
+                                                } else {
+                                                  horarios.remove(dia);
+                                                }
+                                              });
+                                            },
+                                          ),
+                                          if (ativo)
+                                            Padding(
+                                              padding: const EdgeInsets.only(
+                                                left: 16.0,
+                                              ),
+                                              child: Row(
+                                                children: [
+                                                  TextButton(
+                                                    onPressed: () async {
+                                                      final novaHora =
+                                                          await showTimePicker(
+                                                            context: context,
+                                                            initialTime:
+                                                                horarios[dia]![0],
+                                                          );
+                                                      if (novaHora != null) {
+                                                        setState(() {
+                                                          horarios[dia]![0] =
+                                                              novaHora;
+                                                        });
+                                                      }
+                                                    },
+                                                    child: Text(
+                                                      'Início: ${horarios[dia]![0].format(context)}',
+                                                    ),
+                                                  ),
+                                                  TextButton(
+                                                    onPressed: () async {
+                                                      final novaHora =
+                                                          await showTimePicker(
+                                                            context: context,
+                                                            initialTime:
+                                                                horarios[dia]![1],
+                                                          );
+                                                      if (novaHora != null) {
+                                                        setState(() {
+                                                          horarios[dia]![1] =
+                                                              novaHora;
+                                                        });
+                                                      }
+                                                    },
+                                                    child: Text(
+                                                      'Fim: ${horarios[dia]![1].format(context)}',
+                                                    ),
+                                                  ),
+                                                ],
+                                              ),
+                                            ),
+                                        ],
+                                      );
+                                    }).toList(),
+                              ),
+                            ],
+                          ),
+                        ),
+                        actions: [
+                          TextButton(
+                            onPressed: () => Navigator.pop(context),
+                            child: const Text(
+                              'Cancelar',
+                              style: TextStyle(color: Colors.red),
+                            ),
+                          ),
+                          ElevatedButton(
+                            onPressed: () {
+                              final nome = nomeController.text.trim();
+                              final preco = double.tryParse(
+                                precoController.text,
+                              );
+                              final largura = double.tryParse(
+                                larguraController.text,
+                              );
+                              final comprimento = double.tryParse(
+                                comprimentoController.text,
+                              );
+                              final latitude = double.tryParse(
+                                latitudeController.text,
+                              );
+                              final longitude = double.tryParse(
+                                longitudeController.text,
+                              );
+                              final descricao = descricaoController.text.trim();
+
+                              if (nome.isEmpty ||
+                                  preco == null ||
+                                  largura == null ||
+                                  comprimento == null ||
+                                  latitude == null ||
+                                  longitude == null ||
+                                  horarios.isEmpty) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(
+                                    content: Text(
+                                      'Por favor, preencha todos os campos corretamente.',
+                                    ),
+                                  ),
+                                );
+                                return;
+                              }
+
+                              final id = DateTime.now().millisecondsSinceEpoch;
+                              final ponto = Ponto(
+                                latitude: latitude,
+                                longitude: longitude,
+                                id: id,
+                                idMapa: 0,
+                              );
+
+                              final novoCampo = CampoPriv(
+                                id: id,
+                                nome: nome,
+                                preco: preco,
+                                largura: largura,
+                                comprimento: comprimento,
+                                imagem: 'assets/default_field.png',
+                                diasFuncionamento: Map.from(horarios),
+                                descricao: descricao,
+                                idArrendador:
+                                    Provider.of<UserProvider>(
+                                      context,
+                                      listen: false,
+                                    ).user!.id,
+                                ponto: ponto,
+                                idPonto: ponto.id,
+                                idMapa: 0,
+                                ocupado: false,
+                              );
+
+                              final userProvider = Provider.of<UserProvider>(
+                                context,
+                                listen: false,
+                              );
+                              if (userProvider.user is Arrendador) {
+                                (userProvider.user as Arrendador).camposPrivados
+                                    .add(novoCampo);
+                              }
+
+                              Navigator.pop(context);
+
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(
+                                  content: Text(
+                                    'Campo adicionado com sucesso!',
+                                  ),
+                                ),
+                              );
+                            },
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.orange,
+                            ),
+                            child: const Text(
+                              'Adicionar',
+                              style: TextStyle(color: Colors.black),
+                            ),
+                          ),
+                        ],
+                      );
+                    },
                   );
                 },
               );
-            },
+            }
           ),
         ],
       ),

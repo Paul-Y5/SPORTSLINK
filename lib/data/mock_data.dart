@@ -227,6 +227,7 @@ LoginResult verificarLogin(
 }) {
   late final Utilizador user;
   try {
+    adicionarCamposAosArrendadores();
     user = mockUsers.values.firstWhere((user) => user.email == email);
   } catch (e) {
     return LoginResult.userNotFound;
@@ -246,4 +247,15 @@ LoginResult verificarLogin(
   }
 
   return LoginResult.success;
+}
+
+void adicionarCamposAosArrendadores() {
+  for (var campo in mockCampos) {
+    if (campo is CampoPriv) {
+      final arrendador = mockUsers[campo.idArrendador];
+      if (arrendador is Arrendador) {
+        arrendador.adicionarCampo(campo);
+      }
+    }
+  }
 }

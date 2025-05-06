@@ -5,6 +5,7 @@ import 'package:sports_link/models/arrendador.dart';
 import 'package:sports_link/models/jogador.dart';
 import 'package:sports_link/screens/arr_campos_list.dart';
 import 'package:sports_link/screens/home_page.dart';
+import 'package:sports_link/screens/list_amigos_page.dart';
 import 'package:sports_link/screens/main_page_1.dart';
 import 'package:sports_link/screens/partidas_jogador.dart';
 import 'package:sports_link/screens/perfil_page.dart';
@@ -44,7 +45,10 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
               );
             }),
             _buildMenuItem('Amigos', Icons.group, 'Amigos', onTap: () {
-              // lógica para abrir a página de amigos aqui
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(builder: (context) => const ListAmigosPage()),
+              );
             }),
             if (user is Jogador) ...[
               _buildMenuItem(
