@@ -17,10 +17,10 @@ class HomePage extends StatelessWidget {
     return Scaffold(
       extendBody: true,
       extendBodyBehindAppBar: true,
-
       appBar: PreferredSize(
         preferredSize: const Size.fromHeight(280),
         child: AppBar(
+          automaticallyImplyLeading: false,
           backgroundColor: Colors.transparent,
           elevation: 0,
           flexibleSpace: Padding(
