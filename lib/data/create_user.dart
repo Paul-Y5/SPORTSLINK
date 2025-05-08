@@ -24,7 +24,7 @@ Map<String, dynamic> createUser({
     nacionalidade: nacionalidade,
     utilizador: utilizador,
     createDate: createDate,
-    lastLogin: lastLogin,
+    lastLogin: lastLogin, nivel: 1.0,
   );
 
   Jogador jogador = Jogador(
@@ -37,7 +37,7 @@ Map<String, dynamic> createUser({
     utilizador: utilizador,
     createDate: createDate,
     idade: idade, 
-    descricao: '',
+    descricao: '', nivel: 1.0,
   );
 
   return {'user': user, 'jogador': jogador};

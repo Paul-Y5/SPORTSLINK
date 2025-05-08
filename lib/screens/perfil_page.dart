@@ -3,6 +3,7 @@ import 'package:sports_link/models/arrendador.dart';
 import 'package:sports_link/models/desportos.dart';
 import 'package:sports_link/models/jogador.dart';
 import 'package:sports_link/models/utilizador.dart';
+import 'package:sports_link/screens/historico_page.dart';
 import 'package:sports_link/screens/pagina_conquistas.dart';
 import 'package:sports_link/styles/carouselbg.dart';
 import 'package:sports_link/styles/custom_appbar.dart';
@@ -20,6 +21,8 @@ class PerfilPage extends StatefulWidget {
 class _PerfilPageState extends State<PerfilPage> {
   final GlobalKey notificationButtonKey = GlobalKey();
   bool isDropdownOpen = false;
+
+  double progress = 0.0; // Progresso atual do nível
 
   @override
   Widget build(BuildContext context) {
@@ -57,6 +60,8 @@ class _PerfilPageState extends State<PerfilPage> {
                 ),
                 const SizedBox(height: 16),
                 _buildInfoCards(),
+                const SizedBox(height: 16),
+                _buildLevelProgress(), // Adicionada a barra de progresso do nível
                 const SizedBox(height: 16),
                 Expanded(child: _buildProfileDetails()),
               ],
@@ -119,6 +124,60 @@ class _PerfilPageState extends State<PerfilPage> {
         ],
       ),
     );
+  }
+
+  Widget _buildLevelProgress() {
+    final user = widget.user;
+    if (user is Jogador) {
+      return Column(
+        children: [
+          Text(
+            'Nível: ${user.nivel.toInt()}',
+            style: const TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
+              color: Colors.white,
+            ),
+          ),
+          const SizedBox(height: 8),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 40),
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(10),
+              child: LinearProgressIndicator(
+                value: user.nivel % 1, // Progresso entre 0.0 e 1.0
+                backgroundColor: Colors.grey[300],
+                color: Colors.orange,
+                minHeight: 10,
+              ),
+            ),
+          ),
+          const SizedBox(height: 8),
+          ElevatedButton(
+            onPressed: () {
+              setState(() {
+                // Simula o aumento do progresso
+                user.nivel += 0.4; // Incrementa o progresso
+                if (user.nivel >= user.nivel.toInt() + 1) {
+                  user.nivel = user.nivel.toInt() + 1.0; // Atualiza o nível
+                }
+              });
+            },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.orange,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(10),
+              ),
+            ),
+            child: const Text(
+              'Ganhar Progresso',
+              style: TextStyle(color: Colors.black),
+            ),
+          ),
+        ],
+      );
+    }
+    return const SizedBox.shrink();
   }
 
   Widget _buildProfileDetails() {
@@ -196,7 +255,12 @@ class _PerfilPageState extends State<PerfilPage> {
             icon: Icons.history,
             label: 'Histórico Partidas',
             onPressed: () {
-              // TODO
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const HistoricoPage(),
+                ),
+              );
             },
           ),
           const SizedBox(height: 12),

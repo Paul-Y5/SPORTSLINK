@@ -30,7 +30,6 @@ final List<Campo> mockCampos = [
     ocupado: false,
     descricao: 'Relvado sintético, ideal para 11x11',
     ponto: mockPontos[0],
-    imagem: 'https://example.com/campo_grande.png',
     idArrendador: 1, // Associado ao arrendador com ID 1
     preco: 50.0,
     diasFuncionamento: {
@@ -50,8 +49,7 @@ final List<Campo> mockCampos = [
     descricao: 'Relva natural, vista para o Douro',
     ponto: mockPontos[1],
     entidadePublicaResp: "Câmara Municipal",
-    imagem: 'https://example.com/campo_ribeirinho.png',
-  ),
+  ) ..setPartida(mockPartidas[1]), // Associando uma partida ao campo
   CampoPriv(
     id: 3,
     idPonto: 3,
@@ -62,7 +60,6 @@ final List<Campo> mockCampos = [
     ocupado: false,
     descricao: 'Muito procurado por estudantes',
     ponto: mockPontos[2],
-    imagem: 'https://example.com/campo_universitario.png',
     idArrendador: 1, // Associado ao arrendador com ID 1
     preco: 45.0,
     diasFuncionamento: {
@@ -106,36 +103,67 @@ final List<Campo> mockCampos = [
       'Quarta-feira': [TimeOfDay(hour: 9, minute: 0), TimeOfDay(hour: 18, minute: 0)],
     },
   ),
+  CampoPub(
+    id: 6,
+    idPonto: 3,
+    idMapa: 2,
+    nome: 'Campo de Basquetebol',
+    comprimento: 28.0,
+    largura: 15.0,
+    ocupado: false,
+    descricao: 'Campo ao ar livre, ideal para basquete',
+    ponto: mockPontos[2],
+    entidadePublicaResp: "Câmara Municipal",
+  )
 ];
 
 // PARTIDAS
-final List<Partida> mockPartidas = [
+List<Partida> mockPartidas = [
   Partida(
     id: 1,
     data: DateTime.now(),
-    hora: TimeOfDay(hour: 10, minute: 0),
-    duracao: 90.0,
-    campo: mockCampos[0],
-    jogadores: [getMockUsers(4)],
-    chat: [Msg(
-      remetente: getMockUsers(4),
-      timestamp: DateTime.now(),
-      conteudo: 'Olá, estou interessado na partida!',
-    )],
-    estado: EstadoPartida.aguardando,
+    hora: getTimeMinusTenMinutes(),
+    duracao: 40.0,
+    campo: mockCampos[5],
+    resultado: '0:0',
+    jogadores: [
+      mockUsers[3] as Jogador,
+      mockUsers[4] as Jogador,
+      mockUsers[2] as Jogador,
+      mockUsers[5] as Jogador,
+      mockUsers[6] as Jogador,
+    ],
+    chat: [
+      Msg(
+        conteudo: 'Bora Bora!',
+        remetente: mockUsers[6] as Jogador,
+        timestamp: DateTime.now(),
+      ),
+      Msg(
+        conteudo: 'Vamos lá, pessoal!',
+        remetente: mockUsers[3] as Jogador,
+        timestamp: DateTime.now(),
+      ),
+      Msg(
+        conteudo: 'Estou dentro do campo!',
+        remetente: mockUsers[4] as Jogador,
+        timestamp: DateTime.now(),
+      ),
+    ],
+    estado: EstadoPartida.emAndamento,
     tipo: TipoPartida.publica,
   ),
   Partida(
     id: 2,
     data: DateTime.now().add(Duration(days: 1)),
-    hora: TimeOfDay(hour: 15, minute: 0),
+    hora: getTimeMinusTenMinutes(),
     duracao: 60.0,
     campo: mockCampos[1],
     resultado: null,
-    jogadores: [],
-    chat: [],
-    estado: EstadoPartida.agendada,
-    tipo: TipoPartida.privada,
+    jogadores: [mockUsers[9] as Jogador],
+    chat: [Msg(conteudo: 'Estou na entrada do campo à espera de pessoal', remetente: mockUsers[9] as Jogador, timestamp: DateTime.now())],
+    estado: EstadoPartida.aguardando,
+    tipo: TipoPartida.publica,
   ),
 ];
 
@@ -153,6 +181,7 @@ final Map<int, Utilizador> mockUsers = {
   1: Arrendador(
     id: 1,
     nome: 'João Silva',
+    nivel: 2.0,
     email: 'joao.silva@example.com',
     numTele: 912345678,
     password: 'senha123',
@@ -168,6 +197,7 @@ final Map<int, Utilizador> mockUsers = {
   2: Arrendador(
     id: 2,
     nome: 'Ana Costa',
+    nivel: 3.0,
     email: 'ana.costa@example.com',
     numTele: 915678901,
     password: 'senha321',
@@ -182,25 +212,22 @@ final Map<int, Utilizador> mockUsers = {
     ..adicionarMetodoPagamento('metodo2', 'Transferência Bancária'),
 
   // Jogadores
-  3: (() {
-    final jogador = Jogador(
-      id: 3,
-      nome: 'Maria Oliveira',
-      email: 'maria.oliveira@example.com',
-      numTele: 913456789,
-      password: 'senha456',
-      nacionalidade: 'Brasileira',
-      idade: 29,
-      descricao: 'Jogadora com paixão por esportes coletivos.',
-      utilizador: 'mariaoliveira',
-      createDate: DateTime.now(),
-    );
-    jogador.adicionarDesporto(Desportos.futebol);
-    jogador.adicionarDesporto(Desportos.basquetebol);
-    jogador.setAltura(1.70);
-    jogador.setPeso(65.0);
-    return jogador;
-  })(),
+  3: Jogador(
+    id: 3,
+    nome: 'Maria Oliveira',
+    email: 'maria.oliveira@example.com',
+    numTele: 913456789,
+    password: 'senha456',
+    nacionalidade: 'Angolana',
+    idade: 25,
+    descricao: 'Jogadora de futebol amadora, adora praticar desportos.',
+    utilizador: 'mariaoliveira',
+    createDate: DateTime.now(),
+    nivel: 5, // Adicionado nível
+  )..setAltura(1.70)
+    ..setPeso(65.0)
+    ..adicionarDesporto(Desportos.futebol)
+    ..adicionarDesporto(Desportos.basquetebol),
   4: Jogador(
     id: 4,
     nome: 'Carlos Santos',
@@ -212,10 +239,60 @@ final Map<int, Utilizador> mockUsers = {
     descricao: 'Jogador experiente em eventos desportivos.',
     utilizador: 'carlossantos',
     createDate: DateTime.now(),
-  ).setAltura(1.85)
+    nivel: 7, // Adicionado nível
+  )..setAltura(1.85)
     ..setPeso(80.0)
     ..adicionarDesporto(Desportos.futebol)
     ..adicionarDesporto(Desportos.basquetebol),
+  5: Jogador(
+    id: 5,
+    nome: 'Pedro Almeida',
+    email: 'pedro@example.pt',
+    numTele: 916789012,
+    password: 'senha987',
+    nacionalidade: 'Angolano',
+    idade: 28,
+    descricao: 'Jogador de futebol amador, adora praticar desportos.',
+    utilizador: 'pedroalmeida',
+    createDate: DateTime.now(),
+    nivel: 4, // Adicionado nível
+  )..setAltura(1.80)
+    ..setPeso(75.0)
+    ..adicionarDesporto(Desportos.futebol)
+    ..adicionarDesporto(Desportos.basquetebol),
+  6: Jogador(
+    id: 6,
+    nome: 'Luís Ferreira',
+    email: 'luisF@example.pt',
+    numTele: 917890123,
+    password: 'senha654',
+    nacionalidade: 'Angolano',
+    idade: 30,
+    descricao: 'Jogador de basquetebol, sempre em busca de novos desafios.',
+    utilizador: 'luisferreira',
+    createDate: DateTime.now(),
+    nivel: 6, // Adicionado nível
+  )..setAltura(1.90)
+    ..setPeso(85.0)
+    ..adicionarDesporto(Desportos.basquetebol)
+    ..adicionarDesporto(Desportos.futsal),
+  
+  9: Jogador(
+    id: 9,
+    nome: 'Ana Luis',
+    email: 'anaL@example.pt',
+    numTele: 918901234,
+    password: 'senha321',
+    nacionalidade: 'Angolana',
+    idade: 20,
+    descricao: 'Jogadora de voleibol, apaixonada por desporto.',
+    utilizador: 'analuis',
+    createDate: DateTime.now(),
+    nivel: 3, // Adicionado nível
+  )..setAltura(1.75)
+    ..setPeso(60.0)
+    ..adicionarDesporto(Desportos.voleibol),
+
 };
 
 enum LoginResult { success, wrongPassword, userNotFound }
@@ -228,8 +305,10 @@ LoginResult verificarLogin(
   late final Utilizador user;
   try {
     adicionarCamposAosArrendadores();
+    mockCampos[5].setPartida(mockPartidas[0]);
     user = mockUsers.values.firstWhere((user) => user.email == email);
   } catch (e) {
+    debugPrint('Erro ao encontrar o utilizador: $e');
     return LoginResult.userNotFound;
   }
 
@@ -239,6 +318,7 @@ LoginResult verificarLogin(
 
 
   if (user.password != password) {
+    debugPrint('Senha incorreta para o utilizador: $email');
     return LoginResult.wrongPassword;
   }
 
@@ -260,5 +340,28 @@ void adicionarCamposAosArrendadores() {
         arrendador.adicionarCampo(campo);
       }
     }
+  }
+}
+
+TimeOfDay getTimeMinusTenMinutes() {
+  final now = DateTime.now();
+  final updated = now.subtract(Duration(minutes: 10));
+  return TimeOfDay(hour: updated.hour, minute: updated.minute);
+}
+
+void adicionarMsg(Msg msg, int idPartida) {
+  if (mockPartidas.length > idPartida) {
+    final partida = mockPartidas[idPartida];
+    final msg = partida.chat?.last;
+    final jogador = msg?.remetente;
+    if (jogador?.id == 3) {
+      partida.chat?.add(Msg(
+        conteudo: 'Vamos lá, pessoal!',
+        remetente: jogador!,
+        timestamp: DateTime.now(),
+      ));
+    }
+    } else {
+    throw Exception('Partida não encontrada');
   }
 }

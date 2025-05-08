@@ -83,6 +83,10 @@ class Partida {
     return TimeOfDay(hour: int.parse(parts[0]), minute: int.parse(parts[1]));
   }
 
+  void setEstado(EstadoPartida novoEstado) {
+    estado = novoEstado;
+  }
+
 }
 
 enum TipoPartida {

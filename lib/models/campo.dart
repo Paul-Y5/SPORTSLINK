@@ -1,3 +1,4 @@
+import 'package:sports_link/models/partida.dart';
 import 'package:sports_link/models/ponto.dart';
 
 class Campo {
@@ -9,6 +10,7 @@ class Campo {
   double largura;
   bool ocupado;
   String descricao;
+  Partida? partida;
 
   Ponto ponto;
   String imagem;
@@ -23,6 +25,7 @@ class Campo {
     required this.ocupado,
     required this.descricao,
     required this.ponto,
+    this.partida,
     String? imagem,
   }) : imagem = imagem ?? 'img/icon_campo.jpg';
 
@@ -76,4 +79,12 @@ class Campo {
   int get getIdPonto => idPonto;
   int get getIdMapa => idMapa;
   Ponto? get getPonto => ponto;
+
+  void setPartida(Partida partida) {
+    this.partida = partida;
+  }
+  
+  void setOcupado(bool ocupado) {
+    this.ocupado = ocupado;
+  }
 }

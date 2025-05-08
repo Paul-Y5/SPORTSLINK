@@ -7,6 +7,7 @@ class Utilizador {
   int numTele;
   String password;
   String nacionalidade;
+  double nivel = 1.0;
 
   List<String> notificacoes = [];
 
@@ -22,6 +23,7 @@ class Utilizador {
   Utilizador({
     required this.id,
     required this.nome,
+    required this.nivel,
     required this.email,
     required this.numTele,
     required this.password,
@@ -41,7 +43,7 @@ class Utilizador {
       password: json['password'] as String,
       nacionalidade: json['nacionalidade'] as String, 
       utilizador: '', 
-      createDate: json['createDate'] != null ? DateTime.parse(json['createDate']) : null,
+      createDate: json['createDate'] != null ? DateTime.parse(json['createDate']) : null, nivel: json['nivel'] as double,
     );
   }
 

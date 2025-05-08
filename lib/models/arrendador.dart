@@ -26,7 +26,7 @@ class Arrendador extends Jogador {
     required super.idade,
     required super.descricao,
     required super.utilizador,
-    required super.createDate,
+    required super.createDate, required super.nivel,
   }) : metodosPagamento = {
          'metodo1': 'Cartão de Crédito',
          'metodo2': 'PayPal',
@@ -62,7 +62,7 @@ class Arrendador extends Jogador {
       noCampos: json['noCampos'] as int,
       iban: json['iban'] as String,
       utilizador: '',
-      createDate: null,
+      createDate: null, nivel: json['nivel'] as double,
     );
   }
 

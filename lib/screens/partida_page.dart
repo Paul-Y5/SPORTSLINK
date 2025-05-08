@@ -1,9 +1,11 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:sports_link/data/mock_data.dart';
 import 'package:sports_link/models/partida.dart';
 import 'package:sports_link/models/jogador.dart';
 import 'package:sports_link/controllers/user_provider.dart';
+import 'package:sports_link/screens/main_page_1.dart';
 import 'package:sports_link/styles/carouselbg.dart';
 
 class PartidaPage extends StatefulWidget {
@@ -42,7 +44,12 @@ class _PartidaPageState extends State<PartidaPage> {
       widget.partida.hora.minute,
     );
 
-    tempoRestante = partidaDateTime.difference(now);
+    // Verificar o estado da partida e calcular o tempo restante apenas se estiver "aguardando"
+    if (widget.partida.estado == EstadoPartida.aguardando) {
+      tempoRestante = partidaDateTime.difference(now);
+    } else {
+      tempoRestante = Duration.zero; // Partida já começou
+    }
 
     // Obtem o usuário atual e define se já está na partida
     WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -59,79 +66,56 @@ class _PartidaPageState extends State<PartidaPage> {
   }
 
   void _iniciarContador() {
-    _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
-      if (mounted) {
-        setState(() {
-          tempoRestante -= const Duration(seconds: 1);
-          if (tempoRestante.isNegative) _timer?.cancel();
-        });
-      }
-    });
-  }
+    if (widget.partida.estado == EstadoPartida.aguardando) {
+      _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
+        if (mounted) {
+          setState(() {
+            tempoRestante -= const Duration(seconds: 1);
 
-  void _convidarAmigos(BuildContext context, List<Jogador> amigos) {
-    showDialog(
-      context: context,
-      builder: (context) {
-        return AlertDialog(
-          title: const Text('Convidar Amigos'),
-          content: SizedBox(
-            width: double.maxFinite,
-            child: ListView.builder(
-              shrinkWrap: true,
-              itemCount: amigos.length,
-              itemBuilder: (context, index) {
-                final amigo = amigos[index];
-                return Card(
-                  margin: const EdgeInsets.symmetric(vertical: 8),
-                  child: ListTile(
-                    leading: CircleAvatar(
-                      backgroundImage: AssetImage(
-                        amigo.urlIMG ?? 'assets/default_image.png',
-                      ),
-                      radius: 20,
-                    ),
-                    title: Text(
-                      amigo.nome,
-                      style: const TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    subtitle: Text('Nível: ${amigo.id}'),
-                    trailing: ElevatedButton(
-                      onPressed: () {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                            content: Text('${amigo.nome} foi convidado!'),
-                          ),
-                        );
-                      },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.orange,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                      ),
-                      child: const Text(
-                        'Convidar',
-                        style: TextStyle(color: Colors.white),
-                      ),
-                    ),
+            // Verifica se o tempo acabou
+            if (tempoRestante.isNegative) {
+              _timer?.cancel();
+
+              // Verifica se há jogadores suficientes para iniciar a partida
+              if (widget.partida.jogadores!.length < widget.minJogadores) {
+                // Cancela a partida
+                widget.partida.setEstado(EstadoPartida.cancelada);
+                mockPartidas.removeWhere((p) => p.id == widget.partida.id);
+
+                // Exibe uma mensagem informando que a partida foi cancelada
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text('A partida foi cancelada por falta de jogadores.'),
                   ),
                 );
-              },
-            ),
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.of(context).pop(),
-              child: const Text('Fechar'),
-            ),
-          ],
-        );
-      },
-    );
+
+                // No fim de 10 segundos, navega para a tela inicial
+                Future.delayed(const Duration(seconds: 10), () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => MainPage1(id: currentUser.id),
+                    ),
+                  );
+                });
+              } else {
+                // Inicia a partida
+                setState(() {
+                  widget.partida.estado = EstadoPartida.emAndamento;
+                });
+
+                // Exibe uma mensagem informando que a partida começou
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text('A partida foi iniciada!'),
+                  ),
+                );
+              }
+            }
+          });
+        }
+      });
+    }
   }
 
   @override
@@ -140,11 +124,23 @@ class _PartidaPageState extends State<PartidaPage> {
     super.dispose();
   }
 
+  Widget _buildBlinkingDot() {
+    return const SizedBox(
+      width: 10,
+      height: 10,
+      child: DecoratedBox(
+        decoration: BoxDecoration(
+          color: Colors.red,
+          shape: BoxShape.circle,
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final partida = widget.partida;
     final campo = partida.campo;
-    final amigos = currentUser.amigos;
 
     return Scaffold(
       appBar: AppBar(
@@ -182,13 +178,20 @@ class _PartidaPageState extends State<PartidaPage> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(
-                        'Campo: ${campo.nome}',
-                        style: const TextStyle(
-                          fontSize: 22,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.orange,
-                        ),
+                      Row(
+                        children: [
+                          Text(
+                            'Campo: ${campo.nome}',
+                            style: const TextStyle(
+                              fontSize: 22,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.orange,
+                            ),
+                          ),
+                          const SizedBox(width: 8),
+                          if (partida.estado == EstadoPartida.emAndamento)
+                            _buildBlinkingDot(), // Bolinha vermelha intermitente
+                        ],
                       ),
                       const SizedBox(height: 8),
                       Text('Tempo de Espera: ${widget.tempoEspera} minutos'),
@@ -197,21 +200,33 @@ class _PartidaPageState extends State<PartidaPage> {
                       ),
                       const SizedBox(height: 16),
                       Text(
-                        'Estado: ${campo.ocupado ? "Ocupado" : "Disponível"}',
+                        'Estado: ${partida.estado == EstadoPartida.aguardando ? "Aguardando" : partida.estado == EstadoPartida.emAndamento ? "Em Andamento" : "Cancelada"}',
                       ),
                       const SizedBox(height: 16),
-                      Text(
-                        tempoRestante.isNegative
-                            ? 'Partida já começou.'
-                            : 'Aguardando jogadores: ${tempoRestante.inMinutes.remainder(60).toString().padLeft(2, '0')}:${tempoRestante.inSeconds.remainder(60).toString().padLeft(2, '0')}',
-                        style: TextStyle(
-                          fontSize: 16,
-                          color:
-                              tempoRestante.isNegative
-                                  ? Colors.red
-                                  : Colors.orange,
+                      if (partida.estado == EstadoPartida.aguardando)
+                        Text(
+                          'Aguardando jogadores: ${tempoRestante.inMinutes.remainder(60).toString().padLeft(2, '0')}:${tempoRestante.inSeconds.remainder(60).toString().padLeft(2, '0')}',
+                          style: const TextStyle(
+                            fontSize: 16,
+                            color: Colors.orange,
+                          ),
+                        )
+                      else if (partida.estado == EstadoPartida.emAndamento)
+                        Text(
+                          'Resultado ao vivo: ${partida.resultado ?? "N/A"}',
+                          style: const TextStyle(
+                            fontSize: 16,
+                            color: Colors.red,
+                          ),
+                        )
+                      else
+                        const Text(
+                          'Partida cancelada.',
+                          style: TextStyle(
+                            fontSize: 16,
+                            color: Colors.red,
+                          ),
                         ),
-                      ),
                     ],
                   ),
                 ),
@@ -265,7 +280,7 @@ class _PartidaPageState extends State<PartidaPage> {
                                     fontWeight: FontWeight.bold,
                                   ),
                                 ),
-                                subtitle: Text('Nível: ${jogador.id}'),
+                                subtitle: Text('Nível: ${jogador.nivel}'),
                               ),
                             );
                           },
@@ -278,105 +293,6 @@ class _PartidaPageState extends State<PartidaPage> {
                     ],
                   ),
                 ),
-                const SizedBox(height: 16),
-
-                // Botões: Juntar, Convidar ou Abandonar
-                if (!isUserJoined)
-                  Center(
-                    child: ElevatedButton(
-                      onPressed: () {
-                        setState(() {
-                          if (!partida.jogadores!.any(
-                            (j) => j.id == currentUser.id,
-                          )) {
-                            partida.jogadores!.add(currentUser);
-                            isUserJoined = true;
-                          }
-                        });
-                      },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.orange,
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 24,
-                          vertical: 12,
-                        ),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                      ),
-                      child: const Text(
-                        'Juntar-me à Partida',
-                        style: TextStyle(fontSize: 16, color: Colors.black),
-                      ),
-                    ),
-                  )
-                else
-                  Column(
-                    children: [
-                      Center(
-                        child: ElevatedButton(
-                          onPressed:
-                              () => _convidarAmigos(
-                                context,
-                                amigos.cast<Jogador>(),
-                              ),
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.orange,
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 24,
-                              vertical: 12,
-                            ),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                          ),
-                          child: const Text(
-                            'Convidar Amigos',
-                            style: TextStyle(fontSize: 16, color: Colors.black),
-                          ),
-                        ),
-                      ),
-                      const SizedBox(height: 16),
-                      Center(
-                        child: ElevatedButton(
-                          onPressed: () {
-                            setState(() {
-                              partida.jogadores?.removeWhere(
-                                (j) => j.id == currentUser.id,
-                              );
-                              isUserJoined = false;
-                            });
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(
-                                content: Text('Você abandonou a partida.'),
-                              ),
-                            );
-                          },
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.red,
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 24,
-                              vertical: 12,
-                            ),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                          ),
-                          child: const Text(
-                            'Abandonar Partida',
-                            style: TextStyle(fontSize: 16, color: Colors.white),
-                          ),
-                        ),
-                      ),
-                      const SizedBox(height: 16),
-                      const Center(
-                        child: Text(
-                          'À espera que a partida comece...',
-                          style: TextStyle(fontSize: 16, color: Colors.white),
-                        ),
-                      ),
-                    ],
-                  ),
               ],
             ),
           ),

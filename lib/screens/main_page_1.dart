@@ -338,6 +338,7 @@ class _MainPage1State extends State<MainPage1> {
                                 final jogador = currentUser as Jogador;
                               mockUsers[widget.id] = Arrendador(
                                 id: widget.id,
+                                nivel: currentUser.nivel,
                                 nome: jogador.nome,
                                 email: jogador.email,
                                 iban: ibanController.text, 

@@ -72,6 +72,7 @@ class _CampoDetailsState extends State<CampoDetails> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
+                    // Nome do campo
                     Center(
                       child: Text(
                         widget.campo.nome,
@@ -83,11 +84,25 @@ class _CampoDetailsState extends State<CampoDetails> {
                       ),
                     ),
                     const SizedBox(height: 20),
+
+                    // Imagem do campo
                     ClipRRect(
                       borderRadius: BorderRadius.circular(16),
-                      child: Image.asset(widget.campo.imagem),
+                      child: Image.network(
+                        widget.campo.imagem,
+                        fit: BoxFit.cover,
+                        errorBuilder: (context, error, stackTrace) {
+                          return const Icon(
+                            Icons.broken_image,
+                            size: 100,
+                            color: Colors.grey,
+                          );
+                        },
+                      ),
                     ),
                     const SizedBox(height: 20),
+
+                    // Botão para abrir o mapa
                     MenuCard(
                       icon: Icons.location_on,
                       text: 'Localização',
@@ -96,6 +111,8 @@ class _CampoDetailsState extends State<CampoDetails> {
                       onPressed: _openMap,
                     ),
                     const SizedBox(height: 10),
+
+                    // Informações do campo
                     Container(
                       padding: const EdgeInsets.all(16),
                       decoration: BoxDecoration(
@@ -115,7 +132,9 @@ class _CampoDetailsState extends State<CampoDetails> {
                           ),
                           const SizedBox(height: 10),
 
+                          // Exibe informações dependendo do tipo de campo
                           if (widget.campo is CampoPriv) ...[
+                            // Campo Privado
                             GestureDetector(
                               onTap: _openArrendadorProfile,
                               child: Text(
@@ -165,6 +184,7 @@ class _CampoDetailsState extends State<CampoDetails> {
                           ],
 
                           if (widget.campo is CampoPub) ...[
+                            // Campo Público
                             Text(
                               'Entidade Responsável: ${(widget.campo as CampoPub).entidadePublicaResp}',
                               style: const TextStyle(fontSize: 16),
@@ -174,6 +194,35 @@ class _CampoDetailsState extends State<CampoDetails> {
                               'Estado: ${(widget.campo as CampoPub).ocupado ? "Ocupado" : "Disponível"}',
                               style: const TextStyle(fontSize: 16),
                             ),
+
+                            // Verificar se o campo está ocupado e exibir a partida
+                            if ((widget.campo as CampoPub).ocupado) ...[
+                              const SizedBox(height: 20),
+                              const Text(
+                                'Partida em andamento:',
+                                style: TextStyle(
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.red,
+                                ),
+                              ),
+                              const SizedBox(height: 8),
+                              Text(
+                                'Jogadores: ${_getJogadoresPartida()}',
+                                style: const TextStyle(fontSize: 16),
+                              ),
+                              const SizedBox(height: 8),
+                              Text(
+                                'Hora de Início: ${_getHoraInicioPartida()}',
+                                style: const TextStyle(fontSize: 16),
+                              ),
+                              const SizedBox(height: 8),
+                              Text(
+                                'Estado: ${_getEstadoPartida()}',
+                                style: const TextStyle(fontSize: 16),
+                              ),
+                            ],
+
                             const SizedBox(height: 20),
                             ElevatedButton(
                               onPressed: (widget.campo as CampoPub).ocupado
@@ -233,7 +282,7 @@ class _CampoDetailsState extends State<CampoDetails> {
         }
       }
     }
-    return 'Gratuito';
+    return '';
   }
 
   String _getHorariosFuncionamento() {
@@ -492,5 +541,49 @@ class _CampoDetailsState extends State<CampoDetails> {
         ),
       ),
     );
+  }
+
+  String? _getJogadoresPartida() {
+    if (widget.campo is CampoPub) {
+      final campoPub = widget.campo as CampoPub;
+      if (campoPub.partida != null) {
+        return campoPub.partida!.jogadores
+            ?.map((jogador) => jogador.nome)
+            .join(', ');
+      }
+    }
+    return 'Nenhum jogador presente';
+  }
+
+  String _getHoraInicioPartida() {
+    if (widget.campo is CampoPub) {
+      final campoPub = widget.campo as CampoPub;
+      if (campoPub.partida != null) {
+        final hora = campoPub.partida!.hora;
+        return '${hora.hour.toString().padLeft(2, '0')}:${hora.minute.toString().padLeft(2, '0')}';
+      }
+    }
+    return 'Hora não disponível';
+  }
+
+  String _getEstadoPartida() {
+    if (widget.campo is CampoPub) {
+      final campoPub = widget.campo as CampoPub;
+      if (campoPub.partida != null) {
+        switch (campoPub.partida!.estado) {
+          case EstadoPartida.aguardando:
+            return 'Aguardando jogadores';
+          case EstadoPartida.emAndamento:
+            return 'Em andamento';
+          case EstadoPartida.terminada:
+            return 'Finalizada';
+          case EstadoPartida.cancelada:
+            return 'Cancelada';
+          default:
+            return 'Estado desconhecido';
+        }
+      }
+    }
+    return 'Estado não disponível';
   }
 }
