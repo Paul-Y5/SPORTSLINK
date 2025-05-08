@@ -254,6 +254,9 @@ void adicionarCamposAosArrendadores() {
     if (campo is CampoPriv) {
       final arrendador = mockUsers[campo.idArrendador];
       if (arrendador is Arrendador) {
+        if (arrendador.camposPrivados.contains(campo)) {
+          continue;
+        }
         arrendador.adicionarCampo(campo);
       }
     }

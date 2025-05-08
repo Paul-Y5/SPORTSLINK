@@ -156,13 +156,22 @@ class _MainPage1State extends State<MainPage1> {
                               ),
                             ),
                           const SizedBox(height: 0),
-                          CarouselBar(
-                            newsItems: [
-                              '🔥 Novas funcionalidades disponíveis!',
-                              '⚽ Partidas abertas neste fim de semana!',
-                              '📢 Atualiza o teu perfil e ganha recompensas!',
+                          Column(
+                            children: [
+                              Container(
+                                height: 100,
+                                color: const Color.fromARGB(0, 0, 0, 0),
+                              ),
+                              CarouselBar(
+                                newsItems: [
+                                  '🔥 Novas funcionalidades disponíveis!',
+                                  '⚽ Partidas abertas neste fim de semana!',
+                                  '📢 Atualiza o teu perfil e ganha recompensas!',
+                                ],
+                              ),
                             ],
-                          ),
+                          )
+                          
                         ],
                       ),
                     ),

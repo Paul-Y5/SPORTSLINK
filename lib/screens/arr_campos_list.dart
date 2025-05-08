@@ -1,13 +1,56 @@
 import 'package:flutter/material.dart';
+import 'package:latlong2/latlong.dart';
 import 'package:provider/provider.dart';
+import 'package:geolocator/geolocator.dart'; // Import necessário para localização
+import 'package:sports_link/data/mock_data.dart';
 import 'package:sports_link/models/arrendador.dart';
 import 'package:sports_link/models/campo_priv.dart';
 import 'package:sports_link/models/ponto.dart';
 import 'package:sports_link/screens/campo_details.dart';
 import 'package:sports_link/controllers/user_provider.dart';
+import 'package:sports_link/utils/abrir_mapa.dart';
 
-class ArrCamposList extends StatelessWidget {
+class ArrCamposList extends StatefulWidget {
   const ArrCamposList({super.key});
+
+  @override
+  State<ArrCamposList> createState() => _ArrCamposListState();
+}
+
+class _ArrCamposListState extends State<ArrCamposList> {
+  LatLng? selectedLocation;
+
+  @override
+  void initState() {
+    super.initState();
+    _getCurrentLocation();
+  }
+
+  Future<void> _getCurrentLocation() async {
+    try {
+      LocationPermission permission = await Geolocator.requestPermission();
+      if (permission == LocationPermission.always ||
+          permission == LocationPermission.whileInUse) {
+        Position position = await Geolocator.getCurrentPosition(
+          locationSettings: const LocationSettings(
+            accuracy: LocationAccuracy.high,
+          ),
+        );
+
+        setState(() {
+          selectedLocation = LatLng(position.latitude, position.longitude);
+        });
+        return;
+      }
+    } catch (e) {
+      debugPrint('Erro ao obter localização: $e');
+    }
+
+    // Localização padrão caso não seja possível obter a localização atual
+    setState(() {
+      selectedLocation = LatLng(40.6405, -8.6538); // Exemplo: Aveiro, Portugal
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -34,13 +77,11 @@ class ArrCamposList extends StatelessWidget {
         actions: [
           IconButton(
             icon: const Icon(Icons.add),
-onPressed: () {
+            onPressed: () {
               final nomeController = TextEditingController();
               final precoController = TextEditingController();
               final larguraController = TextEditingController();
               final comprimentoController = TextEditingController();
-              final latitudeController = TextEditingController();
-              final longitudeController = TextEditingController();
               final descricaoController = TextEditingController();
 
               final Map<String, bool> diasSelecionados = {
@@ -54,6 +95,7 @@ onPressed: () {
               };
 
               final Map<String, List<TimeOfDay>> horarios = {};
+              Ponto? pontoSelecionado;
 
               showDialog(
                 context: context,
@@ -68,16 +110,40 @@ onPressed: () {
                             children: [
                               TextField(
                                 controller: nomeController,
-                                decoration: const InputDecoration(
+                                decoration: InputDecoration(
                                   labelText: 'Nome do Campo',
+                                  labelStyle: TextStyle(color: Colors.black),
+                                  focusedBorder: OutlineInputBorder(
+                                    borderSide: BorderSide(
+                                      color: Colors.orange,
+                                    ),
+                                  ),
+                                  border: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(8),
+                                  ),
+                                  filled: true,
+                                  fillColor: Colors.grey[100],
                                 ),
+                                style: const TextStyle(color: Colors.black),
                               ),
                               const SizedBox(height: 12),
                               TextField(
                                 controller: precoController,
-                                decoration: const InputDecoration(
+                                decoration: InputDecoration(
                                   labelText: 'Preço por Hora (€)',
+                                  labelStyle: TextStyle(color: Colors.black),
+                                  focusedBorder: OutlineInputBorder(
+                                    borderSide: BorderSide(
+                                      color: Colors.orange,
+                                    ),
+                                  ),
+                                  border: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(8),
+                                  ),
+                                  filled: true,
+                                  fillColor: Colors.grey[100],
                                 ),
+                                style: const TextStyle(color: Colors.black),
                                 keyboardType: TextInputType.numberWithOptions(
                                   decimal: true,
                                 ),
@@ -85,9 +151,21 @@ onPressed: () {
                               const SizedBox(height: 12),
                               TextField(
                                 controller: larguraController,
-                                decoration: const InputDecoration(
+                                decoration: InputDecoration(
                                   labelText: 'Largura (m)',
+                                  labelStyle: TextStyle(color: Colors.black),
+                                  focusedBorder: OutlineInputBorder(
+                                    borderSide: BorderSide(
+                                      color: Colors.orange,
+                                    ),
+                                  ),
+                                  border: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(8),
+                                  ),
+                                  filled: true,
+                                  fillColor: Colors.grey[100],
                                 ),
+                                style: const TextStyle(color: Colors.black),
                                 keyboardType: TextInputType.numberWithOptions(
                                   decimal: true,
                                 ),
@@ -95,29 +173,21 @@ onPressed: () {
                               const SizedBox(height: 12),
                               TextField(
                                 controller: comprimentoController,
-                                decoration: const InputDecoration(
+                                decoration: InputDecoration(
                                   labelText: 'Comprimento (m)',
+                                  labelStyle: TextStyle(color: Colors.black),
+                                  focusedBorder: OutlineInputBorder(
+                                    borderSide: BorderSide(
+                                      color: Colors.orange,
+                                    ),
+                                  ),
+                                  border: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(8),
+                                  ),
+                                  filled: true,
+                                  fillColor: Colors.grey[100],
                                 ),
-                                keyboardType: TextInputType.numberWithOptions(
-                                  decimal: true,
-                                ),
-                              ),
-                              const SizedBox(height: 12),
-                              TextField(
-                                controller: latitudeController,
-                                decoration: const InputDecoration(
-                                  labelText: 'Latitude',
-                                ),
-                                keyboardType: TextInputType.numberWithOptions(
-                                  decimal: true,
-                                ),
-                              ),
-                              const SizedBox(height: 12),
-                              TextField(
-                                controller: longitudeController,
-                                decoration: const InputDecoration(
-                                  labelText: 'Longitude',
-                                ),
+                                style: const TextStyle(color: Colors.black),
                                 keyboardType: TextInputType.numberWithOptions(
                                   decimal: true,
                                 ),
@@ -125,10 +195,64 @@ onPressed: () {
                               const SizedBox(height: 12),
                               TextField(
                                 controller: descricaoController,
-                                decoration: const InputDecoration(
+                                decoration: InputDecoration(
                                   labelText: 'Descrição do Campo',
+                                  labelStyle: TextStyle(color: Colors.black),
+                                  focusedBorder: OutlineInputBorder(
+                                    borderSide: BorderSide(
+                                      color: Colors.orange,
+                                    ),
+                                  ),
+                                  border: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(8),
+                                  ),
+                                  filled: true,
+                                  fillColor: Colors.grey[100],
                                 ),
+                                style: const TextStyle(color: Colors.black),
                                 maxLines: 2,
+                              ),
+                              const SizedBox(height: 16),
+                              const Text(
+                                'Localização:',
+                                style: TextStyle(fontWeight: FontWeight.bold),
+                              ),
+                              const SizedBox(height: 8),
+                              ElevatedButton.icon(
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: Colors.orange,
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(8),
+                                  ),
+                                ),
+                                onPressed: () async {
+                                  final ponto = await Navigator.push<LatLng>(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder:
+                                          (_) => SelecionarLocalizacaoMapa(
+                                            initialLocation:
+                                                selectedLocation ??
+                                                LatLng(0.0, 0.0),
+                                          ),
+                                    ),
+                                  );
+                                  if (ponto != null) {
+                                    setState(() {
+                                      pontoSelecionado = Ponto(id: DateTime.timestamp().millisecondsSinceEpoch, idMapa: 0, latitude: selectedLocation!.latitude, longitude: selectedLocation!.longitude);
+                                    });
+                                  }
+                                },
+                                icon: const Icon(
+                                  Icons.location_on,
+                                  color: Colors.black,
+                                ),
+                                label: Text(
+                                  pontoSelecionado != null
+                                      ? 'Selecionado: ${pontoSelecionado!.latitude.toStringAsFixed(4)}, ${pontoSelecionado!.longitude.toStringAsFixed(4)}'
+                                      : 'Selecionar Localização',
+                                  style: const TextStyle(color: Colors.black),
+                                ),
                               ),
                               const SizedBox(height: 16),
                               const Text(
@@ -143,11 +267,16 @@ onPressed: () {
                                       final ativo = entry.value;
                                       return Column(
                                         crossAxisAlignment:
-                                            CrossAxisAlignment.start,
+                                          CrossAxisAlignment.start,
                                         children: [
                                           CheckboxListTile(
                                             title: Text(dia),
                                             value: ativo,
+                                            activeColor:
+                                                Colors
+                                                    .orange,
+                                            checkColor:
+                                                const Color.fromARGB(255, 0, 0, 0),
                                             onChanged: (bool? value) {
                                               setState(() {
                                                 diasSelecionados[dia] = value!;
@@ -180,9 +309,26 @@ onPressed: () {
                                                       final novaHora =
                                                           await showTimePicker(
                                                             context: context,
-                                                            initialTime:
-                                                                horarios[dia]![0],
-                                                          );
+                                                            initialEntryMode: TimePickerEntryMode.input,
+                                                            initialTime: horarios[dia]![0],
+                                                            builder: (BuildContext context, Widget? child) {
+                                                              return Theme(
+                                                                data: Theme.of(context).copyWith(
+                                                                  timePickerTheme: TimePickerThemeData(
+                                                                    backgroundColor: Colors.white,
+                                                                    dialHandColor: Colors.orange,
+                                                                    hourMinuteTextColor: Colors.black,
+                                                                    entryModeIconColor: Colors.orange,
+                                                                    dayPeriodTextColor: Colors.orange,
+                                                                  ),
+                                                                  colorScheme: const ColorScheme.light(
+                                                                    primary: Colors.orange, // cor do botão "OK"
+                                                                    onSurface: Colors.black, // cor do texto
+                                                                  ),
+                                                                ), child: child!,
+                                                                );
+                                                              },
+                                                            );
                                                       if (novaHora != null) {
                                                         setState(() {
                                                           horarios[dia]![0] =
@@ -192,16 +338,60 @@ onPressed: () {
                                                     },
                                                     child: Text(
                                                       'Início: ${horarios[dia]![0].format(context)}',
+                                                      style: const TextStyle(
+                                                        color: Colors.orange,
+                                                      ),
                                                     ),
                                                   ),
                                                   TextButton(
                                                     onPressed: () async {
                                                       final novaHora =
                                                           await showTimePicker(
-                                                            context: context,
-                                                            initialTime:
-                                                                horarios[dia]![1],
+                                                        context: context,
+                                                        initialEntryMode:
+                                                            TimePickerEntryMode
+                                                                .input,
+                                                        initialTime:
+                                                            horarios[dia]![0],
+                                                        builder: (
+                                                          BuildContext context,
+                                                          Widget? child,
+                                                        ) {
+                                                          return Theme(
+                                                            data: Theme.of(
+                                                              context,
+                                                            ).copyWith(
+                                                              timePickerTheme: TimePickerThemeData(
+                                                                backgroundColor:
+                                                                    Colors
+                                                                        .white,
+                                                                dialHandColor:
+                                                                    Colors
+                                                                        .orange,
+                                                                hourMinuteTextColor:
+                                                                    Colors
+                                                                        .black,
+                                                                entryModeIconColor:
+                                                                    Colors
+                                                                        .orange,
+                                                                dayPeriodTextColor:
+                                                                    Colors
+                                                                        .orange,
+                                                              ),
+                                                              colorScheme:
+                                                                  const ColorScheme.light(
+                                                                    primary:
+                                                                        Colors
+                                                                            .orange, // cor do botão "OK"
+                                                                    onSurface:
+                                                                        Colors
+                                                                            .black, // cor do texto
+                                                                  ),
+                                                            ),
+                                                            child: child!,
                                                           );
+                                                        },
+                                                      );
                                                       if (novaHora != null) {
                                                         setState(() {
                                                           horarios[dia]![1] =
@@ -211,6 +401,9 @@ onPressed: () {
                                                     },
                                                     child: Text(
                                                       'Fim: ${horarios[dia]![1].format(context)}',
+                                                      style: const TextStyle(
+                                                        color: Colors.orange,
+                                                      ),
                                                     ),
                                                   ),
                                                 ],
@@ -243,20 +436,13 @@ onPressed: () {
                               final comprimento = double.tryParse(
                                 comprimentoController.text,
                               );
-                              final latitude = double.tryParse(
-                                latitudeController.text,
-                              );
-                              final longitude = double.tryParse(
-                                longitudeController.text,
-                              );
                               final descricao = descricaoController.text.trim();
 
                               if (nome.isEmpty ||
                                   preco == null ||
                                   largura == null ||
                                   comprimento == null ||
-                                  latitude == null ||
-                                  longitude == null ||
+                                  pontoSelecionado == null ||
                                   horarios.isEmpty) {
                                 ScaffoldMessenger.of(context).showSnackBar(
                                   const SnackBar(
@@ -270,8 +456,8 @@ onPressed: () {
 
                               final id = DateTime.now().millisecondsSinceEpoch;
                               final ponto = Ponto(
-                                latitude: latitude,
-                                longitude: longitude,
+                                latitude: pontoSelecionado!.latitude,
+                                longitude: pontoSelecionado!.longitude,
                                 id: id,
                                 idMapa: 0,
                               );
@@ -305,6 +491,8 @@ onPressed: () {
                                     .add(novoCampo);
                               }
 
+                              mockCampos.add(novoCampo);
+
                               Navigator.pop(context);
 
                               ScaffoldMessenger.of(context).showSnackBar(
@@ -329,75 +517,81 @@ onPressed: () {
                   );
                 },
               );
-            }
+            },
           ),
         ],
       ),
-      body: camposAssociados.isEmpty
-          ? const Center(
-              child: Text(
-                'Nenhum campo associado.',
-                style: TextStyle(fontSize: 16),
-              ),
-            )
-          : ListView.builder(
-              itemCount: camposAssociados.length,
-              itemBuilder: (context, index) {
-                final campo = camposAssociados[index];
-                return Card(
-                  margin: const EdgeInsets.symmetric(
-                    horizontal: 16,
-                    vertical: 8,
-                  ),
-                  child: ListTile(
-                    title: Text(
-                      campo.nome,
-                      style: const TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
+      body:
+          camposAssociados.isEmpty
+              ? const Center(
+                child: Text(
+                  'Nenhum campo associado.',
+                  style: TextStyle(fontSize: 16),
+                ),
+              )
+              : ListView.builder(
+                itemCount: camposAssociados.length,
+                itemBuilder: (context, index) {
+                  final campo = camposAssociados[index];
+                  return Card(
+                    margin: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 8,
+                    ),
+                    child: ListTile(
+                      title: Text(
+                        campo.nome,
+                        style: const TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      subtitle: Text(
+                        'Preço: ${campo.preco.toStringAsFixed(2)}€/h\n'
+                        'Dimensões: ${campo.comprimento}m x ${campo.largura}m',
+                      ),
+                      trailing: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          IconButton(
+                            icon: const Icon(Icons.info, color: Colors.blue),
+                            onPressed: () {
+                              // Navegar para a página de detalhes do campo
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder:
+                                      (context) => CampoDetails(campo: campo),
+                                ),
+                              );
+                            },
+                          ),
+                          IconButton(
+                            icon: const Icon(Icons.edit, color: Colors.orange),
+                            onPressed: () {
+                              // Abrir o popup para editar o campo
+                              _showEditCampoDialog(context, campo);
+                            },
+                          ),
+                        ],
                       ),
                     ),
-                    subtitle: Text(
-                      'Preço: ${campo.preco.toStringAsFixed(2)}€/h\n'
-                      'Dimensões: ${campo.comprimento}m x ${campo.largura}m',
-                    ),
-                    trailing: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        IconButton(
-                          icon: const Icon(Icons.info, color: Colors.blue),
-                          onPressed: () {
-                            // Navegar para a página de detalhes do campo
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => CampoDetails(campo: campo),
-                              ),
-                            );
-                          },
-                        ),
-                        IconButton(
-                          icon: const Icon(Icons.edit, color: Colors.orange),
-                          onPressed: () {
-                            // Abrir o popup para editar o campo
-                            _showEditCampoDialog(context, campo);
-                          },
-                        ),
-                      ],
-                    ),
-                  ),
-                );
-              },
-            ),
+                  );
+                },
+              ),
     );
   }
 
   void _showEditCampoDialog(BuildContext context, CampoPriv campo) {
-    final TextEditingController nomeController =
-        TextEditingController(text: campo.nome);
-    final TextEditingController precoController =
-        TextEditingController(text: campo.preco.toStringAsFixed(2));
-    final Map<String, List<TimeOfDay>> horarios = Map.from(campo.diasFuncionamento);
+    final TextEditingController nomeController = TextEditingController(
+      text: campo.nome,
+    );
+    final TextEditingController precoController = TextEditingController(
+      text: campo.preco.toStringAsFixed(2),
+    );
+    final Map<String, List<TimeOfDay>> horarios = Map.from(
+      campo.diasFuncionamento,
+    );
 
     showDialog(
       context: context,
@@ -412,12 +606,26 @@ onPressed: () {
                   children: [
                     TextField(
                       controller: nomeController,
-                      decoration: const InputDecoration(labelText: 'Nome do Campo'),
+                      decoration: const InputDecoration(
+                        labelText: 'Nome do Campo',
+                        labelStyle: TextStyle(color:Color.fromARGB(255, 0, 0, 0)),
+                        focusedBorder: OutlineInputBorder(
+                          borderSide: BorderSide(color: Colors.orange),
+                        ),
+                      ),
+                      style: const TextStyle(color: Colors.black),
                     ),
                     const SizedBox(height: 16),
                     TextField(
                       controller: precoController,
-                      decoration: const InputDecoration(labelText: 'Preço por Hora (€)'),
+                      decoration: const InputDecoration(
+                        labelText: 'Preço por Hora (€)',
+                        labelStyle: TextStyle(color: Colors.black),
+                        focusedBorder: OutlineInputBorder(
+                          borderSide: BorderSide(color: Colors.orange),
+                        ),
+                      ),
+                      style: const TextStyle(color: Colors.black),
                       keyboardType: TextInputType.number,
                     ),
                     const SizedBox(height: 16),
@@ -450,7 +658,10 @@ onPressed: () {
                                     });
                                   }
                                 },
-                                child: Text('Início: ${horas[0].format(context)}'),
+                                child: Text(
+                                  'Início: ${horas[0].format(context)}',
+                                  style: const TextStyle(color: Colors.orange),
+                                ),
                               ),
                               TextButton(
                                 onPressed: () async {
@@ -464,7 +675,10 @@ onPressed: () {
                                     });
                                   }
                                 },
-                                child: Text('Fim: ${horas[1].format(context)}'),
+                                child: Text(
+                                  'Fim: ${horas[1].format(context)}',
+                                  style: const TextStyle(color: Colors.orange),
+                                ),
                               ),
                             ],
                           ),
@@ -483,16 +697,21 @@ onPressed: () {
                   onPressed: () {
                     // Salvar alterações
                     campo.nome = nomeController.text;
-                    campo.preco = double.tryParse(precoController.text) ?? campo.preco;
+                    campo.preco =
+                        double.tryParse(precoController.text) ?? campo.preco;
                     campo.diasFuncionamento = horarios;
 
                     ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('Alterações salvas com sucesso!')),
+                      const SnackBar(
+                        content: Text('Alterações salvas com sucesso!'),
+                      ),
                     );
 
                     Navigator.pop(context);
                   },
-                  style: ElevatedButton.styleFrom(backgroundColor: Colors.orange),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.orange,
+                  ),
                   child: const Text('Salvar'),
                 ),
               ],

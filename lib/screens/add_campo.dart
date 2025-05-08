@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
+import 'package:sports_link/utils/location_service.dart'; // Import da classe utilitária
 import 'package:sports_link/models/ponto.dart';
-import 'package:sports_link/styles/carouselbg.dart'; // Import do carousel de imagens de fundo
-import 'package:sports_link/models/campo_pub.dart'; // Modelo de Campo Público
-import 'package:sports_link/data/mock_data.dart'; // Mock data para armazenar os campos
+import 'package:sports_link/styles/carouselbg.dart';
+import 'package:sports_link/models/campo_pub.dart';
+import 'package:sports_link/data/mock_data.dart';
+import 'package:sports_link/utils/abrir_mapa.dart';
 
 class AddCampo extends StatefulWidget {
   const AddCampo({super.key});
@@ -23,6 +24,23 @@ class _AddCampoState extends State<AddCampo> {
   final TextEditingController larguraController = TextEditingController();
 
   LatLng? selectedLocation; // Localização selecionada no mapa
+
+  @override
+  void initState() {
+    super.initState();
+    _initializeLocation();
+  }
+
+  Future<void> _initializeLocation() async {
+    final location = await LocationService.getCurrentLocation();
+    setState(() {
+      selectedLocation = location;
+      if (location != null) {
+        latitudeController.text = location.latitude.toString();
+        longitudeController.text = location.longitude.toString();
+      }
+    });
+  }
 
   void _abrirMapa() async {
     final LatLng? resultado = await Navigator.push(
@@ -161,6 +179,42 @@ class _AddCampoState extends State<AddCampo> {
                         ),
                       ),
                       const SizedBox(height: 16),
+                      const SizedBox(height: 16),
+                      TextField(
+                        controller: campoPriceController,
+                        decoration: InputDecoration(
+                          labelText: 'Entidade Pública Responsável',
+                          labelStyle: const TextStyle(
+                            color: Color.fromARGB(255, 0, 0, 0),
+                          ),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          focusedBorder: OutlineInputBorder(
+                            borderSide: const BorderSide(color: Colors.orange),
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+                      TextField(
+                        controller: campoDescriptionController,
+                        decoration: InputDecoration(
+                          labelText: 'Descrição',
+                          labelStyle: const TextStyle(
+                            color: Color.fromARGB(255, 0, 0, 0),
+                          ),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          focusedBorder: OutlineInputBorder(
+                            borderSide: const BorderSide(color: Colors.orange),
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                        ),
+                        maxLines: 3,
+                      ),
+                      const SizedBox(height: 16),
                       TextField(
                         controller: comprimentoController,
                         decoration: InputDecoration(
@@ -219,73 +273,6 @@ class _AddCampoState extends State<AddCampo> {
             ),
           ),
         ],
-      ),
-    );
-  }
-}
-
-class SelecionarLocalizacaoMapa extends StatefulWidget {
-  final LatLng initialLocation;
-
-  const SelecionarLocalizacaoMapa({super.key, required this.initialLocation});
-
-  @override
-  State<SelecionarLocalizacaoMapa> createState() => _SelecionarLocalizacaoMapaState();
-}
-
-class _SelecionarLocalizacaoMapaState extends State<SelecionarLocalizacaoMapa> {
-  LatLng? _selectedLocation;
-
-  @override
-  void initState() {
-    super.initState();
-    _selectedLocation = widget.initialLocation;
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Selecionar Localização'),
-        backgroundColor: Colors.orange,
-      ),
-      body: FlutterMap(
-        options: MapOptions(
-          initialCenter: _selectedLocation ?? LatLng(0.0, 0.0),
-          minZoom: 15.0,
-          maxZoom: 20.0,
-          onTap: (tapPosition, LatLng location) {
-            setState(() {
-              _selectedLocation = location;
-            });
-          },
-        ),
-        children: [
-          TileLayer(
-            urlTemplate: "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
-            subdomains: ['a', 'b', 'c'],
-          ),
-          if (_selectedLocation != null)
-            MarkerLayer(
-              markers: [
-                Marker(
-                  point: _selectedLocation!,
-                  child: const Icon(
-                    Icons.location_pin,
-                    color: Colors.orange,
-                    size: 40,
-                  ),
-                ),
-              ],
-            ),
-        ],
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          Navigator.pop(context, _selectedLocation);
-        },
-        backgroundColor: Colors.orange,
-        child: const Icon(Icons.check, color: Colors.white),
       ),
     );
   }
