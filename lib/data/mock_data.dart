@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:sports_link/models/arrendador.dart';
+import 'package:sports_link/models/avaliation.dart';
 import 'package:sports_link/models/desportos.dart';
 import 'package:sports_link/models/jogador.dart';
 import 'package:sports_link/models/msg.dart';
@@ -192,8 +193,8 @@ final Map<int, Utilizador> mockUsers = {
     iban: "BR99123456789",
     utilizador: 'joaosilva',
     createDate: DateTime.now(),
-  )..adicionarMetodoPagamento('metodo1', 'Cartão de Crédito')
-    ..adicionarMetodoPagamento('metodo2', 'MB Way'),
+  )..adicionarMetodoPagamento('Cartão de Crédito', 'Cartão de Crédito')
+    ..adicionarMetodoPagamento('MB Way', 'MB Way'),
   2: Arrendador(
     id: 2,
     nome: 'Ana Costa',
@@ -208,8 +209,8 @@ final Map<int, Utilizador> mockUsers = {
     iban: "PT50556677889",
     utilizador: 'anacosta',
     createDate: DateTime.now(),
-  )..adicionarMetodoPagamento('metodo1', 'MB Way')
-    ..adicionarMetodoPagamento('metodo2', 'Transferência Bancária'),
+  )..adicionarMetodoPagamento('MB Way', 'MB Way')
+    ..adicionarMetodoPagamento('Transferência Bancária', 'Transferência Bancária'),
 
   // Jogadores
   3: Jogador(
@@ -292,7 +293,6 @@ final Map<int, Utilizador> mockUsers = {
   )..setAltura(1.75)
     ..setPeso(60.0)
     ..adicionarDesporto(Desportos.voleibol),
-
 };
 
 enum LoginResult { success, wrongPassword, userNotFound }
@@ -307,6 +307,11 @@ LoginResult verificarLogin(
     adicionarCamposAosArrendadores();
     mockCampos[5].setPartida(mockPartidas[0]);
     mockCampos[2].setPartida(mockPartidas[1]);
+    (mockUsers[3] as Jogador).addAvaliation(Avaliation(id: 2, utilizador: mockUsers[1] as Jogador, comentario: 'Boa Jogadora', rating: 5, data: DateTime.now()));
+    (mockUsers[4] as Jogador).addAvaliation(Avaliation(id: 3, utilizador: mockUsers[1] as Jogador, comentario: 'Excelente jogador', rating: 4, data: DateTime.now()));
+    (mockUsers[5] as Jogador).addAvaliation(Avaliation(id: 4, utilizador: mockUsers[1] as Jogador, comentario: 'Muito bom', rating: 3, data: DateTime.now()));
+    (mockUsers[6] as Jogador).addAvaliation(Avaliation(id: 5, utilizador: mockUsers[2] as Jogador, comentario: 'Ótimo jogador', rating: 2, data: DateTime.now()));
+    (mockUsers[1] as Jogador).addAvaliation(Avaliation(id: 6, utilizador: mockUsers[4] as Jogador, comentario: 'Jogadora incrível', rating: 5, data: DateTime.now()));
     user = mockUsers.values.firstWhere((user) => user.email == email);
   } catch (e) {
     debugPrint('Erro ao encontrar o utilizador: $e');

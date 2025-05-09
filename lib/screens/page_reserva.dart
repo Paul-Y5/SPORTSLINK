@@ -3,9 +3,6 @@ import 'package:intl/intl.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:sports_link/data/my_user.dart';
 import 'package:sports_link/models/arrendador.dart';
-import 'package:sports_link/models/jogador.dart';
-import 'package:sports_link/models/partida.dart';
-import 'package:sports_link/screens/main_page_1.dart';
 import 'package:sports_link/utils/general.dart';
 import 'package:table_calendar/table_calendar.dart';
 import 'package:sports_link/models/campo_priv.dart';
@@ -34,6 +31,13 @@ class PageReservaState extends State<PageReserva> {
   int? numeroHorasReserva;
 
   final GlobalKey notificationButtonKey = GlobalKey();
+
+  final TextEditingController numeroCartaoController = TextEditingController();
+  final TextEditingController nomeCartaoController = TextEditingController();
+  final TextEditingController validadeCartaoController = TextEditingController();
+  final TextEditingController cvvCartaoController = TextEditingController();
+  final TextEditingController telefoneMbWayController = TextEditingController();
+  final TextEditingController emailPayPalController = TextEditingController();
 
   @override
   void initState() {
@@ -253,75 +257,217 @@ class PageReservaState extends State<PageReserva> {
                         final horario = '${selectedStartTime!.format(context)} - ${selectedEndTime!.format(context)}';
                         final data = DateFormat('dd/MM/yyyy').format(today);
                         final total = (widget.campo.preco * numeroHorasReserva!).toStringAsFixed(2);
-                        final metodo = metodoPagamentoSelecionado!;
 
-                        final reserva = {
-                          'data': data,
-                          'horario': horario,
-                          'total': total,
-                          'metodo': metodo,
-                          'cliente': widget.user.nome,
-                        };
-
-                        debugPrint('RESERVA: $reserva');
-
-                        widget.campo.reservas ??= {};
-                        widget.campo.reservas![data] = [
-                          ...?widget.campo.reservas![data],
-                          reserva,
-                        ];
-                        widget.campo.diasFuncionamento[getDiaSemanaPt(today)]?.add(selectedStartTime!);
-                        Arrendador arrendador = getMyUser(widget.campo.idArrendador) as Arrendador;
-                        arrendador.notificacoes.add(
-                          'Reserva confirmada para ${widget.campo.nome} em $data, $horario. Total: $total€',
-                        );
-
-                        debugPrint('Reservas do campo: ${widget.campo.reservas}');
-
-                        Jogador j = getMyUser(widget.user.id) as Jogador;
-                        
-                        Partida partida = Partida(
-                          id: 0,
-                          data: today,
-                          hora: selectedStartTime!,
-                          campo: widget.campo,
-                          resultado: null,
-                          jogadores: [j],
-                          estado: EstadoPartida.agendada,
-                          tipo: TipoPartida.privada,
-                        );
-                        j.partidas.add(partida);
-                        widget.user.notificacoes.add(
-                          'Reserva confirmada para ${widget.campo.nome} em $data, $horario. Total: $total€',
-                        );
-                        debugPrint('Jogador: ${j.nome} - Partidas: ${j.partidas}');
-
+                        // Exibe o popup de pagamento
                         showDialog(
                           context: context,
-                          builder: (BuildContext context) {
+                          builder: (context) {
                             return AlertDialog(
-                              title: const Text('Reserva Confirmada'),
-                              content: Column(
-                                mainAxisSize: MainAxisSize.min,
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text('Campo: ${widget.campo.nome}'),
-                                  Text('Data: $data'),
-                                  Text('Horário: $horario'),
-                                  Text('Total: $total€'),
-                                  Text('Método: ${arrendador.metodosPagamento[metodo] ?? metodo}'),
-                                ],
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(16),
+                              ),
+                              title: const Text(
+                                'Efetuar Pagamento',
+                                style: TextStyle(
+                                  fontSize: 20,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.orange,
+                                ),
+                              ),
+                              content: SingleChildScrollView(
+                                child: Column(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Text(
+                                      'Campo: ${widget.campo.nome}',
+                                      style: const TextStyle(fontSize: 16),
+                                    ),
+                                    Text(
+                                      'Data: $data',
+                                      style: const TextStyle(fontSize: 16),
+                                    ),
+                                    Text(
+                                      'Horário: $horario',
+                                      style: const TextStyle(fontSize: 16),
+                                    ),
+                                    Text(
+                                      'Total: €$total',
+                                      style: const TextStyle(
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                    const SizedBox(height: 16),
+
+                                    // Formulário específico para o método de pagamento selecionado
+                                    if (metodoPagamentoSelecionado == 'Cartão de Crédito')
+                                      Column(
+                                        children: [
+                                          TextField(
+                                            controller: numeroCartaoController,
+                                            decoration: const InputDecoration(
+                                              labelText: 'Número do Cartão',
+                                              border: OutlineInputBorder(),
+                                            ),
+                                          ),
+                                          const SizedBox(height: 8),
+                                          TextField(
+                                            controller: nomeCartaoController,
+                                            decoration: const InputDecoration(
+                                              labelText: 'Nome no Cartão',
+                                              border: OutlineInputBorder(),
+                                            ),
+                                          ),
+                                          const SizedBox(height: 8),
+                                          Row(
+                                            children: [
+                                              Expanded(
+                                                child: TextField(
+                                                  controller: validadeCartaoController,
+                                                  decoration: const InputDecoration(
+                                                    labelText: 'Validade (MM/AA)',
+                                                    border: OutlineInputBorder(),
+                                                  ),
+                                                ),
+                                              ),
+                                              const SizedBox(width: 8),
+                                              Expanded(
+                                                child: TextField(
+                                                  controller: cvvCartaoController,
+                                                  decoration: const InputDecoration(
+                                                    labelText: 'CVV',
+                                                    border: OutlineInputBorder(),
+                                                  ),
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        ],
+                                      )
+                                    else if (metodoPagamentoSelecionado == 'MB Way')
+                                      Column(
+                                        children: [
+                                          TextField(
+                                            controller: telefoneMbWayController,
+                                            decoration: const InputDecoration(
+                                              labelText: 'Número de Telefone',
+                                              border: OutlineInputBorder(),
+                                            ),
+                                          ),
+                                          const SizedBox(height: 8),
+                                          const Text(
+                                            'Você receberá uma notificação no seu MB Way para confirmar o pagamento.',
+                                            style: TextStyle(fontSize: 12, color: Colors.grey),
+                                          ),
+                                        ],
+                                      )
+                                    else if (metodoPagamentoSelecionado == 'PayPal')
+                                      Column(
+                                        children: [
+                                          TextField(
+                                            controller: emailPayPalController,
+                                            decoration: const InputDecoration(
+                                              labelText: 'E-mail do PayPal',
+                                              border: OutlineInputBorder(),
+                                            ),
+                                          ),
+                                          const SizedBox(height: 8),
+                                          const Text(
+                                            'Você será redirecionado para o PayPal para concluir o pagamento.',
+                                            style: TextStyle(fontSize: 12, color: Colors.grey),
+                                          ),
+                                        ],
+                                      ),
+                                  ],
+                                ),
                               ),
                               actions: [
                                 TextButton(
                                   onPressed: () {
                                     Navigator.of(context).pop();
-                                    Navigator.push(
-                                      context, 
-                                      MaterialPageRoute(builder: (context) => MainPage1(id: widget.user.id)),
+                                  },
+                                  child: const Text(
+                                    'Cancelar',
+                                    style: TextStyle(color: Colors.red),
+                                  ),
+                                ),
+                                ElevatedButton(
+                                  onPressed: () {
+                                    // Processa os dados do formulário
+                                    if (metodoPagamentoSelecionado == 'Cartão de Crédito') {
+                                      final numeroCartao = numeroCartaoController.text;
+                                      final nomeCartao = nomeCartaoController.text;
+                                      final validade = validadeCartaoController.text;
+                                      final cvv = cvvCartaoController.text;
+
+                                      if (numeroCartao.isEmpty || nomeCartao.isEmpty || validade.isEmpty || cvv.isEmpty) {
+                                        ScaffoldMessenger.of(context).showSnackBar(
+                                          const SnackBar(
+                                            content: Text('Por favor, preencha todos os campos do cartão de crédito.'),
+                                          ),
+                                        );
+                                        return;
+                                      }
+                                    } else if (metodoPagamentoSelecionado == 'MB Way') {
+                                      final telefone = telefoneMbWayController.text;
+
+                                      if (telefone.isEmpty) {
+                                        ScaffoldMessenger.of(context).showSnackBar(
+                                          const SnackBar(
+                                            content: Text('Por favor, insira o número de telefone para MB Way.'),
+                                          ),
+                                        );
+                                        return;
+                                      }
+                                    } else if (metodoPagamentoSelecionado == 'PayPal') {
+                                      final email = emailPayPalController.text;
+
+                                      if (email.isEmpty) {
+                                        ScaffoldMessenger.of(context).showSnackBar(
+                                          const SnackBar(
+                                            content: Text('Por favor, insira o e-mail do PayPal.'),
+                                          ),
+                                        );
+                                        return;
+                                      }
+                                    }
+
+                                    // Finaliza a reserva e atualiza o estado do campo
+                                    final reserva = {
+                                      'data': data,
+                                      'horario': horario,
+                                      'total': total,
+                                      'metodoPagamento': metodoPagamentoSelecionado!,
+                                    };
+
+                                    widget.campo.reservas ??= {};
+                                    widget.campo.reservas![data] = [
+                                      ...?widget.campo.reservas![data],
+                                      reserva,
+                                    ];
+
+                                    // Adiciona uma notificação ao arrendador
+                                    final arrendador = getMyUser(widget.campo.idArrendador) as Arrendador;
+                                    arrendador.notificacoes.add(
+                                      'Reserva confirmada para ${widget.campo.nome} em $data, $horario. Total: €$total',
+                                    );
+
+                                    // Fecha o popup de pagamento
+                                    Navigator.of(context).pop();
+
+                                    // Exibe uma mensagem de sucesso
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      const SnackBar(
+                                        content: Text('Reserva confirmada com sucesso!'),
+                                      ),
                                     );
                                   },
-                                  child: const Text('OK', style: TextStyle(color: Colors.orange)),
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: Colors.orange,
+                                  ),
+                                  child: const Text('Confirmar Pagamento', 
+                                    style: TextStyle(color: Colors.black),
+                                  ),
                                 ),
                               ],
                             );

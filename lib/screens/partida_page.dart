@@ -40,15 +40,14 @@ class _PartidaPageState extends State<PartidaPage> {
     // Calcula o tempo restante usando a função utilitária
     tempoRestante = calcularTempoRestante(widget.partida.data, widget.partida.hora);
 
-    // Obtem o usuário atual e define se já está na partida
+    // Obtém o usuário atual e define se já está na partida
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      currentUser =
-          Provider.of<UserProvider>(context, listen: false).user as Jogador;
-      setState(() {
-        isUserJoined =
-            widget.partida.jogadores?.any((j) => j.id == currentUser.id) ??
-            false;
-      });
+      if (mounted) {
+        currentUser = Provider.of<UserProvider>(context, listen: false).user as Jogador;
+        setState(() {
+          isUserJoined = widget.partida.jogadores?.any((j) => j.id == currentUser.id) ?? false;
+        });
+      }
     });
 
     _iniciarContador();
@@ -72,20 +71,24 @@ class _PartidaPageState extends State<PartidaPage> {
                 mockPartidas.removeWhere((p) => p.id == widget.partida.id);
 
                 // Exibe uma mensagem informando que a partida foi cancelada
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                    content: Text('A partida foi cancelada por falta de jogadores.'),
-                  ),
-                );
+                if (mounted) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('A partida foi cancelada por falta de jogadores.'),
+                    ),
+                  );
+                }
 
                 // No fim de 10 segundos, navega para a tela inicial
                 Future.delayed(const Duration(seconds: 10), () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => MainPage1(id: currentUser.id),
-                    ),
-                  );
+                  if (mounted) {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => MainPage1(id: currentUser.id),
+                      ),
+                    );
+                  }
                 });
               } else {
                 // Inicia a partida
@@ -94,11 +97,13 @@ class _PartidaPageState extends State<PartidaPage> {
                 });
 
                 // Exibe uma mensagem informando que a partida começou
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                    content: Text('A partida foi iniciada!'),
-                  ),
-                );
+                if (mounted) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('A partida foi iniciada!'),
+                    ),
+                  );
+                }
               }
             }
           });
@@ -122,27 +127,90 @@ class _PartidaPageState extends State<PartidaPage> {
       appBar: AppBar(
         title: const Text('Detalhes da Partida'),
         backgroundColor: Colors.orange,
+        actions: [
+          // Ícone para abrir o popup de jogadores
+          IconButton(
+            icon: const Icon(Icons.people, color: Colors.white),
+            onPressed: () {
+              showDialog(
+                context: context,
+                builder: (context) {
+                  return AlertDialog(
+                    title: Text(
+                      'Jogadores na Partida (${partida.jogadores?.length ?? 0})',
+                      style: const TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.orange,
+                      ),
+                    ),
+                    content: SizedBox(
+                      width: double.maxFinite,
+                      child: ListView(
+                        shrinkWrap: true,
+                        children: [
+                          if (partida.jogadores?.isNotEmpty ?? false)
+                            ...partida.jogadores!.map((jogador) {
+                              return ListTile(
+                                leading: CircleAvatar(
+                                  backgroundImage: AssetImage(
+                                    jogador.urlIMG ?? 'assets/default_image.png',
+                                  ),
+                                  radius: 20,
+                                ),
+                                title: Text(
+                                  jogador.nome,
+                                  style: const TextStyle(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                                subtitle: Text('Nível: ${jogador.nivel}'),
+                              );
+                            })
+                          else
+                            const Padding(
+                              padding: EdgeInsets.symmetric(vertical: 12.0),
+                              child: Text(
+                                'Nenhum jogador presente no momento.',
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  color: Colors.black54,
+                                ),
+                                textAlign: TextAlign.center,
+                              ),
+                            ),
+                        ],
+                      ),
+                    ),
+                    actions: [
+                      TextButton(
+                        onPressed: () {
+                          Navigator.of(context).pop();
+                        },
+                        child: const Text(
+                          'Fechar',
+                          style: TextStyle(color: Colors.orange),
+                        ),
+                      ),
+                    ],
+                  );
+                },
+              );
+            },
+          ),
+        ],
       ),
       body: Stack(
         children: [
+          // Carousel no fundo
           const Carouselbg(),
+          // Conteúdo principal
           SingleChildScrollView(
             padding: const EdgeInsets.all(16.0),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Imagem do campo
-                ClipRRect(
-                  borderRadius: BorderRadius.circular(16),
-                  child: Image.asset(
-                    campo.imagem,
-                    height: 200,
-                    width: double.infinity,
-                    fit: BoxFit.cover,
-                  ),
-                ),
-                const SizedBox(height: 16),
-
                 // Informações do campo e partida
                 Container(
                   width: double.infinity,
@@ -215,6 +283,83 @@ class _PartidaPageState extends State<PartidaPage> {
                 ),
                 const SizedBox(height: 16),
 
+                // Chat da partida
+                Container(
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text(
+                        'Chat da Partida',
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.orange,
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      // Exemplo de mensagens (substitua por um widget de chat real)
+                      Container(
+                        height: 200, // Altura do chat
+                        decoration: BoxDecoration(
+                          color: Colors.grey[200],
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: ListView(
+                          children: partida.chat
+                              !.map((mensagem) => ListTile(
+                                    title: Text(mensagem.remetente.nome),
+                                    leading: CircleAvatar(
+                                      backgroundImage: AssetImage(
+                                        mensagem.remetente.urlIMG ??
+                                            'assets/default_image.png',
+                                      ),
+                                      radius: 20,
+                                    ),
+                                    subtitle: Text(mensagem.conteudo),
+                                  ))
+                              .toList(),
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      // Campo de entrada de mensagem
+                      Row(
+                        children: [
+                          Expanded(
+                            child: TextField(
+                              decoration: InputDecoration(
+                                hintText: 'Digite sua mensagem...',
+                                border: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                                contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                              ),
+                            ),
+                          ),
+                          const SizedBox(width: 8),
+                          ElevatedButton(
+                            onPressed: () {
+                              // Lógica para enviar mensagem
+                            },
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.orange,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                            ),
+                            child: const Icon(Icons.send, color: Colors.white),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 16),
+
                 // Botões de ação
                 Center(
                   child: Column(
@@ -246,24 +391,140 @@ class _PartidaPageState extends State<PartidaPage> {
                         ElevatedButton(
                           onPressed: partida.jogadores!.length < (partida.numeroJogadoresMaximo ?? 100)
                               ? () {
-                                  // Exibe um popup para convidar amigos
                                   showDialog(
-                                    context: context,
-                                    builder: (context) {
-                                      return AlertDialog(
-                                        title: const Text('Convidar Amigos'),
-                                        content: const Text('Selecione os amigos que você deseja convidar.'),
-                                        actions: [
-                                          TextButton(
-                                            onPressed: () {
-                                              Navigator.of(context).pop();
-                                            },
-                                            child: const Text('Fechar', style: TextStyle(color: Colors.orange)),
+                                      context: context,
+                                      builder: (context) {
+                                        return AlertDialog(
+                                          title: const Text('Convidar Amigos'),
+                                          content: SizedBox(
+                                            width: double.maxFinite,
+                                            child: ListView(
+                                              shrinkWrap: true,
+                                              children: [
+                                                if (currentUser
+                                                    .amigos
+                                                    .isNotEmpty)
+                                                  ...currentUser.amigos.map((
+                                                    amigo,
+                                                  ) {
+                                                    return Card(
+                                                      margin:
+                                                          const EdgeInsets.symmetric(
+                                                            vertical: 8,
+                                                          ),
+                                                      shape: RoundedRectangleBorder(
+                                                        borderRadius:
+                                                            BorderRadius.circular(
+                                                              12,
+                                                            ),
+                                                      ),
+                                                      child: ListTile(
+                                                        leading: CircleAvatar(
+                                                          backgroundImage:
+                                                              AssetImage(
+                                                                amigo.urlIMG ??
+                                                                    'assets/default_image.png',
+                                                              ),
+                                                          radius: 20,
+                                                        ),
+                                                        title: Text(
+                                                          amigo.nome,
+                                                          style:
+                                                              const TextStyle(
+                                                                fontSize: 16,
+                                                                fontWeight:
+                                                                    FontWeight
+                                                                        .bold,
+                                                              ),
+                                                        ),
+                                                        subtitle: Text(
+                                                          'Nível: ${amigo.nivel}',
+                                                        ),
+                                                        trailing: ElevatedButton(
+                                                          onPressed: () {
+                                                            setState(() {
+                                                              // Adiciona uma notificação ao array de notificações do amigo
+                                                              amigo.notificacoes.add(
+                                                                {
+                                                                      'tipo':
+                                                                          'convite',
+                                                                      'mensagem':
+                                                                          '${currentUser.nome} convidou você para a partida!',
+                                                                      'partidaId':
+                                                                          widget
+                                                                              .partida
+                                                                              .id,
+                                                                    }
+                                                                    as String,
+                                                              );
+
+                                                              // Exibe uma mensagem de sucesso
+                                                              ScaffoldMessenger.of(
+                                                                context,
+                                                              ).showSnackBar(
+                                                                SnackBar(
+                                                                  content: Text(
+                                                                    'Convite enviado para ${amigo.nome}!',
+                                                                  ),
+                                                                ),
+                                                              );
+                                                            });
+                                                          },
+                                                          style: ElevatedButton.styleFrom(
+                                                            backgroundColor:
+                                                                Colors.orange,
+                                                            shape: RoundedRectangleBorder(
+                                                              borderRadius:
+                                                                  BorderRadius.circular(
+                                                                    8,
+                                                                  ),
+                                                            ),
+                                                          ),
+                                                          child: const Text(
+                                                            'Convidar',
+                                                            style: TextStyle(
+                                                              color:
+                                                                  Colors.white,
+                                                            ),
+                                                          ),
+                                                        ),
+                                                      ),
+                                                    );
+                                                  })
+                                                else
+                                                  const Padding(
+                                                    padding:
+                                                        EdgeInsets.symmetric(
+                                                          vertical: 12.0,
+                                                        ),
+                                                    child: Text(
+                                                      'Você não tem amigos para convidar.',
+                                                      style: TextStyle(
+                                                        fontSize: 16,
+                                                        color: Colors.black54,
+                                                      ),
+                                                      textAlign:
+                                                          TextAlign.center,
+                                                    ),
+                                                  ),
+                                              ],
+                                            ),
                                           ),
-                                        ],
-                                      );
-                                    },
-                                  );
+                                          actions: [
+                                            TextButton(
+                                              onPressed: () {
+                                                Navigator.of(context).pop();
+                                              },
+                                              child: const Text(
+                                                'Fechar',
+                                                style: TextStyle(
+                                                  color: Color.fromARGB(255,2,2,2,))
+                                              ),
+                                            ),
+                                          ],
+                                        );
+                                      },
+                                    );
                                 }
                               : null, // Desabilita o botão se a partida estiver cheia
                           style: ElevatedButton.styleFrom(
@@ -280,58 +541,6 @@ class _PartidaPageState extends State<PartidaPage> {
                           child: const Text(
                             'Convidar Amigos',
                             style: TextStyle(fontSize: 18), // Aumenta o tamanho da fonte
-                          ),
-                        ),
-                    ],
-                  ),
-                ),
-                const SizedBox(height: 16),
-
-                // Lista de jogadores
-                // Acordeão para jogadores
-                Card(
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(16),
-                  ),
-                  child: ExpansionTile(
-                    title: Text(
-                      'Jogadores na Partida (${partida.jogadores?.length ?? 0})',
-                      style: const TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.orange,
-                      ),
-                    ),
-                    children: [
-                      if (partida.jogadores?.isNotEmpty ?? false)
-                        ...partida.jogadores!.map((jogador) {
-                          return ListTile(
-                            leading: CircleAvatar(
-                              backgroundImage: AssetImage(
-                                jogador.urlIMG ?? 'assets/default_image.png',
-                              ),
-                              radius: 20,
-                            ),
-                            title: Text(
-                              jogador.nome,
-                              style: const TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                            subtitle: Text('Nível: ${jogador.nivel}'),
-                          );
-                        })
-                      else
-                        const Padding(
-                          padding: EdgeInsets.symmetric(vertical: 12.0),
-                          child: Text(
-                            'Nenhum jogador presente no momento.',
-                            style: TextStyle(
-                              fontSize: 16,
-                              color: Colors.black54,
-                            ),
-                            textAlign: TextAlign.center,
                           ),
                         ),
                     ],

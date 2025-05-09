@@ -115,7 +115,7 @@ class _ListAmigosPageState extends State<ListAmigosPage> {
             backgroundColor: Colors.transparent,
             appBar: AppBar(
               title: const Text('Lista de Amigos'),
-              backgroundColor: Colors.orange.withOpacity(0.8),
+              backgroundColor: Colors.orange[800],
               actions: [
                 IconButton(
                   icon: const Icon(Icons.person_add),
@@ -209,7 +209,7 @@ class PerfilAmigoPage extends StatelessWidget {
             backgroundColor: Colors.transparent,
             appBar: AppBar(
               title: Text('Perfil de ${amigo.nome}'),
-              backgroundColor: Colors.orange.withOpacity(0.8),
+              backgroundColor: Colors.orange[800],
               elevation: 0,
             ),
             body: Column(
