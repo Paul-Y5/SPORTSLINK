@@ -13,7 +13,9 @@ class Partida {
   List<Jogador>? jogadores;
   List<Msg>? chat;
   EstadoPartida estado;
-  TipoPartida tipo; // Não utilizado no momento, mas pode ser útil no futuro
+  TipoPartida tipo;
+  int? numeroJogadoresMinimo;
+  int? numeroJogadoresMaximo;
 
   Partida({
     required this.id,

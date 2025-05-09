@@ -49,7 +49,7 @@ final List<Campo> mockCampos = [
     descricao: 'Relva natural, vista para o Douro',
     ponto: mockPontos[1],
     entidadePublicaResp: "Câmara Municipal",
-  ) ..setPartida(mockPartidas[1]), // Associando uma partida ao campo
+  ),
   CampoPriv(
     id: 3,
     idPonto: 3,
@@ -306,6 +306,7 @@ LoginResult verificarLogin(
   try {
     adicionarCamposAosArrendadores();
     mockCampos[5].setPartida(mockPartidas[0]);
+    mockCampos[2].setPartida(mockPartidas[1]);
     user = mockUsers.values.firstWhere((user) => user.email == email);
   } catch (e) {
     debugPrint('Erro ao encontrar o utilizador: $e');

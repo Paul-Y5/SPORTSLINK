@@ -7,6 +7,8 @@ import 'package:sports_link/models/jogador.dart';
 import 'package:sports_link/controllers/user_provider.dart';
 import 'package:sports_link/screens/main_page_1.dart';
 import 'package:sports_link/styles/carouselbg.dart';
+import 'package:sports_link/utils/blinkdot.dart';
+import 'package:sports_link/utils/time_utils.dart';
 
 class PartidaPage extends StatefulWidget {
   final Partida partida;
@@ -35,21 +37,8 @@ class _PartidaPageState extends State<PartidaPage> {
   void initState() {
     super.initState();
 
-    final now = DateTime.now();
-    final partidaDateTime = DateTime(
-      widget.partida.data.year,
-      widget.partida.data.month,
-      widget.partida.data.day,
-      widget.partida.hora.hour,
-      widget.partida.hora.minute,
-    );
-
-    // Verificar o estado da partida e calcular o tempo restante apenas se estiver "aguardando"
-    if (widget.partida.estado == EstadoPartida.aguardando) {
-      tempoRestante = partidaDateTime.difference(now);
-    } else {
-      tempoRestante = Duration.zero; // Partida já começou
-    }
+    // Calcula o tempo restante usando a função utilitária
+    tempoRestante = calcularTempoRestante(widget.partida.data, widget.partida.hora);
 
     // Obtem o usuário atual e define se já está na partida
     WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -124,19 +113,6 @@ class _PartidaPageState extends State<PartidaPage> {
     super.dispose();
   }
 
-  Widget _buildBlinkingDot() {
-    return const SizedBox(
-      width: 10,
-      height: 10,
-      child: DecoratedBox(
-        decoration: BoxDecoration(
-          color: Colors.red,
-          shape: BoxShape.circle,
-        ),
-      ),
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     final partida = widget.partida;
@@ -180,36 +156,43 @@ class _PartidaPageState extends State<PartidaPage> {
                     children: [
                       Row(
                         children: [
-                          Text(
-                            'Campo: ${campo.nome}',
-                            style: const TextStyle(
-                              fontSize: 22,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.orange,
+                          Expanded(
+                            child: Text(
+                              'Campo: ${campo.nome}',
+                              style: const TextStyle(
+                                fontSize: 22,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.orange,
+                              ),
                             ),
                           ),
-                          const SizedBox(width: 8),
                           if (partida.estado == EstadoPartida.emAndamento)
-                            _buildBlinkingDot(), // Bolinha vermelha intermitente
+                            BlinkingDot(), // Bolinha vermelha intermitente
                         ],
                       ),
                       const SizedBox(height: 8),
-                      Text('Tempo de Espera: ${widget.tempoEspera} minutos'),
-                      Text(
-                        'Número Mínimo de Jogadores: ${widget.minJogadores}',
-                      ),
+                      Text('Número Mínimo de Jogadores: ${widget.minJogadores}'),
+                      Text('Número de Jogadores na Partida: ${partida.jogadores?.length ?? 0}'),
                       const SizedBox(height: 16),
                       Text(
                         'Estado: ${partida.estado == EstadoPartida.aguardando ? "Aguardando" : partida.estado == EstadoPartida.emAndamento ? "Em Andamento" : "Cancelada"}',
                       ),
                       const SizedBox(height: 16),
+
+                      // Timer ou resultado ao vivo
                       if (partida.estado == EstadoPartida.aguardando)
-                        Text(
-                          'Aguardando jogadores: ${tempoRestante.inMinutes.remainder(60).toString().padLeft(2, '0')}:${tempoRestante.inSeconds.remainder(60).toString().padLeft(2, '0')}',
-                          style: const TextStyle(
-                            fontSize: 16,
-                            color: Colors.orange,
-                          ),
+                        Row(
+                          children: [
+                            const Icon(Icons.timer, color: Colors.orange),
+                            const SizedBox(width: 8),
+                            Text(
+                              'Aguardando jogadores: ${tempoRestante.inMinutes.remainder(60).toString().padLeft(2, '0')}:${tempoRestante.inSeconds.remainder(60).toString().padLeft(2, '0')}',
+                              style: const TextStyle(
+                                fontSize: 16,
+                                color: Colors.orange,
+                              ),
+                            ),
+                          ],
                         )
                       else if (partida.estado == EstadoPartida.emAndamento)
                         Text(
@@ -232,63 +215,124 @@ class _PartidaPageState extends State<PartidaPage> {
                 ),
                 const SizedBox(height: 16),
 
+                // Botões de ação
+                Center(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      if (!isUserJoined && partida.jogadores!.length < (partida.numeroJogadoresMaximo ?? 100))
+                        ElevatedButton(
+                          onPressed: () {
+                            setState(() {
+                              partida.jogadores!.add(currentUser); // Adiciona o usuário atual à partida
+                              isUserJoined = true; // Marca que o usuário entrou na partida
+                            });
+                          },
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.orange,
+                            foregroundColor: Colors.black,
+                            padding: const EdgeInsets.symmetric(vertical: 16),
+                            minimumSize: const Size(200, 50), // Define um tamanho mínimo
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                          ),
+                          child: const Text(
+                            'Entrar na Partida',
+                            style: TextStyle(fontSize: 18), // Aumenta o tamanho da fonte
+                          ),
+                        )
+                      else if (isUserJoined)
+                        ElevatedButton(
+                          onPressed: partida.jogadores!.length < (partida.numeroJogadoresMaximo ?? 100)
+                              ? () {
+                                  // Exibe um popup para convidar amigos
+                                  showDialog(
+                                    context: context,
+                                    builder: (context) {
+                                      return AlertDialog(
+                                        title: const Text('Convidar Amigos'),
+                                        content: const Text('Selecione os amigos que você deseja convidar.'),
+                                        actions: [
+                                          TextButton(
+                                            onPressed: () {
+                                              Navigator.of(context).pop();
+                                            },
+                                            child: const Text('Fechar', style: TextStyle(color: Colors.orange)),
+                                          ),
+                                        ],
+                                      );
+                                    },
+                                  );
+                                }
+                              : null, // Desabilita o botão se a partida estiver cheia
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: partida.jogadores!.length < (partida.numeroJogadoresMaximo ?? 100)
+                                ? Colors.orange
+                                : Colors.grey,
+                            foregroundColor: Colors.black,
+                            padding: const EdgeInsets.symmetric(vertical: 16),
+                            minimumSize: const Size(200, 50), // Define um tamanho mínimo
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                          ),
+                          child: const Text(
+                            'Convidar Amigos',
+                            style: TextStyle(fontSize: 18), // Aumenta o tamanho da fonte
+                          ),
+                        ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 16),
+
                 // Lista de jogadores
-                Container(
-                  padding: const EdgeInsets.all(12),
-                  decoration: BoxDecoration(
-                    color: const Color.fromARGB(250, 255, 255, 255),
+                // Acordeão para jogadores
+                Card(
+                  shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(16),
                   ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const Text(
-                        'Jogadores no Campo:',
-                        style: TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.orange,
-                        ),
+                  child: ExpansionTile(
+                    title: Text(
+                      'Jogadores na Partida (${partida.jogadores?.length ?? 0})',
+                      style: const TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.orange,
                       ),
-                      const SizedBox(height: 8),
+                    ),
+                    children: [
                       if (partida.jogadores?.isNotEmpty ?? false)
-                        ListView.builder(
-                          shrinkWrap: true,
-                          physics: const NeverScrollableScrollPhysics(),
-                          itemCount: partida.jogadores!.length,
-                          itemBuilder: (context, index) {
-                            final jogador = partida.jogadores![index];
-                            return Container(
-                              margin: const EdgeInsets.symmetric(vertical: 4),
-                              padding: const EdgeInsets.all(8),
-                              decoration: BoxDecoration(
-                                color: const Color.fromARGB(200, 255, 153, 0),
-                                borderRadius: BorderRadius.circular(8),
+                        ...partida.jogadores!.map((jogador) {
+                          return ListTile(
+                            leading: CircleAvatar(
+                              backgroundImage: AssetImage(
+                                jogador.urlIMG ?? 'assets/default_image.png',
                               ),
-                              child: ListTile(
-                                leading: CircleAvatar(
-                                  backgroundImage: AssetImage(
-                                    jogador.urlIMG ??
-                                        'assets/default_image.png',
-                                  ),
-                                  radius: 20,
-                                ),
-                                title: Text(
-                                  jogador.nome,
-                                  style: const TextStyle(
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                                subtitle: Text('Nível: ${jogador.nivel}'),
+                              radius: 20,
+                            ),
+                            title: Text(
+                              jogador.nome,
+                              style: const TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
                               ),
-                            );
-                          },
-                        )
+                            ),
+                            subtitle: Text('Nível: ${jogador.nivel}'),
+                          );
+                        })
                       else
-                        const Text(
-                          'Nenhum jogador presente no momento.',
-                          style: TextStyle(fontSize: 16, color: Colors.black54),
+                        const Padding(
+                          padding: EdgeInsets.symmetric(vertical: 12.0),
+                          child: Text(
+                            'Nenhum jogador presente no momento.',
+                            style: TextStyle(
+                              fontSize: 16,
+                              color: Colors.black54,
+                            ),
+                            textAlign: TextAlign.center,
+                          ),
                         ),
                     ],
                   ),
