@@ -1,3 +1,4 @@
+import 'package:sports_link/models/desportos.dart';
 import 'package:sports_link/models/partida.dart';
 import 'package:sports_link/models/ponto.dart';
 
@@ -11,6 +12,7 @@ class Campo {
   bool ocupado;
   String descricao;
   Partida? partida;
+  List<Desportos> desportos = [];
 
   Ponto ponto;
   String imagem;
@@ -86,5 +88,9 @@ class Campo {
   
   void setOcupado(bool ocupado) {
     this.ocupado = ocupado;
+  }
+
+  void setDesportos(List<Desportos> desportos) {
+    this.desportos = desportos;
   }
 }

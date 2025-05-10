@@ -5,6 +5,7 @@ import 'package:geolocator/geolocator.dart'; // Import necessário para localiza
 import 'package:sports_link/data/mock_data.dart';
 import 'package:sports_link/models/arrendador.dart';
 import 'package:sports_link/models/campo_priv.dart';
+import 'package:sports_link/models/desportos.dart';
 import 'package:sports_link/models/ponto.dart';
 import 'package:sports_link/screens/campo_details.dart';
 import 'package:sports_link/controllers/user_provider.dart';
@@ -19,6 +20,7 @@ class ArrCamposList extends StatefulWidget {
 
 class _ArrCamposListState extends State<ArrCamposList> {
   LatLng? selectedLocation;
+  final List<Desportos> desportosSelecionados = [];
 
   @override
   void initState() {
@@ -413,6 +415,33 @@ class _ArrCamposListState extends State<ArrCamposList> {
                                       );
                                     }).toList(),
                               ),
+                              const SizedBox(height: 16),
+                              const Text(
+                                'Desportos Associados:',
+                                style: TextStyle(fontWeight: FontWeight.bold),
+                              ),
+                              const SizedBox(height: 8),
+                              Column(
+                                children: Desportos.values.map((desporto) {
+                                  return CheckboxListTile(
+                                    title: Text(
+                                      desporto.name[0].toUpperCase() + desporto.name.substring(1),
+                                      style: const TextStyle(fontSize: 14),
+                                    ),
+                                    value: desportosSelecionados.contains(desporto),
+                                    activeColor: Colors.orange,
+                                    onChanged: (bool? value) {
+                                      setState(() {
+                                        if (value == true) {
+                                          desportosSelecionados.add(desporto);
+                                        } else {
+                                          desportosSelecionados.remove(desporto);
+                                        }
+                                      });
+                                    },
+                                  );
+                                }).toList(),
+                              ),
                             ],
                           ),
                         ),
@@ -480,7 +509,7 @@ class _ArrCamposListState extends State<ArrCamposList> {
                                 idPonto: ponto.id,
                                 idMapa: 0,
                                 ocupado: false,
-                              );
+                              )..setDesportos(desportosSelecionados);
 
                               final userProvider = Provider.of<UserProvider>(
                                 context,
@@ -534,10 +563,11 @@ class _ArrCamposListState extends State<ArrCamposList> {
                 itemBuilder: (context, index) {
                   final campo = camposAssociados[index];
                   return Card(
-                    margin: const EdgeInsets.symmetric(
-                      horizontal: 16,
-                      vertical: 8,
+                    margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
                     ),
+                    elevation: 2,
                     child: ListTile(
                       title: Text(
                         campo.nome,
@@ -547,8 +577,7 @@ class _ArrCamposListState extends State<ArrCamposList> {
                         ),
                       ),
                       subtitle: Text(
-                        'Preço: ${campo.preco.toStringAsFixed(2)}€/h\n'
-                        'Dimensões: ${campo.comprimento}m x ${campo.largura}m',
+                        'Preço: ${campo.preco.toStringAsFixed(2)}€/h\nDimensões: ${campo.comprimento}m x ${campo.largura}m',
                       ),
                       trailing: Row(
                         mainAxisSize: MainAxisSize.min,

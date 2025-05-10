@@ -27,127 +27,149 @@ class _MapViewState extends State<MapView> {
 
   @override
   Widget build(BuildContext context) {
-    return FlutterMap(
-      options: MapOptions(
-        initialCenter: widget.userLocation,
-        initialZoom: 14.0,
-        maxZoom: 18.0,
-        minZoom: 5.0,
-        interactionOptions: const InteractionOptions(
-          flags: InteractiveFlag.all,
-        ),
-        onTap: (tapPosition, point) {
-          setState(() {
-            selectedCampo = null;
-          });
-        },
+    return Container(
+      margin: const EdgeInsets.all(16), // Margem ao redor do mapa
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16), // Bordas arredondadas
+        boxShadow: [
+          BoxShadow(
+            color: const Color.fromARGB(125, 150, 150, 150), // Sombra cinza
+            spreadRadius: 2,
+            blurRadius: 6,
+            offset: const Offset(0, 3), // Deslocamento da sombra
+          ),
+        ],
       ),
-      children: [
-        TileLayer(
-          urlTemplate: "https://tile.openstreetmap.org/{z}/{x}/{y}.png",
-        ),
-        MarkerLayer(
-          markers: [
-            Marker(
-              point: widget.userLocation,
-              width: 50,
-              height: 50,
-              child: const Icon(
-                Icons.my_location,
-                color: Colors.blue,
-                size: 30,
-              ),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(16), // Bordas arredondadas no mapa
+        child: FlutterMap(
+          options: MapOptions(
+            initialCenter: widget.userLocation,
+            initialZoom: 14.0,
+            maxZoom: 18.0,
+            minZoom: 5.0,
+            interactionOptions: const InteractionOptions(
+              flags: InteractiveFlag.all,
             ),
-            ...widget.campos.map((campo) {
-              return Marker(
-                point: LatLng(campo.ponto.latitude, campo.ponto.longitude),
-                width: 60,
-                height: 60,
-                child: GestureDetector(
-                  onTap: () {
-                    setState(() {
-                      selectedCampo = campo;
-                    });
-                  },
-                  child: Icon(
-                    Icons.location_pin,
-                    color: campo is CampoPriv ? Colors.orange : Colors.green,
-                    size: 40,
+            onTap: (tapPosition, point) {
+              setState(() {
+                selectedCampo = null;
+              });
+            },
+          ),
+          children: [
+            TileLayer(
+              urlTemplate: "https://tile.openstreetmap.org/{z}/{x}/{y}.png",
+            ),
+            MarkerLayer(
+              markers: [
+                Marker(
+                  point: widget.userLocation,
+                  width: 50,
+                  height: 50,
+                  child: const Icon(
+                    Icons.my_location,
+                    color: Colors.blue,
+                    size: 30,
                   ),
                 ),
-              );
-            }),
+                ...widget.campos.map((campo) {
+                  return Marker(
+                    point: LatLng(campo.ponto.latitude, campo.ponto.longitude),
+                    width: 60,
+                    height: 60,
+                    child: GestureDetector(
+                      onTap: () {
+                        setState(() {
+                          selectedCampo = campo;
+                        });
+                      },
+                      child: Icon(
+                        Icons.location_pin,
+                        color: campo is CampoPriv ? Colors.orange : Colors.green,
+                        size: 40,
+                      ),
+                    ),
+                  );
+                }),
+              ],
+            ),
+            if (selectedCampo != null)
+              MarkerLayer(
+                markers: [
+                  Marker(
+                    point: LatLng(
+                      selectedCampo!.ponto.latitude,
+                      selectedCampo!.ponto.longitude,
+                    ),
+                    width: 200,
+                    height: 120,
+                    child: Card(
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      color: Colors.white,
+                      elevation: 4, // Elevação para destacar o card
+                      child: Column(
+                        children: [
+                          Expanded(
+                            child: ClipRRect(
+                              borderRadius: const BorderRadius.vertical(
+                                top: Radius.circular(12),
+                              ),
+                              child: SizedBox(
+                                width: double.infinity,
+                                child: Image.asset(
+                                  selectedCampo!.imagem,
+                                  fit: BoxFit.cover,
+                                ),
+                              ),
+                            ),
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 8,
+                              vertical: 4,
+                            ),
+                            child: Column(
+                              children: [
+                                Text(
+                                  selectedCampo!.nome,
+                                  style: const TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                                TextButton(
+                                  onPressed: () {
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (_) =>
+                                            CampoDetails(campo: selectedCampo!),
+                                      ),
+                                    );
+                                  },
+                                  child: const Text(
+                                    'Ver detalhes',
+                                    style: TextStyle(
+                                      color: Colors.orange,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ],
+              ),
           ],
         ),
-        if (selectedCampo != null)
-          MarkerLayer(
-            markers: [
-              Marker(
-                point: LatLng(
-                  selectedCampo!.ponto.latitude,
-                  selectedCampo!.ponto.longitude,
-                ),
-                width: 200,
-                height: 120,
-                child: Card(
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  color: Colors.white,
-                  child: Column(
-                    children: [
-                      Expanded(
-                        child: ClipRRect(
-                          borderRadius: const BorderRadius.vertical(
-                            top: Radius.circular(12),
-                          ),
-                          child: SizedBox(
-                            width: double.infinity,
-                            child: Image.asset(
-                              selectedCampo!.imagem,
-                              fit: BoxFit.cover,
-                            ),
-                          ),
-                        ),
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 8,
-                          vertical: 4,
-                        ),
-                        child: Column(
-                          children: [
-                            Text(
-                              selectedCampo!.nome,
-                              style: const TextStyle(
-                                fontWeight: FontWeight.bold,
-                              ),
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                            TextButton(
-                              onPressed: () {
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder:(_) =>CampoDetails(campo: selectedCampo!),
-                                  ),
-                                );
-                              },
-                              child: const Text('Ver detalhes', 
-                                  style: TextStyle(
-                                    color: Colors.orange,
-                                  )),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ],
-          ),
-      ],
+      ),
     );
   }
 }

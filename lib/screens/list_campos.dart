@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:provider/provider.dart';
 import 'package:sports_link/controllers/user_provider.dart';
+import 'package:sports_link/models/campo_priv.dart';
 import 'package:sports_link/screens/campo_details.dart';
 import 'package:sports_link/styles/carouselbg.dart';
 import 'package:geolocator/geolocator.dart';
@@ -79,7 +80,13 @@ class _ListCamposState extends State<ListCampos> {
       query: searchController.text,
       isAscending: isAscending,
       filtroTipo: widget.filtroTipo,
-    );
+    ).where((campo) {
+      // Exclui os campos do arrendador atual
+      if (campo is CampoPriv && campo.idArrendador == currentUser?.id) {
+        return false;
+      }
+      return true;
+    }).toList();
 
     return Scaffold(
       extendBody: true,

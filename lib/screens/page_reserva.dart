@@ -1,9 +1,16 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:sports_link/data/my_user.dart';
 import 'package:sports_link/models/arrendador.dart';
+import 'package:sports_link/models/jogador.dart';
+import 'package:sports_link/models/partida.dart';
+import 'package:sports_link/models/reserva.dart';
+import 'package:sports_link/screens/main_page_1.dart';
 import 'package:sports_link/utils/general.dart';
+import 'package:sports_link/widgets/style_row.dart';
 import 'package:table_calendar/table_calendar.dart';
 import 'package:sports_link/models/campo_priv.dart';
 import 'package:sports_link/models/utilizador.dart';
@@ -215,24 +222,25 @@ class PageReservaState extends State<PageReserva> {
                   if (selectedStartTime != null &&
                       selectedEndTime != null &&
                       numeroHorasReserva != null)
-                    Container(
-                      padding: const EdgeInsets.all(12),
-                      margin: const EdgeInsets.symmetric(vertical: 12),
-                      decoration: BoxDecoration(
-                        color: const Color.fromARGB(100, 255, 255, 255),
+                    Card(
+                      elevation: 2,
+                      shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(12),
                       ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            'Horário: ${selectedStartTime!.format(context)} - ${selectedEndTime!.format(context)}',
-                          ),
-                          Text('Duração: $numeroHorasReserva horas'),
-                          Text(
-                            'Total a pagar: ${(widget.campo.preco * numeroHorasReserva!).toStringAsFixed(2)}€',
-                          ),
-                        ],
+                      child: Padding(
+                        padding: const EdgeInsets.all(16),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            buildInfoRow('Data', DateFormat('dd/MM/yyyy').format(today)),
+                            const SizedBox(height: 8),
+                            buildInfoRow('Horário', '$selectedStartTime - $selectedEndTime'),
+                            const SizedBox(height: 8),
+                            buildInfoRow('Duração', '$numeroHorasReserva horas'),
+                            const SizedBox(height: 8),
+                            buildInfoRow('Total a Pagar', '${(widget.campo.preco * numeroHorasReserva!).toStringAsFixed(2)}€'),
+                          ],
+                        ),
                       ),
                     ),
 
@@ -291,7 +299,7 @@ class PageReservaState extends State<PageReserva> {
                                       style: const TextStyle(fontSize: 16),
                                     ),
                                     Text(
-                                      'Total: €$total',
+                                      'Total: $total€',
                                       style: const TextStyle(
                                         fontSize: 16,
                                         fontWeight: FontWeight.bold,
@@ -432,32 +440,74 @@ class PageReservaState extends State<PageReserva> {
                                       }
                                     }
 
-                                    // Finaliza a reserva e atualiza o estado do campo
-                                    final reserva = {
-                                      'data': data,
-                                      'horario': horario,
-                                      'total': total,
-                                      'metodoPagamento': metodoPagamentoSelecionado!,
-                                    };
+                                    DateTime dataFormatted = DateFormat('dd/MM/yyyy').parse(data);
+                                    // Finaliza a reserva e atualiza map de reservas
+                                    final reserva = Reserva(
+                                      id: Random().nextInt(1000000),
+                                      idCampo: widget.campo.id,
+                                      idCliente: widget.user.id,
+                                      idArrendador: widget.campo.idArrendador,
+                                      data: dataFormatted,
+                                      horaInicio: selectedStartTime!.format(context),
+                                      tempoDuracao: numeroHorasReserva!.toString(),
+                                      estado: "Confirmada",
+                                      pagamento: metodoPagamentoSelecionado!,
+                                    );
 
-                                    widget.campo.reservas ??= {};
-                                    widget.campo.reservas![data] = [
-                                      ...?widget.campo.reservas![data],
-                                      reserva,
-                                    ];
+                                    if(widget.campo.reservas.containsKey(dataFormatted)) {
+                                      widget.campo.reservas[dataFormatted]!.add(reserva);
+                                    } else {
+                                      widget.campo.reservas[dataFormatted] = [reserva];
+                                    }
+
+                                    // Remove os horários reservados
+                                    final DateFormat formatter = DateFormat(
+                                      'dd/MM/yyyy',
+                                    );
+                                    final parseddata = formatter.parse(data);
+                            
+                                    widget.campo.diasFuncionamento[getDiaSemanaPt(parseddata)]
+                                        ?.removeWhere((time) {
+                                          return !time.isBefore(
+                                                selectedStartTime!,
+                                              ) &&
+                                              !time.isAfter(selectedEndTime!);
+                                    });
+
+                                    //Utilizaddor cria partida no estado reservado
+                                    (widget.user as Jogador).partidas.add(
+                                      Partida(
+                                        id: Random().nextInt(1000000), 
+                                        data: parseddata, 
+                                        hora: selectedStartTime!, 
+                                        campo: widget.campo, 
+                                        estado: EstadoPartida.agendada,
+                                        tipo: TipoPartida.privada
+                                      ),
+                                    );
 
                                     // Adiciona uma notificação ao arrendador
                                     final arrendador = getMyUser(widget.campo.idArrendador) as Arrendador;
                                     arrendador.notificacoes.add(
-                                      'Reserva confirmada para ${widget.campo.nome} em $data, $horario. Total: €$total',
+                                      'Reserva confirmada para ${widget.campo.nome} em $data, $horario. Total: $total€',
                                     );
 
-                                    // Fecha o popup de pagamento
-                                    Navigator.of(context).pop();
+                                    // Quem fez a reserva
+                                    widget.user.notificacoes.add(
+                                      'Reserva confirmada para ${widget.campo.nome} em $data, $horario. Total: $total€',
+                                    );
+
+                                    // Volta para a main page
+                                    Navigator.push(context, 
+                                      MaterialPageRoute(
+                                        builder: (context) => MainPage1(id: widget.user.id,),
+                                      ),
+                                    );
 
                                     // Exibe uma mensagem de sucesso
                                     ScaffoldMessenger.of(context).showSnackBar(
                                       const SnackBar(
+                                        backgroundColor: Colors.green,
                                         content: Text('Reserva confirmada com sucesso!'),
                                       ),
                                     );
@@ -558,15 +608,24 @@ class PageReservaState extends State<PageReserva> {
               );
             }
 
+            // normalize para tirar hora/minuto
+            final parsedDay = DateTime(day.year, day.month, day.day);
+
+            // pega nome do dia da semana
+            final dayOfW = getDiaSemanaPt(parsedDay);
+
+            // total de slots naquele dia da semana
             final totalSlots =
-                widget.campo.diasFuncionamento[dayOfWeek]?.length ?? 0;
-            final reservasDoDia =
-                widget.campo.reservas?[DateFormat('yyyy-MM-dd').format(day)] ??
-                [];
+                widget.campo.diasFuncionamento[dayOfW]?.length ?? 0;
+
+            // lista de reservas já criadas nessa data
+            final reservasDoDia = widget.campo.reservas[parsedDay] ?? [];
+
             final reservasCount = reservasDoDia.length;
 
+            // debug opcional
             debugPrint(
-              'Dia: $day - Total de slots: $totalSlots - Reservas: $reservasCount',
+              'Dia: $parsedDay → slots: $totalSlots → reservas: $reservasCount',
             );
 
             Color backgroundColor;
@@ -577,7 +636,7 @@ class PageReservaState extends State<PageReserva> {
             } else {
               backgroundColor = Colors.red;
             }
-
+            
             return Container(
               margin: const EdgeInsets.all(6.0),
               alignment: Alignment.center,

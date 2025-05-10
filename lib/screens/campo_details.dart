@@ -18,6 +18,8 @@ import 'package:sports_link/screens/perfil_page.dart';
 import 'package:sports_link/styles/carouselbg.dart';
 import 'package:sports_link/styles/custom_appbar.dart';
 import 'package:sports_link/widgets/menu_card.dart';
+import 'package:intl/intl.dart';
+import 'package:sports_link/widgets/style_row.dart';
 
 class CampoDetails extends StatefulWidget {
   final Campo campo;
@@ -127,7 +129,7 @@ class _CampoDetailsState extends State<CampoDetails> {
                             style: TextStyle(
                               fontSize: 20,
                               fontWeight: FontWeight.bold,
-                              color: Colors.black,
+                              color: Colors.orange, // Título em laranja
                             ),
                           ),
                           const SizedBox(height: 10),
@@ -135,32 +137,52 @@ class _CampoDetailsState extends State<CampoDetails> {
                           // Exibe informações dependendo do tipo de campo
                           if (widget.campo is CampoPriv) ...[
                             // Campo Privado
-                            GestureDetector(
-                              onTap: _openArrendadorProfile,
-                              child: Text(
-                                'Responsável: ${_getNomeArrendador()}',
-                                style: const TextStyle(
-                                  fontSize: 16,
-                                  color: Colors.blue,
-                                  decoration: TextDecoration.underline,
+                            Card(
+                              elevation: 2,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              color: Colors.orange[50],
+                              
+                              child: ListTile(
+                                leading: const Icon(
+                                  Icons.person, // Ícone de pessoa
+                                  color: Colors.orange, // Cor laranja para combinar com o tema
+                                  size: 28,
                                 ),
+                                title: const Text(
+                                  'Responsável',
+                                  style: TextStyle(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.black,
+                                  ),
+                                ),
+                                subtitle: Text(
+                                  _getNomeArrendador(),
+                                  style: const TextStyle(
+                                    fontSize: 14,
+                                    color: Colors.grey,
+                                  ),
+                                ),
+                                trailing: const Icon(
+                                  Icons.arrow_forward_ios, // Ícone de seta para indicar navegação
+                                  color: Colors.grey,
+                                  size: 16,
+                                ),
+                                onTap: _openArrendadorProfile, // Navegar para o perfil do arrendador
                               ),
                             ),
                             const SizedBox(height: 8),
-                            Text(
-                              'Preço: ${(widget.campo as CampoPriv).preco.toStringAsFixed(2)}€/h',
-                              style: const TextStyle(fontSize: 16),
-                            ),
+                            buildInfoRow('Preço', '${(widget.campo as CampoPriv).preco.toStringAsFixed(2)}€/h'),
                             const SizedBox(height: 8),
-                            Text(
-                              'Métodos de Pagamento: ${_getMetodosPagamento()}',
-                              style: const TextStyle(fontSize: 16),
-                            ),
+                            buildInfoRow('Métodos de Pagamento', _getMetodosPagamento()),
                             const SizedBox(height: 8),
-                            Text(
-                              'Horários: ${_getHorariosFuncionamento()}',
-                              style: const TextStyle(fontSize: 16),
-                            ),
+                            buildInfoRow('Horários', _getHorariosFuncionamento()),
+                            if (widget.campo.desportos.isNotEmpty) ...[
+                              const SizedBox(height: 8),
+                              buildInfoRow('Desportos Associados', widget.campo.desportos.join(', ')),
+                            ],
                             const SizedBox(height: 20),
                             ElevatedButton(
                               onPressed: _scheduleReservation,
@@ -173,11 +195,13 @@ class _CampoDetailsState extends State<CampoDetails> {
                                   borderRadius: BorderRadius.circular(12),
                                 ),
                               ),
-                              child: const Text(
-                                'Agendar Reserva',
-                                style: TextStyle(
-                                  fontSize: 18,
-                                  color: Colors.black,
+                              child: const Center(
+                                child: Text(
+                                  'Agendar Reserva',
+                                  style: TextStyle(
+                                    fontSize: 18,
+                                    color: Colors.black,
+                                  ),
                                 ),
                               ),
                             ),
@@ -185,17 +209,9 @@ class _CampoDetailsState extends State<CampoDetails> {
 
                           if (widget.campo is CampoPub) ...[
                             // Campo Público
-                            Text(
-                              'Entidade Responsável: ${(widget.campo as CampoPub).entidadePublicaResp}',
-                              style: const TextStyle(fontSize: 16),
-                            ),
+                            buildInfoRow('Entidade Responsável', (widget.campo as CampoPub).entidadePublicaResp),
                             const SizedBox(height: 8),
-                            Text(
-                              'Estado: ${(widget.campo as CampoPub).ocupado ? "Ocupado" : "Disponível"}',
-                              style: const TextStyle(fontSize: 16),
-                            ),
-
-                            // Verificar se o campo está ocupado e exibir a partida
+                            buildInfoRow('Estado', (widget.campo as CampoPub).ocupado ? 'Ocupado' : 'Disponível'),
                             if ((widget.campo as CampoPub).ocupado) ...[
                               const SizedBox(height: 20),
                               const Text(
@@ -207,44 +223,113 @@ class _CampoDetailsState extends State<CampoDetails> {
                                 ),
                               ),
                               const SizedBox(height: 8),
-                              Text(
-                                'Jogadores: ${_getJogadoresPartida()}',
-                                style: const TextStyle(fontSize: 16),
-                              ),
+                              buildInfoRow('Jogadores', _getJogadoresPartida() ?? 'Nenhum jogador presente'),
                               const SizedBox(height: 8),
-                              Text(
-                                'Hora de Início: ${_getHoraInicioPartida()}',
-                                style: const TextStyle(fontSize: 16),
-                              ),
+                              buildInfoRow('Hora de Início', _getHoraInicioPartida()),
                               const SizedBox(height: 8),
-                              Text(
-                                'Estado: ${_getEstadoPartida()}',
-                                style: const TextStyle(fontSize: 16),
-                              ),
+                              buildInfoRow('Estado', _getEstadoPartida()),
                             ],
-
                             const SizedBox(height: 20),
-                            ElevatedButton(
-                              onPressed: (widget.campo as CampoPub).ocupado
-                                  ? null // Desabilitar o botão se o campo estiver ocupado
-                                  : _showStartMatchPopup, // Função para abrir o popup
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: Colors.orange,
-                                padding: const EdgeInsets.symmetric(
-                                  vertical: 12,
+                            Center(
+                              child: ElevatedButton(
+                                onPressed: (widget.campo as CampoPub).ocupado
+                                    ? null // Desabilitar o botão se o campo estiver ocupado
+                                    : _showStartMatchPopup, // Função para abrir o popup
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: Colors.orange,
+                                  padding: const EdgeInsets.symmetric(
+                                    vertical: 12,
+                                  ),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(12),
+                                  ),
                                 ),
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(12),
-                                ),
-                              ),
-                              child: const Text(
-                                'Começar Partida',
-                                style: TextStyle(
-                                  fontSize: 18,
-                                  color: Colors.black,
+                                child: const Text(
+                                  'Começar Partida',
+                                  style: TextStyle(
+                                    fontSize: 18,
+                                    color: Colors.black,
+                                  ),
                                 ),
                               ),
                             ),
+                          ],
+                          if (widget.campo is CampoPriv &&
+                              (widget.campo as CampoPriv).idArrendador == currentUser?.id) ...[
+                            const SizedBox(height: 20),
+                            const Text(
+                              'Acordo de Reservas',
+                              style: TextStyle(
+                                fontSize: 20,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.orange,
+                              ),
+                            ),
+                            const SizedBox(height: 10),
+                            if ((widget.campo as CampoPriv).reservas.isNotEmpty)
+                              ListView.builder(
+                                shrinkWrap: true,
+                                physics: const NeverScrollableScrollPhysics(),
+                                itemCount: (widget.campo as CampoPriv).reservas.length,
+                                itemBuilder: (context, index) {
+                                  final data = (widget.campo as CampoPriv).reservas.keys.elementAt(index);
+                                  final reservas = (widget.campo as CampoPriv).reservas[data]!;
+
+                                  return Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        'Data: ${DateFormat('dd/MM/yyyy').format(data)}',
+                                        style: const TextStyle(
+                                          fontSize: 16,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                      const SizedBox(height: 8),
+                                      ...reservas.map((reserva) {
+                                        return Container(
+                                          margin: const EdgeInsets.symmetric(vertical: 8),
+                                          padding: const EdgeInsets.all(12),
+                                          decoration: BoxDecoration(
+                                            color: const Color.fromARGB(100, 255, 255, 255),
+                                            borderRadius: BorderRadius.circular(12),
+                                          ),
+                                          child: Column(
+                                            crossAxisAlignment: CrossAxisAlignment.start,
+                                            children: [
+                                              Text(
+                                                'Cliente: ${_getNomeCliente(reserva.idCliente)}',
+                                                style: const TextStyle(fontSize: 16),
+                                              ),
+                                              Text(
+                                                'Hora de Início: ${reserva.horaInicio}',
+                                                style: const TextStyle(fontSize: 16),
+                                              ),
+                                              Text(
+                                                'Duração: ${reserva.tempoDuracao} horas',
+                                                style: const TextStyle(fontSize: 16),
+                                              ),
+                                              Text(
+                                                'Estado: ${reserva.estado}',
+                                                style: const TextStyle(fontSize: 16),
+                                              ),
+                                              Text(
+                                                'Método de Pagamento: ${reserva.pagamento}',
+                                                style: const TextStyle(fontSize: 16),
+                                              ),
+                                            ],
+                                          ),
+                                        );
+                                      }),
+                                    ],
+                                  );
+                                },
+                              )
+                            else
+                              const Text(
+                                'Nenhuma reserva encontrada.',
+                                style: TextStyle(fontSize: 16, color: Colors.black54),
+                              ),
                           ],
                         ],
                       ),
@@ -412,77 +497,92 @@ class _CampoDetailsState extends State<CampoDetails> {
   void _showStartMatchPopup() {
   final TextEditingController tempoEsperaController = TextEditingController();
   final TextEditingController minJogadoresController = TextEditingController();
-  CampoPub? campoSelecionado;
 
   showDialog(
     context: context,
     builder: (BuildContext context) {
       return AlertDialog(
-        title: const Text('Configurar Partida'),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(16),
+        ),
+        title: const Text(
+          'Configurar Partida',
+          style: TextStyle(
+            fontWeight: FontWeight.bold,
+            fontSize: 20,
+            color: Colors.orange, // Título em laranja
+          ),
+        ),
         content: SingleChildScrollView(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               const Text(
                 'Tempo de Espera (minutos):',
-                style: TextStyle(fontWeight: FontWeight.bold),
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 16,
+                  color: Colors.black, // Texto preto
+                ),
               ),
+              const SizedBox(height: 8),
               TextField(
                 controller: tempoEsperaController,
                 keyboardType: TextInputType.number,
-                decoration: const InputDecoration(
+                decoration: InputDecoration(
                   hintText: 'Ex: 10',
+                  hintStyle: const TextStyle(color: Colors.grey),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderSide: const BorderSide(color: Colors.orange),
+                  ),
                 ),
               ),
               const SizedBox(height: 16),
               const Text(
                 'Número Mínimo de Jogadores:',
-                style: TextStyle(fontWeight: FontWeight.bold),
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 16,
+                  color: Colors.black, // Texto preto
+                ),
               ),
+              const SizedBox(height: 8),
               TextField(
                 controller: minJogadoresController,
                 keyboardType: TextInputType.number,
-                decoration: const InputDecoration(
+                decoration: InputDecoration(
                   hintText: 'Ex: 4',
+                  hintStyle: const TextStyle(color: Colors.grey),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderSide: const BorderSide(color: Colors.orange),
+                  ),
                 ),
               ),
               const SizedBox(height: 16),
-              const Text(
-                'Selecionar Campo Público Disponível:',
-                style: TextStyle(fontWeight: FontWeight.bold),
-              ),
-              DropdownButton<CampoPub>(
-                isExpanded: true,
-                value: campoSelecionado,
-                hint: const Text('Selecione um campo'),
-                items: mockCampos
-                    .whereType<CampoPub>()
-                    .where((campo) => !campo.ocupado)
-                    .map((campo) {
-                  return DropdownMenuItem<CampoPub>(
-                    value: campo,
-                    child: Text(campo.nome),
-                  );
-                }).toList(),
-                onChanged: (CampoPub? novoCampo) {
-                  setState(() {
-                    campoSelecionado = novoCampo;
-                  });
-                },
-              ),
             ],
           ),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(),
-            child: const Text('Cancelar'),
+            child: const Text(
+              'Cancelar',
+              style: TextStyle(
+                color: Colors.orange, // Botão laranja
+                fontWeight: FontWeight.bold,
+              ),
+            ),
           ),
           ElevatedButton(
             onPressed: () {
               if (tempoEsperaController.text.isEmpty ||
-                  minJogadoresController.text.isEmpty ||
-                  campoSelecionado == null) {
+                  minJogadoresController.text.isEmpty) {
                 ScaffoldMessenger.of(context).showSnackBar(
                   const SnackBar(
                     content: Text('Preencha todos os campos!'),
@@ -496,11 +596,22 @@ class _CampoDetailsState extends State<CampoDetails> {
               _startMatch(
                 int.parse(tempoEsperaController.text),
                 int.parse(minJogadoresController.text),
-                campoSelecionado!,
+                widget.campo as CampoPub, // Usa o campo atual
               );
             },
-            style: ElevatedButton.styleFrom(backgroundColor: Colors.orange),
-            child: const Text('Confirmar'),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.orange, // Botão laranja
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(8),
+              ),
+            ),
+            child: const Text(
+              'Confirmar',
+              style: TextStyle(
+                color: Colors.black, // Texto preto
+                fontWeight: FontWeight.bold,
+              ),
+            ),
           ),
         ],
       );
@@ -528,12 +639,12 @@ class _CampoDetailsState extends State<CampoDetails> {
       MaterialPageRoute(
         builder: (context) => PartidaPage(
           partida: Partida(
-            id: 1,
+            id: DateTime.now().millisecondsSinceEpoch,
             campo: campoSelecionado,
             data: DateTime.now(),
             hora: TimeOfDay.now(),
             estado: EstadoPartida.aguardando,
-            jogadores: [UserProvider().user as Jogador],
+            jogadores: [Provider.of<UserProvider>(context, listen: false).user as Jogador],
             tipo: TipoPartida.publica,
           ),
           tempoEspera: tempoEspera,
@@ -585,5 +696,14 @@ class _CampoDetailsState extends State<CampoDetails> {
       }
     }
     return 'Estado não disponível';
+  }
+
+  String _getNomeCliente(int idCliente) {
+    for (var user in mockUsers.values) {
+      if (user.id == idCliente) {
+        return user.nome;
+      }
+    }
+    return 'Cliente desconhecido';
   }
 }

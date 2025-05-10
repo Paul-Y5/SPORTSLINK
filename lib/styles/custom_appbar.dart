@@ -9,6 +9,7 @@ import 'package:sports_link/screens/list_amigos_page.dart';
 import 'package:sports_link/screens/main_page_1.dart';
 import 'package:sports_link/screens/partidas_jogador.dart';
 import 'package:sports_link/screens/perfil_page.dart';
+import 'package:sports_link/screens/settings_help.dart';
 
 class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
   final GlobalKey notificationButtonKey;
@@ -80,6 +81,10 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
 
             _buildMenuItem('Definições & Ajuda', Icons.settings, 'Definições & Ajuda', onTap: () {
               // Adicione a lógica para abrir as definições e ajuda aqui
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(builder: (context) => const SettingsHelpPage()),
+              );
             }),
             _buildMenuItem('Sair', Icons.logout, 'Sair', onTap: () {
               // Adicione a lógica de logout aqui

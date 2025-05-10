@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:latlong2/latlong.dart';
+import 'package:sports_link/models/desportos.dart';
 import 'package:sports_link/utils/location_service.dart'; // Import da classe utilitária
 import 'package:sports_link/models/ponto.dart';
 import 'package:sports_link/styles/carouselbg.dart';
@@ -24,6 +25,7 @@ class _AddCampoState extends State<AddCampo> {
   final TextEditingController larguraController = TextEditingController();
 
   LatLng? selectedLocation; // Localização selecionada no mapa
+  List<Desportos> desportosSelecionados = [];
 
   @override
   void initState() {
@@ -82,7 +84,7 @@ class _AddCampoState extends State<AddCampo> {
       idMapa: 0,
       comprimento: double.tryParse(comprimentoController.text) ?? 0.0,
       largura: double.tryParse(larguraController.text) ?? 0.0,
-    );
+    )..setDesportos(desportosSelecionados);
 
     // Adicionar o campo ao array de campos públicos
     setState(() {
@@ -159,22 +161,43 @@ class _AddCampoState extends State<AddCampo> {
                         ),
                       ),
                       const SizedBox(height: 16),
-                      GestureDetector(
-                        onTap: _abrirMapa,
-                        child: AbsorbPointer(
-                          child: TextField(
-                            controller: latitudeController,
-                            decoration: InputDecoration(
-                              labelText: 'Localização (clique para selecionar no mapa)',
-                              labelStyle: const TextStyle(color: Color.fromARGB(255, 0, 0, 0)),
-                              border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(8),
+                      Card(
+                        elevation: 2,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: Padding(
+                          padding: const EdgeInsets.all(16),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              const Text(
+                                'Localização',
+                                style: TextStyle(
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.orange,
+                                ),
                               ),
-                              focusedBorder: OutlineInputBorder(
-                                borderSide: const BorderSide(color: Colors.orange),
-                                borderRadius: BorderRadius.circular(8),
+                              const SizedBox(height: 8),
+                              GestureDetector(
+                                onTap: _abrirMapa,
+                                child: AbsorbPointer(
+                                  child: TextField(
+                                    controller: latitudeController,
+                                    decoration: InputDecoration(
+                                      labelText: 'Clique para selecionar no mapa',
+                                      border: OutlineInputBorder(
+                                        borderRadius: BorderRadius.circular(8),
+                                      ),
+                                      focusedBorder: OutlineInputBorder(
+                                        borderSide: const BorderSide(color: Colors.orange),
+                                      ),
+                                    ),
+                                  ),
+                                ),
                               ),
-                            ),
+                            ],
                           ),
                         ),
                       ),
@@ -245,6 +268,37 @@ class _AddCampoState extends State<AddCampo> {
                           ),
                         ),
                         keyboardType: TextInputType.number,
+                      ),
+                      const SizedBox(height: 16),
+                      const Text(
+                        'Desportos Associados',
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.orange,
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      Column(
+                        children: Desportos.values.map((desporto) {
+                          return CheckboxListTile(
+                            title: Text(
+                              desporto.name[0].toUpperCase() + desporto.name.substring(1),
+                              style: const TextStyle(fontSize: 14),
+                            ),
+                            value: desportosSelecionados.contains(desporto),
+                            activeColor: Colors.orange,
+                            onChanged: (bool? value) {
+                              setState(() {
+                                if (value == true) {
+                                  desportosSelecionados.add(desporto);
+                                } else {
+                                  desportosSelecionados.remove(desporto);
+                                }
+                              });
+                            },
+                          );
+                        }).toList(),
                       ),
                       const SizedBox(height: 20),
                       Center(

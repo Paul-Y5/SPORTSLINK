@@ -90,7 +90,35 @@ class _PerfilPageState extends State<PerfilPage> {
             right: 0,
             child: GestureDetector(
               onTap: () {
-                //TODO
+                // popup menu para editar foto de perfil
+                showModalBottomSheet(
+                  context: context,
+                  builder: (context) {
+                    return SizedBox(
+                      height: 200,
+                      child: Column(
+                        children: [
+                          ListTile(
+                            leading: const Icon(Icons.camera_alt),
+                            title: const Text('Tirar Foto'),
+                            onTap: () {
+                              // Lógica para tirar foto
+                              Navigator.pop(context);
+                            },
+                          ),
+                          ListTile(
+                            leading: const Icon(Icons.photo),
+                            title: const Text('Escolher da Galeria'),
+                            onTap: () {
+                              // Lógica para escolher da galeria
+                              Navigator.pop(context);
+                            },
+                          ),
+                        ],
+                      ),
+                    );
+                  },
+                );
               },
               child: Container(
                 padding: const EdgeInsets.all(4),
@@ -145,7 +173,7 @@ class _PerfilPageState extends State<PerfilPage> {
             child: ClipRRect(
               borderRadius: BorderRadius.circular(10),
               child: LinearProgressIndicator(
-                value: user.nivel % 1, // Progresso entre 0.0 e 1.0
+                value: user.nivel % 1,
                 backgroundColor: Colors.grey[300],
                 color: Colors.orange,
                 minHeight: 10,
@@ -238,16 +266,34 @@ class _PerfilPageState extends State<PerfilPage> {
           const SizedBox(height: 16),
           _buildEditableSectionTitle('Descrição'),
           const SizedBox(height: 10),
-          Container(
-            width: double.infinity,
-            padding: const EdgeInsets.all(12),
-            decoration: BoxDecoration(
-              color: const Color.fromARGB(163, 0, 0, 0),
+          Card(
+            elevation: 2,
+            shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(12),
             ),
-            child: Text(
-              (user is Jogador) ? user.descricao : '',
-              style: const TextStyle(color: Colors.white, fontSize: 14),
+            child: Padding(
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text(
+                    'Descrição',
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.orange,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    (user as Jogador).descricao,
+                    style: const TextStyle(
+                      fontSize: 16,
+                      color: Colors.black,
+                    ),
+                  ),
+                ],
+              ),
             ),
           ),
           const SizedBox(height: 24),

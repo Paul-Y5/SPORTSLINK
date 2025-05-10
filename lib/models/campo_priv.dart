@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:sports_link/models/campo.dart';
 import 'package:sports_link/models/ponto.dart';
+import 'package:sports_link/models/reserva.dart';
 
 class CampoPriv extends Campo {
   int idArrendador;
   double preco;
   Map<String, List<TimeOfDay>> diasFuncionamento;
-  Map<String, dynamic>? reservas;
+  Map<DateTime, List<Reserva>> reservas = {};
 
   CampoPriv({
     required this.idArrendador,
