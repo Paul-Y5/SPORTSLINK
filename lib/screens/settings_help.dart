@@ -98,9 +98,9 @@ class SettingsHelpPage extends StatelessWidget {
             ),
             const SizedBox(height: 10),
             ListTile(
-              leading: const Icon(Icons.logout, color: Colors.red),
-              title: const Text('Terminar Sessão'),
-              subtitle: const Text('Saia da sua conta'),
+              leading: const Icon(Icons.delete, color: Colors.red),
+              title: const Text('Excluir Conta Permanentemente'),
+              subtitle: const Text('Esta ação não pode ser desfeita'),
               onTap: () {
                 // Lógica para logout
                 showDialog(

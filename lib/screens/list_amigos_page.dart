@@ -115,7 +115,7 @@ class _ListAmigosPageState extends State<ListAmigosPage> {
             backgroundColor: Colors.transparent,
             appBar: AppBar(
               title: const Text('Lista de Amigos'),
-              backgroundColor: Colors.orange[800],
+              backgroundColor: Colors.orange,
               actions: [
                 IconButton(
                   icon: const Icon(Icons.person_add),
@@ -128,7 +128,7 @@ class _ListAmigosPageState extends State<ListAmigosPage> {
             body: amigos.isEmpty
                 ? const Center(
                     child: Text(
-                      'Você ainda não tem amigos.',
+                      'Ainda não tens amigos.',
                       style: TextStyle(fontSize: 16, color: Colors.black54),
                     ),
                   )

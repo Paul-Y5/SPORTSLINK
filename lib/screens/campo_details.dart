@@ -13,6 +13,7 @@ import 'package:sports_link/models/campo_pub.dart';
 import 'package:sports_link/models/jogador.dart';
 import 'package:sports_link/models/partida.dart';
 import 'package:sports_link/screens/page_reserva.dart';
+import 'package:sports_link/screens/partida_owner.dart';
 import 'package:sports_link/screens/partida_page.dart';
 import 'package:sports_link/screens/perfil_page.dart';
 import 'package:sports_link/styles/carouselbg.dart';
@@ -43,198 +44,154 @@ class _CampoDetailsState extends State<CampoDetails> {
       extendBody: true,
       extendBodyBehindAppBar: true,
       backgroundColor: Colors.transparent,
-      body: Stack(
-        children: [
-          const Carouselbg(),
-          if (isDropdownOpen)
-            const ModalBarrier(
-              color: Color.fromARGB(128, 0, 0, 0),
-              dismissible: false,
-            ),
-          Scaffold(
-            backgroundColor: Colors.transparent,
-            appBar: CustomAppBar(
-              notificationButtonKey: notificationButtonKey,
-              onNotificationPressed: (context) {
-                dpd.showNotificationDropdown(context, notificationButtonKey, currentUser!);
-              },
-              onMenuPressed: (context, items) {
-                setState(() {
-                  isDropdownOpen = !isDropdownOpen;
-                });
-                dpd.toggleDropdownOverlay(context, items);
-              },
-            ),
-            body: SingleChildScrollView(
-              child: Padding(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 16,
-                  vertical: 40,
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    // Nome do campo
-                    Center(
-                      child: Text(
-                        widget.campo.nome,
-                        style: const TextStyle(
-                          fontSize: 28,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.orange,
+      body: SafeArea(
+        child: Stack(
+          children: [
+            const Carouselbg(),
+            if (isDropdownOpen)
+              const ModalBarrier(
+                color: Color.fromARGB(128, 0, 0, 0),
+                dismissible: false,
+              ),
+            Scaffold(
+              backgroundColor: Colors.transparent,
+              appBar: CustomAppBar(
+                notificationButtonKey: notificationButtonKey,
+                onNotificationPressed: (context) {
+                  dpd.showNotificationDropdown(context, notificationButtonKey, currentUser!);
+                },
+                onMenuPressed: (context, items) {
+                  setState(() {
+                    isDropdownOpen = !isDropdownOpen;
+                  });
+                  dpd.toggleDropdownOverlay(context, items);
+                },
+              ),
+              body: SingleChildScrollView(
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 40,
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      // Nome do campo
+                      Center(
+                        child: Text(
+                          widget.campo.nome,
+                          style: const TextStyle(
+                            fontSize: 28,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.orange,
+                          ),
                         ),
                       ),
-                    ),
-                    const SizedBox(height: 20),
+                      const SizedBox(height: 20),
 
-                    // Imagem do campo
-                    ClipRRect(
-                      borderRadius: BorderRadius.circular(16),
-                      child: Image.network(
-                        widget.campo.imagem,
-                        fit: BoxFit.cover,
-                        errorBuilder: (context, error, stackTrace) {
-                          return const Icon(
-                            Icons.broken_image,
-                            size: 100,
-                            color: Colors.grey,
-                          );
-                        },
-                      ),
-                    ),
-                    const SizedBox(height: 20),
-
-                    // Botão para abrir o mapa
-                    MenuCard(
-                      icon: Icons.location_on,
-                      text: 'Localização',
-                      color: Colors.orange,
-                      fullWidth: true,
-                      onPressed: _openMap,
-                    ),
-                    const SizedBox(height: 10),
-
-                    // Informações do campo
-                    Container(
-                      padding: const EdgeInsets.all(16),
-                      decoration: BoxDecoration(
-                        color: Colors.white,
+                      // Imagem do campo
+                      ClipRRect(
                         borderRadius: BorderRadius.circular(16),
+                        child: Image.network(
+                          widget.campo.imagem,
+                          fit: BoxFit.cover,
+                          errorBuilder: (context, error, stackTrace) {
+                            return const Icon(
+                              Icons.broken_image,
+                              size: 100,
+                              color: Colors.grey,
+                            );
+                          },
+                        ),
                       ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          const Text(
-                            'Informações',
-                            style: TextStyle(
-                              fontSize: 20,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.orange, // Título em laranja
-                            ),
-                          ),
-                          const SizedBox(height: 10),
+                      const SizedBox(height: 20),
 
-                          // Exibe informações dependendo do tipo de campo
-                          if (widget.campo is CampoPriv) ...[
-                            // Campo Privado
-                            Card(
-                              elevation: 2,
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(12),
-                              ),
-                              color: Colors.orange[50],
-                              
-                              child: ListTile(
-                                leading: const Icon(
-                                  Icons.person, // Ícone de pessoa
-                                  color: Colors.orange, // Cor laranja para combinar com o tema
-                                  size: 28,
-                                ),
-                                title: const Text(
-                                  'Responsável',
-                                  style: TextStyle(
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.bold,
-                                    color: Colors.black,
-                                  ),
-                                ),
-                                subtitle: Text(
-                                  _getNomeArrendador(),
-                                  style: const TextStyle(
-                                    fontSize: 14,
-                                    color: Colors.grey,
-                                  ),
-                                ),
-                                trailing: const Icon(
-                                  Icons.arrow_forward_ios, // Ícone de seta para indicar navegação
-                                  color: Colors.grey,
-                                  size: 16,
-                                ),
-                                onTap: _openArrendadorProfile, // Navegar para o perfil do arrendador
+                      // Botão para abrir o mapa
+                      MenuCard(
+                        icon: Icons.location_on,
+                        text: 'Localização',
+                        color: Colors.orange,
+                        fullWidth: true,
+                        onPressed: _openMap,
+                      ),
+                      const SizedBox(height: 10),
+
+                      // Informações do campo
+                      Container(
+                        padding: const EdgeInsets.all(16),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(16),
+                        ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const Text(
+                              'Informações',
+                              style: TextStyle(
+                                fontSize: 20,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.orange, // Título em laranja
                               ),
                             ),
-                            const SizedBox(height: 8),
-                            buildInfoRow('Preço', '${(widget.campo as CampoPriv).preco.toStringAsFixed(2)}€/h'),
-                            const SizedBox(height: 8),
-                            buildInfoRow('Métodos de Pagamento', _getMetodosPagamento()),
-                            const SizedBox(height: 8),
-                            buildInfoRow('Horários', _getHorariosFuncionamento()),
-                            if (widget.campo.desportos.isNotEmpty) ...[
-                              const SizedBox(height: 8),
-                              buildInfoRow('Desportos Associados', widget.campo.desportos.join(', ')),
-                            ],
-                            const SizedBox(height: 20),
-                            ElevatedButton(
-                              onPressed: _scheduleReservation,
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: Colors.orange,
-                                padding: const EdgeInsets.symmetric(
-                                  vertical: 12,
-                                ),
+                            const SizedBox(height: 10),
+
+                            // Exibe informações dependendo do tipo de campo
+                            if (widget.campo is CampoPriv) ...[
+                              // Campo Privado
+                              Card(
+                                elevation: 2,
                                 shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(12),
                                 ),
-                              ),
-                              child: const Center(
-                                child: Text(
-                                  'Agendar Reserva',
-                                  style: TextStyle(
-                                    fontSize: 18,
-                                    color: Colors.black,
+                                color: Colors.orange[50],
+                                
+                                child: ListTile(
+                                  leading: const Icon(
+                                    Icons.person, // Ícone de pessoa
+                                    color: Colors.orange, // Cor laranja para combinar com o tema
+                                    size: 28,
                                   ),
+                                  title: const Text(
+                                    'Responsável',
+                                    style: TextStyle(
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.bold,
+                                      color: Colors.black,
+                                    ),
+                                  ),
+                                  subtitle: Text(
+                                    _getNomeArrendador(),
+                                    style: const TextStyle(
+                                      fontSize: 14,
+                                      color: Colors.grey,
+                                    ),
+                                  ),
+                                  trailing: const Icon(
+                                    Icons.arrow_forward_ios, // Ícone de seta para indicar navegação
+                                    color: Colors.grey,
+                                    size: 16,
+                                  ),
+                                  onTap: _openArrendadorProfile, // Navegar para o perfil do arrendador
                                 ),
                               ),
-                            ),
-                          ],
-
-                          if (widget.campo is CampoPub) ...[
-                            // Campo Público
-                            buildInfoRow('Entidade Responsável', (widget.campo as CampoPub).entidadePublicaResp),
-                            const SizedBox(height: 8),
-                            buildInfoRow('Estado', (widget.campo as CampoPub).ocupado ? 'Ocupado' : 'Disponível'),
-                            if ((widget.campo as CampoPub).ocupado) ...[
+                              const SizedBox(height: 8),
+                              buildInfoRow('Preço', '${(widget.campo as CampoPriv).preco.toStringAsFixed(2)}€/h'),
+                              const SizedBox(height: 8),
+                              buildInfoRow('Métodos de Pagamento', _getMetodosPagamento()),
+                              const SizedBox(height: 8),
+                              buildInfoRow('Horários', _getHorariosFuncionamento()),
+                              if (widget.campo.desportos.isNotEmpty) ...[
+                                const SizedBox(height: 8),
+                                buildInfoRow('Desportos Associados', widget.campo.desportos.join(', ')),
+                              ],
                               const SizedBox(height: 20),
-                              const Text(
-                                'Partida em andamento:',
-                                style: TextStyle(
-                                  fontSize: 18,
-                                  fontWeight: FontWeight.bold,
-                                  color: Colors.red,
-                                ),
-                              ),
-                              const SizedBox(height: 8),
-                              buildInfoRow('Jogadores', _getJogadoresPartida() ?? 'Nenhum jogador presente'),
-                              const SizedBox(height: 8),
-                              buildInfoRow('Hora de Início', _getHoraInicioPartida()),
-                              const SizedBox(height: 8),
-                              buildInfoRow('Estado', _getEstadoPartida()),
-                            ],
-                            const SizedBox(height: 20),
-                            Center(
-                              child: ElevatedButton(
-                                onPressed: (widget.campo as CampoPub).ocupado
-                                    ? null // Desabilitar o botão se o campo estiver ocupado
-                                    : _showStartMatchPopup, // Função para abrir o popup
+                              if (widget.campo is CampoPriv &&
+                                  currentUser!.id !=
+                                      (widget.campo as CampoPriv)
+                                          .idArrendador) ...[
+                              ElevatedButton(
+                                onPressed: _scheduleReservation,
                                 style: ElevatedButton.styleFrom(
                                   backgroundColor: Colors.orange,
                                   padding: const EdgeInsets.symmetric(
@@ -244,103 +201,185 @@ class _CampoDetailsState extends State<CampoDetails> {
                                     borderRadius: BorderRadius.circular(12),
                                   ),
                                 ),
-                                child: const Text(
-                                  'Começar Partida',
+                                  child: const Center(
+                                    child: Text(
+                                      'Agendar Reserva',
+                                      style: TextStyle(
+                                        fontSize: 18,
+                                        color: Colors.black,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ],
+                            if (widget.campo is CampoPub) ...[
+                              // Campo Público
+                              buildInfoRow('Entidade Responsável', (widget.campo as CampoPub).entidadePublicaResp),
+                              const SizedBox(height: 8),
+                              buildInfoRow('Estado', (widget.campo as CampoPub).ocupado ? 'Ocupado' : 'Disponível'),
+                              if ((widget.campo as CampoPub).ocupado) ...[
+                                const SizedBox(height: 20),
+                                const Text(
+                                  'Partida em andamento:',
                                   style: TextStyle(
                                     fontSize: 18,
-                                    color: Colors.black,
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.red,
+                                  ),
+                                ),
+                                const SizedBox(height: 8),
+                                buildInfoRow('Jogadores', _getJogadoresPartida() ?? 'Nenhum jogador presente'),
+                                const SizedBox(height: 8),
+                                buildInfoRow('Hora de Início', _getHoraInicioPartida()),
+                                const SizedBox(height: 8),
+                                buildInfoRow('Estado', _getEstadoPartida()),
+                              ],
+                              const SizedBox(height: 20),
+                              Center(
+                                child: ElevatedButton(
+                                  onPressed: () {
+                                    // Verifica se o campo é do tipo CampoPub
+                                    if (widget.campo is CampoPub) {
+                                      final campoPub = widget.campo as CampoPub;
+
+                                      // Verifica se há uma partida associada e se está no estado aguardando
+                                      if (campoPub.partida != null && campoPub.partida!.estado == EstadoPartida.aguardando) {
+                                        // Redirecionar para a página da partida existente
+                                        Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                            builder: (context) => PartidaPage(
+                                              partida: campoPub.partida!,
+                                              tempoEspera: 0, // Tempo restante não é necessário aqui
+                                              minJogadores: campoPub.partida!.numeroJogadoresMinimo ?? 0,
+                                            ),
+                                          ),
+                                        );
+                                      } else {
+                                        // Abrir popup para configurar e iniciar uma nova partida
+                                        _showStartMatchPopup();
+                                      }
+                                    } else {
+                                      // Exibir mensagem de erro se o campo não for do tipo CampoPub
+                                      ScaffoldMessenger.of(context).showSnackBar(
+                                        const SnackBar(
+                                          content: Text('Erro: O campo selecionado não é válido para partidas públicas.'),
+                                        ),
+                                      );
+                                    }
+                                  },
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: Colors.orange,
+                                    padding: const EdgeInsets.symmetric(
+                                      vertical: 12,
+                                    ),
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(12),
+                                    ),
+                                  ),
+                                  child: Text(
+                                    (widget.campo is CampoPub &&
+                                            (widget.campo as CampoPub).partida != null &&
+                                            (widget.campo as CampoPub).partida!.estado == EstadoPartida.aguardando)
+                                        ? 'Entrar na Partida'
+                                        : 'Começar Partida',
+                                    style: const TextStyle(
+                                      fontSize: 18,
+                                      color: Colors.black,
+                                    ),
                                   ),
                                 ),
                               ),
-                            ),
-                          ],
-                          if (widget.campo is CampoPriv &&
-                              (widget.campo as CampoPriv).idArrendador == currentUser?.id) ...[
-                            const SizedBox(height: 20),
-                            const Text(
-                              'Acordo de Reservas',
-                              style: TextStyle(
-                                fontSize: 20,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.orange,
-                              ),
-                            ),
-                            const SizedBox(height: 10),
-                            if ((widget.campo as CampoPriv).reservas.isNotEmpty)
-                              ListView.builder(
-                                shrinkWrap: true,
-                                physics: const NeverScrollableScrollPhysics(),
-                                itemCount: (widget.campo as CampoPriv).reservas.length,
-                                itemBuilder: (context, index) {
-                                  final data = (widget.campo as CampoPriv).reservas.keys.elementAt(index);
-                                  final reservas = (widget.campo as CampoPriv).reservas[data]!;
-
-                                  return Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                    children: [
-                                      Text(
-                                        'Data: ${DateFormat('dd/MM/yyyy').format(data)}',
-                                        style: const TextStyle(
-                                          fontSize: 16,
-                                          fontWeight: FontWeight.bold,
-                                        ),
-                                      ),
-                                      const SizedBox(height: 8),
-                                      ...reservas.map((reserva) {
-                                        return Container(
-                                          margin: const EdgeInsets.symmetric(vertical: 8),
-                                          padding: const EdgeInsets.all(12),
-                                          decoration: BoxDecoration(
-                                            color: const Color.fromARGB(100, 255, 255, 255),
-                                            borderRadius: BorderRadius.circular(12),
-                                          ),
-                                          child: Column(
-                                            crossAxisAlignment: CrossAxisAlignment.start,
-                                            children: [
-                                              Text(
-                                                'Cliente: ${_getNomeCliente(reserva.idCliente)}',
-                                                style: const TextStyle(fontSize: 16),
-                                              ),
-                                              Text(
-                                                'Hora de Início: ${reserva.horaInicio}',
-                                                style: const TextStyle(fontSize: 16),
-                                              ),
-                                              Text(
-                                                'Duração: ${reserva.tempoDuracao} horas',
-                                                style: const TextStyle(fontSize: 16),
-                                              ),
-                                              Text(
-                                                'Estado: ${reserva.estado}',
-                                                style: const TextStyle(fontSize: 16),
-                                              ),
-                                              Text(
-                                                'Método de Pagamento: ${reserva.pagamento}',
-                                                style: const TextStyle(fontSize: 16),
-                                              ),
-                                            ],
-                                          ),
-                                        );
-                                      }),
-                                    ],
-                                  );
-                                },
-                              )
-                            else
+                            ],
+                            if (widget.campo is CampoPriv &&
+                                (widget.campo as CampoPriv).idArrendador == currentUser?.id) ...[
+                              const SizedBox(height: 20),
                               const Text(
-                                'Nenhuma reserva encontrada.',
-                                style: TextStyle(fontSize: 16, color: Colors.black54),
+                                'Reservas Agendadas:',
+                                style: TextStyle(
+                                  fontSize: 20,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.orange,
+                                ),
                               ),
+                              const SizedBox(height: 10),
+                              if ((widget.campo as CampoPriv).reservas.isNotEmpty)
+                                ListView.builder(
+                                  shrinkWrap: true,
+                                  physics: const NeverScrollableScrollPhysics(),
+                                  itemCount: (widget.campo as CampoPriv).reservas.length,
+                                  itemBuilder: (context, index) {
+                                    final data = (widget.campo as CampoPriv).reservas.keys.elementAt(index);
+                                    final reservas = (widget.campo as CampoPriv).reservas[data]!;
+
+                                    return Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          'Data: ${DateFormat('dd/MM/yyyy').format(data)}',
+                                          style: const TextStyle(
+                                            fontSize: 16,
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
+                                        const SizedBox(height: 8),
+                                        ...reservas.map((reserva) {
+                                          return Container(
+                                            margin: const EdgeInsets.symmetric(vertical: 8),
+                                            padding: const EdgeInsets.all(12),
+                                            decoration: BoxDecoration(
+                                              color: const Color.fromARGB(100, 255, 255, 255),
+                                              borderRadius: BorderRadius.circular(12),
+                                            ),
+                                            child: Column(
+                                              crossAxisAlignment: CrossAxisAlignment.start,
+                                              children: [
+                                                Text(
+                                                  'Cliente: ${_getNomeCliente(reserva.idCliente)}',
+                                                  style: const TextStyle(fontSize: 16),
+                                                ),
+                                                Text(
+                                                  'Hora de Início: ${reserva.horaInicio}',
+                                                  style: const TextStyle(fontSize: 16),
+                                                ),
+                                                Text(
+                                                  'Duração: ${reserva.tempoDuracao} horas',
+                                                  style: const TextStyle(fontSize: 16),
+                                                ),
+                                                Text(
+                                                  'Estado: ${reserva.estado}',
+                                                  style: const TextStyle(fontSize: 16),
+                                                ),
+                                                Text(
+                                                  'Método de Pagamento: ${reserva.pagamento}',
+                                                  style: const TextStyle(fontSize: 16),
+                                                ),
+                                              ],
+                                            ),
+                                          );
+                                        }),
+                                      ],
+                                    );
+                                  },
+                                )
+                              else
+                                const Text(
+                                  'Nenhuma reserva encontrada.',
+                                  style: TextStyle(fontSize: 16, color: Colors.black54),
+                                ),
+                            ],
                           ],
-                        ],
+                        ),
                       ),
-                    ),
-                    const SizedBox(height: 20),
-                  ],
+                      const SizedBox(height: 20),
+                    ],
+                  ),
                 ),
               ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -620,39 +659,38 @@ class _CampoDetailsState extends State<CampoDetails> {
 }
 
   void _startMatch(int tempoEspera, int minJogadores, CampoPub campoSelecionado) {
-    setState(() {
-      campoSelecionado.ocupado = true; // Atualizar o estado do campo para ocupado
-    });
-
-    // Exibir mensagem de sucesso
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(
-          'Partida iniciada no campo ${campoSelecionado.nome}!',
-        ),
-      ),
+  setState(() {
+    campoSelecionado.ocupado = true; // Atualizar o estado do campo para ocupado
+    campoSelecionado.partida = Partida(
+      id: DateTime.now().millisecondsSinceEpoch,
+      campo: campoSelecionado,
+      data: DateTime.now(),
+      hora: TimeOfDay.now(),
+      estado: EstadoPartida.aguardando,
+      jogadores: [Provider.of<UserProvider>(context, listen: false).user as Jogador],
+      tipo: TipoPartida.publica,
     );
+  });
 
-    // Redirecionar para a página da partida
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => PartidaPage(
-          partida: Partida(
-            id: DateTime.now().millisecondsSinceEpoch,
-            campo: campoSelecionado,
-            data: DateTime.now(),
-            hora: TimeOfDay.now(),
-            estado: EstadoPartida.aguardando,
-            jogadores: [Provider.of<UserProvider>(context, listen: false).user as Jogador],
-            tipo: TipoPartida.publica,
-          ),
-          tempoEspera: tempoEspera,
-          minJogadores: minJogadores,
-        ),
+  // Exibir mensagem de sucesso
+  ScaffoldMessenger.of(context).showSnackBar(
+    SnackBar(
+      content: Text(
+        'Partida iniciada no campo ${campoSelecionado.nome}!',
       ),
-    );
-  }
+    ),
+  );
+
+  // Redirecionar para a página do proprietário da partida
+  Navigator.push(
+    context,
+    MaterialPageRoute(
+      builder: (context) => PartidaOwnerPage(
+        partida: campoSelecionado.partida!,
+      ),
+    ),
+  );
+}
 
   String? _getJogadoresPartida() {
     if (widget.campo is CampoPub) {

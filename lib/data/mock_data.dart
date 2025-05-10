@@ -13,10 +13,12 @@ import 'package:sports_link/models/utilizador.dart';
 
 // PONTOS
 final List<Ponto> mockPontos = [
-  Ponto(id: 1, idMapa: 1, latitude: 38.7169, longitude: -9.1399), // Lisboa
+ Ponto(id: 1, idMapa: 1, latitude: 38.7169, longitude: -9.1399), // Lisboa
   Ponto(id: 2, idMapa: 1, latitude: 41.1496, longitude: -8.6109), // Porto
   Ponto(id: 3, idMapa: 1, latitude: 40.6405, longitude: -8.6538), // Aveiro
-  Ponto(id: 4, idMapa: 1, latitude: 41.263184, longitude: -7.584726), // Vila Real
+  Ponto(id: 4,idMapa: 1,latitude: 41.263184,longitude: -7.584726,), // Vila Real
+  Ponto(id: 5, idMapa: 1, latitude: 39.7445, longitude: -8.8077), // Leiria
+  Ponto(id: 6, idMapa: 1, latitude: 38.5244, longitude: -8.8926), // Setúbal
 ];
 
 // CAMPOS
@@ -46,10 +48,11 @@ final List<Campo> mockCampos = [
     nome: 'Campo Ribeirinho',
     comprimento: 90.0,
     largura: 55.0,
-    ocupado: true,
+    ocupado: false,
     descricao: 'Relva natural, vista para o Douro',
     ponto: mockPontos[1],
     entidadePublicaResp: "Câmara Municipal",
+    imagem: 'img/icon_campo.jpg',
   ),
   CampoPriv(
     id: 3,
@@ -75,7 +78,7 @@ final List<Campo> mockCampos = [
     nome: 'Campo Municipal',
     comprimento: 110.0,
     largura: 70.0,
-    ocupado: true,
+    ocupado: false,
     descricao: 'Campo com iluminação noturna',
     ponto: mockPontos[3],
     imagem: 'img/icon_campo.jpg',
@@ -111,11 +114,47 @@ final List<Campo> mockCampos = [
     nome: 'Campo de Basquetebol',
     comprimento: 28.0,
     largura: 15.0,
-    ocupado: false,
+    ocupado: true,
     descricao: 'Campo ao ar livre, ideal para basquete',
     ponto: mockPontos[2],
     entidadePublicaResp: "Câmara Municipal",
-  )
+  ),
+  CampoPriv(
+    id: 7,
+    idPonto: 5,
+    idMapa: 1,
+    nome: 'Campo Leiria',
+    comprimento: 105.0,
+    largura: 68.0,
+    ocupado: false,
+    descricao: 'Campo moderno com relva natural',
+    ponto: mockPontos[4],
+    idArrendador: 3,
+    preco: 60.0,
+    diasFuncionamento: {
+      'Terça-feira': [
+        TimeOfDay(hour: 9, minute: 0),
+        TimeOfDay(hour: 19, minute: 0),
+      ],
+      'Quinta-feira': [
+        TimeOfDay(hour: 9, minute: 0),
+        TimeOfDay(hour: 19, minute: 0),
+      ],
+    },
+  ),
+  CampoPub(
+    id: 8,
+    idPonto: 6,
+    idMapa: 1,
+    nome: 'Campo Setúbal',
+    comprimento: 100.0,
+    largura: 60.0,
+    ocupado: false,
+    descricao: 'Campo público com vista para o rio',
+    ponto: mockPontos[5],
+    entidadePublicaResp: "Câmara Municipal de Setúbal",
+    imagem: 'img/icon_campo_setubal.jpg',
+  ),
 ];
 
 // PARTIDAS
@@ -152,18 +191,6 @@ List<Partida> mockPartidas = [
       ),
     ],
     estado: EstadoPartida.emAndamento,
-    tipo: TipoPartida.publica,
-  ),
-  Partida(
-    id: 2,
-    data: DateTime.now().add(Duration(days: 1)),
-    hora: getTimeMinusTenMinutes(),
-    duracao: 60.0,
-    campo: mockCampos[1],
-    resultado: null,
-    jogadores: [mockUsers[9] as Jogador],
-    chat: [Msg(conteudo: 'Estou na entrada do campo à espera de pessoal', remetente: mockUsers[9] as Jogador, timestamp: DateTime.now())],
-    estado: EstadoPartida.aguardando,
     tipo: TipoPartida.publica,
   ),
 ];
@@ -293,6 +320,27 @@ final Map<int, Utilizador> mockUsers = {
   )..setAltura(1.75)
     ..setPeso(60.0)
     ..adicionarDesporto(Desportos.voleibol),
+  10:
+      Arrendador(
+          id: 10,
+          nome: 'Ricardo Mendes',
+          nivel: 4.0,
+          email: 'ricardo.mendes@example.com',
+          numTele: 919876543,
+          password: 'senha456',
+          nacionalidade: 'Português',
+          idade: 40,
+          descricao: 'Especialista em gestão de campos desportivos.',
+          noCampos: 2,
+          iban: "PT50000000000000000000000",
+          utilizador: 'ricardomendes',
+          createDate: DateTime.now(),
+        )
+        ..adicionarMetodoPagamento('PayPal', 'PayPal')
+        ..adicionarMetodoPagamento(
+          'Transferência Bancária',
+          'Transferência Bancária',
+        ),
 };
 
 enum LoginResult { success, wrongPassword, userNotFound }
@@ -306,7 +354,6 @@ LoginResult verificarLogin(
   try {
     adicionarCamposAosArrendadores();
     mockCampos[5].setPartida(mockPartidas[0]);
-    mockCampos[2].setPartida(mockPartidas[1]);
     (mockUsers[3] as Jogador).addAvaliation(Avaliation(id: 2, utilizador: mockUsers[1] as Jogador, comentario: 'Boa Jogadora', rating: 5, data: DateTime.now()));
     (mockUsers[4] as Jogador).addAvaliation(Avaliation(id: 3, utilizador: mockUsers[1] as Jogador, comentario: 'Excelente jogador', rating: 4, data: DateTime.now()));
     (mockUsers[5] as Jogador).addAvaliation(Avaliation(id: 4, utilizador: mockUsers[1] as Jogador, comentario: 'Muito bom', rating: 3, data: DateTime.now()));

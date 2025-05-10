@@ -27,11 +27,7 @@ class Arrendador extends Jogador {
     required super.descricao,
     required super.utilizador,
     required super.createDate, required super.nivel,
-  }) : metodosPagamento = {
-         'metodo1': 'Cartão de Crédito',
-         'metodo2': 'PayPal',
-         'metodo3': 'Transferência Bancária',
-       };
+  }) : metodosPagamento = {};
 
   // Adicionar novo método de pagamento
   void adicionarMetodoPagamento(String chave, String metodo) {

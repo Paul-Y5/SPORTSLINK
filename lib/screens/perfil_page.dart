@@ -29,45 +29,47 @@ class _PerfilPageState extends State<PerfilPage> {
     return Scaffold(
       extendBody: true,
       extendBodyBehindAppBar: true,
-      body: Stack(
-        children: [
-          const Carouselbg(),
-          if (isDropdownOpen)
-            ModalBarrier(
-              color: Colors.black45,
-              dismissible: true,
-              onDismiss: () => setState(() => isDropdownOpen = false),
-            ),
-          Scaffold(
-            backgroundColor: Colors.transparent,
-            appBar: CustomAppBar(
-              notificationButtonKey: notificationButtonKey,
-              onNotificationPressed: (context) => dpd.showNotificationDropdown(context, notificationButtonKey, widget.user),
-              onMenuPressed: dpd.toggleDropdownOverlay,
-            ),
-            body: Column(
-              children: [
-                const SizedBox(height: 40),
-                _buildProfileHeader(),
-                const SizedBox(height: 10),
-                Text(
-                  widget.user.nome, // Nome dinâmico
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontSize: 22,
-                    fontWeight: FontWeight.bold,
+      body: SafeArea( // Adicionado SafeArea
+        child: Stack(
+          children: [
+            const Carouselbg(),
+            if (isDropdownOpen)
+              ModalBarrier(
+                color: Colors.black45,
+                dismissible: true,
+                onDismiss: () => setState(() => isDropdownOpen = false),
+              ),
+            Scaffold(
+              backgroundColor: Colors.transparent,
+              appBar: CustomAppBar(
+                notificationButtonKey: notificationButtonKey,
+                onNotificationPressed: (context) => dpd.showNotificationDropdown(context, notificationButtonKey, widget.user),
+                onMenuPressed: dpd.toggleDropdownOverlay,
+              ),
+              body: Column(
+                children: [
+                  const SizedBox(height: 40),
+                  _buildProfileHeader(),
+                  const SizedBox(height: 10),
+                  Text(
+                    widget.user.nome, // Nome dinâmico
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 22,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
-                ),
-                const SizedBox(height: 16),
-                _buildInfoCards(),
-                const SizedBox(height: 16),
-                _buildLevelProgress(), // Adicionada a barra de progresso do nível
-                const SizedBox(height: 16),
-                Expanded(child: _buildProfileDetails()),
-              ],
+                  const SizedBox(height: 16),
+                  _buildInfoCards(),
+                  const SizedBox(height: 16),
+                  _buildLevelProgress(), // Adicionada a barra de progresso do nível
+                  const SizedBox(height: 16),
+                  Expanded(child: _buildProfileDetails()),
+                ],
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
