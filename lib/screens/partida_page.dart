@@ -14,14 +14,10 @@ import 'package:sports_link/widgets/style_row.dart';
 
 class PartidaPage extends StatefulWidget {
   final Partida partida;
-  final int tempoEspera; // minutos
-  final int minJogadores;
 
   const PartidaPage({
     super.key,
     required this.partida,
-    required this.tempoEspera,
-    required this.minJogadores,
   });
 
   @override
@@ -68,7 +64,7 @@ class _PartidaPageState extends State<PartidaPage> {
               _timer?.cancel();
 
               // Verifica se há jogadores suficientes para iniciar a partida
-              if (widget.partida.jogadores!.length < widget.minJogadores) {
+              if (widget.partida.jogadores!.length < widget.partida.numeroJogadoresMinimo!) {
                 // Cancela a partida
                 widget.partida.setEstado(EstadoPartida.cancelada);
                 mockPartidas.removeWhere((p) => p.id == widget.partida.id);
@@ -348,7 +344,7 @@ class _PartidaPageState extends State<PartidaPage> {
                           ],
                         ),
                         const SizedBox(height: 8),
-                        buildInfoRow('Número Mínimo de Jogadores', '${widget.minJogadores}'),
+                        buildInfoRow('Número Mínimo de Jogadores', '${widget.partida.numeroJogadoresMinimo}'),
                         buildInfoRow('Jogadores na Partida', '${partida.jogadores?.length ?? 0}'),
                         const SizedBox(height: 16),
                         Text(

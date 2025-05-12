@@ -118,6 +118,7 @@ final List<Campo> mockCampos = [
     descricao: 'Campo ao ar livre, ideal para basquete',
     ponto: mockPontos[2],
     entidadePublicaResp: "Câmara Municipal",
+    partidaEmCurso: true
   )..setDesportos([Desportos.basquetebol]),
   CampoPriv(
     id: 7,

@@ -28,6 +28,8 @@ class Partida {
     this.chat,
     required this.estado,
     required this.tipo,
+    this.numeroJogadoresMinimo,
+    this.numeroJogadoresMaximo,
   });  
 
   factory Partida.fromJson(Map<String, dynamic> json) {

@@ -37,7 +37,6 @@ class _CampoDetailsState extends State<CampoDetails> {
 
   @override
   Widget build(BuildContext context) {
-    // Obter o utilizador atual do Provider
     final currentUser = Provider.of<UserProvider>(context).user;
 
     return Scaffold(
@@ -214,83 +213,7 @@ class _CampoDetailsState extends State<CampoDetails> {
                               ],
                             ],
                             if (widget.campo is CampoPub) ...[
-                              // Campo Público
-                              buildInfoRow('Entidade Responsável', (widget.campo as CampoPub).entidadePublicaResp),
-                              const SizedBox(height: 8),
-                              buildInfoRow('Estado', (widget.campo as CampoPub).ocupado ? 'Ocupado' : 'Disponível'),
-                              if ((widget.campo as CampoPub).ocupado) ...[
-                                const SizedBox(height: 20),
-                                const Text(
-                                  'Partida em andamento:',
-                                  style: TextStyle(
-                                    fontSize: 18,
-                                    fontWeight: FontWeight.bold,
-                                    color: Colors.red,
-                                  ),
-                                ),
-                                const SizedBox(height: 8),
-                                buildInfoRow('Jogadores', _getJogadoresPartida() ?? 'Nenhum jogador presente'),
-                                const SizedBox(height: 8),
-                                buildInfoRow('Hora de Início', _getHoraInicioPartida()),
-                                const SizedBox(height: 8),
-                                buildInfoRow('Estado', _getEstadoPartida()),
-                              ],
-                              const SizedBox(height: 20),
-                              Center(
-                                child: ElevatedButton(
-                                  onPressed: () {
-                                    // Verifica se o campo é do tipo CampoPub
-                                    if (widget.campo is CampoPub) {
-                                      final campoPub = widget.campo as CampoPub;
-
-                                      // Verifica se há uma partida associada e se está no estado aguardando
-                                      if (campoPub.partida != null && campoPub.partida!.estado == EstadoPartida.aguardando) {
-                                        // Redirecionar para a página da partida existente
-                                        Navigator.push(
-                                          context,
-                                          MaterialPageRoute(
-                                            builder: (context) => PartidaPage(
-                                              partida: campoPub.partida!,
-                                              tempoEspera: 0, // Tempo restante não é necessário aqui
-                                              minJogadores: campoPub.partida!.numeroJogadoresMinimo ?? 0,
-                                            ),
-                                          ),
-                                        );
-                                      } else {
-                                        // Abrir popup para configurar e iniciar uma nova partida
-                                        _showStartMatchPopup();
-                                      }
-                                    } else {
-                                      // Exibir mensagem de erro se o campo não for do tipo CampoPub
-                                      ScaffoldMessenger.of(context).showSnackBar(
-                                        const SnackBar(
-                                          content: Text('Erro: O campo selecionado não é válido para partidas públicas.'),
-                                        ),
-                                      );
-                                    }
-                                  },
-                                  style: ElevatedButton.styleFrom(
-                                    backgroundColor: Colors.orange,
-                                    padding: const EdgeInsets.symmetric(
-                                      vertical: 12,
-                                    ),
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(12),
-                                    ),
-                                  ),
-                                  child: Text(
-                                    (widget.campo is CampoPub &&
-                                            (widget.campo as CampoPub).partida != null &&
-                                            (widget.campo as CampoPub).partida!.estado == EstadoPartida.aguardando)
-                                        ? 'Entrar na Partida'
-                                        : 'Começar Partida',
-                                    style: const TextStyle(
-                                      fontSize: 18,
-                                      color: Colors.black,
-                                    ),
-                                  ),
-                                ),
-                              ),
+                              _buildInformacoesCampoPub(widget.campo as CampoPub),
                             ],
                             if (widget.campo is CampoPriv &&
                                 (widget.campo as CampoPriv).idArrendador == currentUser?.id) ...[
@@ -534,8 +457,10 @@ class _CampoDetailsState extends State<CampoDetails> {
   }
 
   void _showStartMatchPopup() {
-  final TextEditingController tempoEsperaController = TextEditingController();
+  final TextEditingController maxJogadoresController = TextEditingController();
   final TextEditingController minJogadoresController = TextEditingController();
+  final TextEditingController duracaoController = TextEditingController();
+  final bool checked = false;
 
   showDialog(
     context: context,
@@ -557,7 +482,31 @@ class _CampoDetailsState extends State<CampoDetails> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               const Text(
-                'Tempo de Espera (minutos):',
+                  'Número Mínimo de Jogadores (opcional):',
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 16,
+                    color: Colors.black, // Texto preto
+                  ),
+                ),
+                const SizedBox(height: 8),
+                TextField(
+                  controller: minJogadoresController,
+                  keyboardType: TextInputType.number,
+                  decoration: InputDecoration(
+                    hintText: 'Ex: 4',
+                    hintStyle: const TextStyle(color: Colors.grey),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderSide: const BorderSide(color: Colors.orange),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 16),
+              const Text(
+                'Número máximo de Jogadores (opcional):',
                 style: TextStyle(
                   fontWeight: FontWeight.bold,
                   fontSize: 16,
@@ -566,7 +515,7 @@ class _CampoDetailsState extends State<CampoDetails> {
               ),
               const SizedBox(height: 8),
               TextField(
-                controller: tempoEsperaController,
+                controller: maxJogadoresController,
                 keyboardType: TextInputType.number,
                 decoration: InputDecoration(
                   hintText: 'Ex: 10',
@@ -580,8 +529,9 @@ class _CampoDetailsState extends State<CampoDetails> {
                 ),
               ),
               const SizedBox(height: 16),
+
               const Text(
-                'Número Mínimo de Jogadores:',
+                'Duração da Partida (opcional):',
                 style: TextStyle(
                   fontWeight: FontWeight.bold,
                   fontSize: 16,
@@ -590,10 +540,10 @@ class _CampoDetailsState extends State<CampoDetails> {
               ),
               const SizedBox(height: 8),
               TextField(
-                controller: minJogadoresController,
+                controller: duracaoController,
                 keyboardType: TextInputType.number,
                 decoration: InputDecoration(
-                  hintText: 'Ex: 4',
+                  hintText: 'Ex: 60 minutos',
                   hintStyle: const TextStyle(color: Colors.grey),
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(8),
@@ -604,6 +554,24 @@ class _CampoDetailsState extends State<CampoDetails> {
                 ),
               ),
               const SizedBox(height: 16),
+              const SizedBox(height: 8),
+              // Checkbox para marcar resultado
+              Row(
+                children: [
+                  Checkbox(
+                    value: checked,
+                    onChanged: (value) {},
+                    activeColor: Colors.orange,
+                  ),
+                  const Text(
+                    'Marcar resultado da partida',
+                    style: TextStyle(
+                      color: Colors.black, // Texto preto
+                      fontSize: 16,
+                    ),
+                  ),
+                ],
+              ),
             ],
           ),
         ),
@@ -620,22 +588,24 @@ class _CampoDetailsState extends State<CampoDetails> {
           ),
           ElevatedButton(
             onPressed: () {
-              if (tempoEsperaController.text.isEmpty ||
-                  minJogadoresController.text.isEmpty) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                    content: Text('Preencha todos os campos!'),
-                  ),
-                );
-                return;
+              if (maxJogadoresController.text.isEmpty) {
+                maxJogadoresController.text = '0';
+              } 
+              if (minJogadoresController.text.isEmpty) {
+                minJogadoresController.text = '0';
+              } 
+              if (duracaoController.text.isEmpty) {
+                duracaoController.text = '0';
               }
 
               // Confirmar informações e redirecionar para a página da partida
               Navigator.of(context).pop();
               _startMatch(
-                int.parse(tempoEsperaController.text),
-                int.parse(minJogadoresController.text),
                 widget.campo as CampoPub, // Usa o campo atual
+                int.parse(maxJogadoresController.text),
+                int.parse(minJogadoresController.text),
+                double.parse(duracaoController.text),
+                checked,
               );
             },
             style: ElevatedButton.styleFrom(
@@ -658,17 +628,26 @@ class _CampoDetailsState extends State<CampoDetails> {
   );
 }
 
-  void _startMatch(int tempoEspera, int minJogadores, CampoPub campoSelecionado) {
+  void _startMatch(CampoPub campoSelecionado, int maxJogadores, int minJogadores, double duracaoController, bool checked) {
   setState(() {
+    String resultado = ''; // Definir resultado padrão
+    if (checked) {
+      resultado = '0-0';
+    }
     campoSelecionado.ocupado = true; // Atualizar o estado do campo para ocupado
+    campoSelecionado.partidaEmCurso = true; // Atualizar o estado da partida
     campoSelecionado.partida = Partida(
       id: DateTime.now().millisecondsSinceEpoch,
+      resultado: resultado,
       campo: campoSelecionado,
+      duracao: duracaoController,
       data: DateTime.now(),
       hora: TimeOfDay.now(),
       estado: EstadoPartida.aguardando,
       jogadores: [Provider.of<UserProvider>(context, listen: false).user as Jogador],
       tipo: TipoPartida.publica,
+      numeroJogadoresMaximo: maxJogadores,
+      numeroJogadoresMinimo: minJogadores,
     );
   });
 
@@ -692,50 +671,6 @@ class _CampoDetailsState extends State<CampoDetails> {
   );
 }
 
-  String? _getJogadoresPartida() {
-    if (widget.campo is CampoPub) {
-      final campoPub = widget.campo as CampoPub;
-      if (campoPub.partida != null) {
-        return campoPub.partida!.jogadores
-            ?.map((jogador) => jogador.nome)
-            .join(', ');
-      }
-    }
-    return 'Nenhum jogador presente';
-  }
-
-  String _getHoraInicioPartida() {
-    if (widget.campo is CampoPub) {
-      final campoPub = widget.campo as CampoPub;
-      if (campoPub.partida != null) {
-        final hora = campoPub.partida!.hora;
-        return '${hora.hour.toString().padLeft(2, '0')}:${hora.minute.toString().padLeft(2, '0')}';
-      }
-    }
-    return 'Hora não disponível';
-  }
-
-  String _getEstadoPartida() {
-    if (widget.campo is CampoPub) {
-      final campoPub = widget.campo as CampoPub;
-      if (campoPub.partida != null) {
-        switch (campoPub.partida!.estado) {
-          case EstadoPartida.aguardando:
-            return 'Aguardando jogadores';
-          case EstadoPartida.emAndamento:
-            return 'Em andamento';
-          case EstadoPartida.terminada:
-            return 'Finalizada';
-          case EstadoPartida.cancelada:
-            return 'Cancelada';
-          default:
-            return 'Estado desconhecido';
-        }
-      }
-    }
-    return 'Estado não disponível';
-  }
-
   String _getNomeCliente(int idCliente) {
     for (var user in mockUsers.values) {
       if (user.id == idCliente) {
@@ -744,4 +679,134 @@ class _CampoDetailsState extends State<CampoDetails> {
     }
     return 'Cliente desconhecido';
   }
+
+  Widget _buildInformacoesCampoPub(CampoPub campoPub) {
+  return Column(
+    crossAxisAlignment: CrossAxisAlignment.start,
+    children: [
+      buildInfoRow('Entidade Responsável', campoPub.entidadePublicaResp),
+      const SizedBox(height: 8),
+      buildInfoRow('Estado', campoPub.ocupado ? 'Ocupado' : 'Disponível'),
+      if (campoPub.ocupado && campoPub.partida != null) ...[
+        const SizedBox(height: 20),
+        const Text(
+          'Partida em andamento:',
+          style: TextStyle(
+            fontSize: 18,
+            fontWeight: FontWeight.bold,
+            color: Colors.red,
+          ),
+        ),
+        const SizedBox(height: 8),
+        buildInfoRow('Jogadores', _getJogadoresPartida(campoPub)),
+        const SizedBox(height: 8),
+        buildInfoRow('Hora de Início', _getHoraInicioPartida(campoPub)),
+        const SizedBox(height: 8),
+        buildInfoRow('Estado', _getEstadoPartida(campoPub)),
+      ],
+      const SizedBox(height: 20),
+      _buildBotaoCampoPub(campoPub),
+    ],
+  );
+}
+
+  Widget _buildBotaoCampoPub(CampoPub campoPub) {
+  final temPartida = campoPub.partida != null;
+  final estadoAguardando = temPartida && campoPub.partida!.estado == EstadoPartida.aguardando;
+  final estadoEmAndamento = temPartida && campoPub.partida!.estado == EstadoPartida.emAndamento;
+  final jogadoresMaximosAtingidos = temPartida &&
+      campoPub.partida!.jogadores != null &&
+      campoPub.partida!.numeroJogadoresMaximo != null &&
+      campoPub.partida!.jogadores!.length >= campoPub.partida!.numeroJogadoresMaximo!;
+
+  return Center(
+    child: SizedBox(
+      width: double.infinity, // O botão ocupará toda a largura disponível
+      child: ElevatedButton(
+        onPressed: () {
+          if (estadoAguardando || (estadoEmAndamento && !jogadoresMaximosAtingidos)) {
+            // Redirecionar para a página da partida existente
+            campoPub.partida!.jogadores!.add(Provider.of<UserProvider>(context, listen: false).user as Jogador);
+            (Provider.of<UserProvider>(context, listen: false).user! as Jogador).partidas.add(campoPub.partida!);
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => PartidaPage(
+                  partida: campoPub.partida!,
+                ),
+              ),
+            );
+          } else if (!temPartida) {
+            // Abrir popup para configurar e iniciar uma nova partida
+            _showStartMatchPopup();
+          } else {
+            // Exibir mensagem de erro se os jogadores máximos forem atingidos
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content: Text('O número máximo de jogadores foi atingido.'),
+              ),
+            );
+          }
+        },
+        style: ElevatedButton.styleFrom(
+          backgroundColor: Colors.orange,
+          padding: const EdgeInsets.symmetric(
+            vertical: 12,
+          ),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
+        ),
+        child: Text(
+          estadoAguardando
+              ? 'Entrar na Partida'
+              : estadoEmAndamento && !jogadoresMaximosAtingidos
+                  ? 'Entrar na Partida'
+                  : !temPartida
+                      ? 'Começar Partida'
+                      : 'Partida Finalizada',
+          style: const TextStyle(
+            fontSize: 18,
+            color: Colors.black,
+          ),
+        ),
+      ),
+    ),
+  );
+}
+
+  String _getJogadoresPartida(CampoPub campoPub) {
+  if (campoPub.partida != null && campoPub.partida!.jogadores != null) {
+    return campoPub.partida!.jogadores!
+        .map((jogador) => jogador.nome)
+        .join(', ');
+  }
+  return 'Nenhum jogador presente';
+}
+
+String _getHoraInicioPartida(CampoPub campoPub) {
+  if (campoPub.partida != null) {
+    final hora = campoPub.partida!.hora;
+    return '${hora.hour.toString().padLeft(2, '0')}:${hora.minute.toString().padLeft(2, '0')}';
+  }
+  return 'Hora não disponível';
+}
+
+String _getEstadoPartida(CampoPub campoPub) {
+  if (campoPub.partida != null) {
+    switch (campoPub.partida!.estado) {
+      case EstadoPartida.aguardando:
+        return 'Aguardando jogadores';
+      case EstadoPartida.emAndamento:
+        return 'Em andamento';
+      case EstadoPartida.terminada:
+        return 'Finalizada';
+      case EstadoPartida.cancelada:
+        return 'Cancelada';
+      default:
+        return 'Estado desconhecido';
+    }
+  }
+  return 'Estado não disponível';
+}
 }

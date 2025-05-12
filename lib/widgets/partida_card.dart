@@ -127,9 +127,7 @@ class PartidaCardState extends State<PartidaCard> {
                     context,
                     MaterialPageRoute(
                       builder: (_) => PartidaPage(
-                        partida: widget.partida,
-                        tempoEspera: 15,
-                        minJogadores: widget.partida.numeroJogadoresMinimo ?? 4, // Valor padrão caso seja null
+                        partida: widget.partida
                       ),
                     ),
                   );

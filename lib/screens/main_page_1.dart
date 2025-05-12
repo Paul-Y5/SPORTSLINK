@@ -3,10 +3,12 @@ import 'package:sports_link/data/mock_data.dart';
 import 'package:sports_link/data/my_user.dart';
 import 'package:sports_link/models/arrendador.dart';
 import 'package:sports_link/models/jogador.dart';
+import 'package:sports_link/models/partida.dart';
 import 'package:sports_link/models/utilizador.dart';
 import 'package:sports_link/screens/add_campo.dart';
 import 'package:sports_link/screens/list_campos.dart';
 import 'package:sports_link/screens/list_partidas.dart';
+import 'package:sports_link/screens/partida_page.dart';
 import 'package:sports_link/styles/carousel_bar.dart';
 import 'package:sports_link/styles/carouselbg.dart';
 import 'package:sports_link/utils/weather_fetch.dart';
@@ -180,6 +182,31 @@ class _MainPage1State extends State<MainPage1> {
               },
             ),
           ),
+
+          // Botão flutuante para a partida em andamento
+          if (currentUser is Jogador &&
+              (currentUser as Jogador).partidas.any((partida) => partida.estado == EstadoPartida.emAndamento))
+            Positioned(
+              bottom: 16,
+              right: 16,
+              child: FloatingActionButton.extended(
+                onPressed: () {
+                  final partidaEmAndamento = (currentUser as Jogador).partidas.firstWhere(
+                    (partida) => partida.estado == EstadoPartida.emAndamento,
+                  );
+
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => PartidaPage(partida: partidaEmAndamento),
+                    ),
+                  );
+                },
+                backgroundColor: Colors.orange,
+                icon: const Icon(Icons.sports_soccer),
+                label: const Text('Partida em Andamento'),
+              ),
+            ),
         ],
       ),
     );

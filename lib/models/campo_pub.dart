@@ -3,11 +3,11 @@ import 'package:sports_link/models/ponto.dart';
 
 class CampoPub extends Campo {
   String entidadePublicaResp;
-  bool partidaEmCurso; // NOVO CAMPO
+  bool partidaEmCurso;
 
   CampoPub({
     required this.entidadePublicaResp,
-    this.partidaEmCurso = false, // valor inicial padrão
+    this.partidaEmCurso = false,
     required super.id,
     required super.idPonto,
     required super.idMapa,
@@ -32,11 +32,10 @@ class CampoPub extends Campo {
       descricao: json['Descricao'] as String,
       imagem: json['Imagem'] as String?,
       entidadePublicaResp: json['Entidade_publica_resp'] as String,
-      ponto:
-          json['Ponto'] != null
-              ? Ponto.fromJson(json['Ponto'])
-              : Ponto.defaultInstance(),
-      partidaEmCurso: json['Partida_em_curso'] == true, // pode vir de JSON
+      ponto: json['Ponto'] != null
+          ? Ponto.fromJson(json['Ponto'])
+          : Ponto.defaultInstance(),
+      partidaEmCurso: json['Partida_em_curso'] == true,
     );
   }
 
@@ -44,7 +43,7 @@ class CampoPub extends Campo {
   Map<String, dynamic> toJson() {
     final base = super.toJson();
     base['Entidade_publica_resp'] = entidadePublicaResp;
-    base['Partida_em_curso'] = partidaEmCurso; // incluir no JSON
+    base['Partida_em_curso'] = partidaEmCurso;
     return base;
   }
 

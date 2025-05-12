@@ -13,17 +13,17 @@ class PartidaOwnerPage extends StatefulWidget {
 
 class _PartidaOwnerPageState extends State<PartidaOwnerPage> {
   late TextEditingController _minJogadoresController;
+  late TextEditingController _maxJogadoresController;
   late TextEditingController _resultadoController;
-
-  double draggableX = 20;
-  double draggableY = 100;
-  bool isMinimized = false;
 
   @override
   void initState() {
     super.initState();
     _minJogadoresController = TextEditingController(
       text: widget.partida.numeroJogadoresMinimo?.toString() ?? '0',
+    );
+    _maxJogadoresController = TextEditingController(
+      text: widget.partida.numeroJogadoresMaximo?.toString() ?? '0',
     );
     _resultadoController = TextEditingController(
       text: widget.partida.resultado ?? '',
@@ -33,6 +33,7 @@ class _PartidaOwnerPageState extends State<PartidaOwnerPage> {
   @override
   void dispose() {
     _minJogadoresController.dispose();
+    _maxJogadoresController.dispose();
     _resultadoController.dispose();
     super.dispose();
   }
@@ -41,6 +42,8 @@ class _PartidaOwnerPageState extends State<PartidaOwnerPage> {
     setState(() {
       widget.partida.numeroJogadoresMinimo =
           int.tryParse(_minJogadoresController.text) ?? 0;
+      widget.partida.numeroJogadoresMaximo =
+          int.tryParse(_maxJogadoresController.text) ?? 0;
       widget.partida.resultado = _resultadoController.text;
     });
 
@@ -80,6 +83,7 @@ class _PartidaOwnerPageState extends State<PartidaOwnerPage> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                // Informações gerais da partida
                 Card(
                   elevation: 4,
                   shape: RoundedRectangleBorder(
@@ -100,22 +104,17 @@ class _PartidaOwnerPageState extends State<PartidaOwnerPage> {
                         ),
                         const SizedBox(height: 8),
                         Text(
-                          'Estado: ${partida.estado == EstadoPartida.aguardando
-                              ? "Aguardando"
-                              : partida.estado == EstadoPartida.emAndamento
-                              ? "Em Andamento"
-                              : "Finalizada"}',
+                          'Estado: ${_getEstadoPartida(partida)}',
                           style: TextStyle(
                             fontSize: 16,
-                            color:
-                                partida.estado == EstadoPartida.terminada
-                                    ? Colors.red
-                                    : Colors.black,
+                            color: partida.estado == EstadoPartida.terminada
+                                ? Colors.red
+                                : Colors.black,
                           ),
                         ),
                         const SizedBox(height: 8),
                         Text(
-                          'Jogadores: ${partida.jogadores?.length ?? 0}',
+                          'Jogadores: ${partida.jogadores?.length ?? 0}/${partida.numeroJogadoresMaximo ?? 'N/A'}',
                           style: const TextStyle(fontSize: 16),
                         ),
                         const SizedBox(height: 8),
@@ -128,11 +127,23 @@ class _PartidaOwnerPageState extends State<PartidaOwnerPage> {
                           'Hora: ${partida.hora.format(context)}',
                           style: const TextStyle(fontSize: 16),
                         ),
+                        const SizedBox(height: 8),
+                        Text(
+                          'Duração: ${partida.duracao?.toStringAsFixed(0) ?? 'N/A'} minutos',
+                          style: const TextStyle(fontSize: 16),
+                        ),
+                        const SizedBox(height: 8),
+                        Text(
+                          'Resultado: ${partida.resultado ?? 'N/A'}',
+                          style: const TextStyle(fontSize: 16),
+                        ),
                       ],
                     ),
                   ),
                 ),
                 const SizedBox(height: 16),
+
+                // Número mínimo de jogadores
                 Card(
                   elevation: 4,
                   shape: RoundedRectangleBorder(
@@ -167,6 +178,44 @@ class _PartidaOwnerPageState extends State<PartidaOwnerPage> {
                   ),
                 ),
                 const SizedBox(height: 16),
+
+                // Número máximo de jogadores
+                Card(
+                  elevation: 4,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                  child: Padding(
+                    padding: const EdgeInsets.all(16),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Text(
+                          'Número Máximo de Jogadores',
+                          style: TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.orange,
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        TextField(
+                          controller: _maxJogadoresController,
+                          keyboardType: TextInputType.number,
+                          decoration: InputDecoration(
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            hintText: 'Digite o número máximo de jogadores',
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 16),
+
+                // Resultado da partida
                 Card(
                   elevation: 4,
                   shape: RoundedRectangleBorder(
@@ -200,6 +249,8 @@ class _PartidaOwnerPageState extends State<PartidaOwnerPage> {
                   ),
                 ),
                 const SizedBox(height: 16),
+
+                // Botões de ação
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: [
@@ -242,70 +293,23 @@ class _PartidaOwnerPageState extends State<PartidaOwnerPage> {
               ],
             ),
           ),
-
-          // ===================== CARD FLUTUANTE =====================
-          Positioned(
-            top: draggableY,
-            left: draggableX,
-            child: GestureDetector(
-              onPanUpdate: (details) {
-                setState(() {
-                  draggableX += details.delta.dx;
-                  draggableY += details.delta.dy;
-                });
-              },
-              child: AnimatedContainer(
-                duration: const Duration(milliseconds: 300),
-                width: 200,
-                height: isMinimized ? 60 : 180,
-                decoration: BoxDecoration(
-                  color: Colors.orange[400],
-                  borderRadius: BorderRadius.circular(16),
-                  boxShadow: [
-                    BoxShadow(
-                      color: const Color.fromARGB(50, 0, 0, 0),
-                      blurRadius: 8,
-                      offset: const Offset(2, 4),
-                    ),
-                  ],
-                ),
-                child: Column(
-                  children: [
-                    ListTile(
-                      title: const Text(
-                        "Card Flutuante",
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          color: Colors.white,
-                        ),
-                      ),
-                      trailing: IconButton(
-                        icon: Icon(
-                          isMinimized ? Icons.expand_more : Icons.expand_less,
-                          color: Colors.white,
-                        ),
-                        onPressed: () {
-                          setState(() {
-                            isMinimized = !isMinimized;
-                          });
-                        },
-                      ),
-                    ),
-                    if (!isMinimized)
-                      const Padding(
-                        padding: EdgeInsets.all(8.0),
-                        child: Text(
-                          'Conteúdo extra do card flutuante.',
-                          style: TextStyle(color: Colors.white),
-                        ),
-                      ),
-                  ],
-                ),
-              ),
-            ),
-          ),
         ],
       ),
     );
+  }
+
+  String _getEstadoPartida(Partida partida) {
+    switch (partida.estado) {
+      case EstadoPartida.aguardando:
+        return 'Aguardando jogadores';
+      case EstadoPartida.emAndamento:
+        return 'Em andamento';
+      case EstadoPartida.terminada:
+        return 'Finalizada';
+      case EstadoPartida.cancelada:
+        return 'Cancelada';
+      default:
+        return 'Estado desconhecido';
+    }
   }
 }
