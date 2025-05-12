@@ -246,6 +246,10 @@ class PageReservaState extends State<PageReserva> {
                               buildInfoRow('Duração', '$numeroHorasReserva horas'),
                               const SizedBox(height: 8),
                               buildInfoRow('Total a Pagar', '${(widget.campo.preco * numeroHorasReserva!).toStringAsFixed(2)}€'),
+                              if (widget.campo.desportos.isNotEmpty) ...[
+                                const SizedBox(height: 8),
+                                buildInfoRow('Desportos Associados', widget.campo.desportos.join(', ')),
+                              ],
                             ],
                           ),
                         ),

@@ -13,6 +13,7 @@ import 'package:sports_link/controllers/controller_dropdown.dart' as dpd;
 import 'package:sports_link/widgets/map_view.dart' as map_view;
 import 'package:sports_link/widgets/list_view.dart' as list_view;
 import 'package:sports_link/utils/filter_campos.dart' as filter_campos;
+import 'package:sports_link/widgets/filter_widget.dart';
 
 class ListCampos extends StatefulWidget {
   final String filtroTipo;
@@ -37,10 +38,13 @@ class _ListCamposState extends State<ListCampos> {
   double latitude = 0.0;
   double longitude = 0.0;
 
+  late List<Campo> camposFiltrados;
+
   @override
   void initState() {
     super.initState();
     _getCurrentLocation();
+    camposFiltrados = campos; // Inicializa com todos os campos
   }
 
   Future<void> _getCurrentLocation() async {
@@ -70,13 +74,36 @@ class _ListCamposState extends State<ListCampos> {
     });
   }
 
+  void _showFilters(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: false,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+      ),
+      builder: (context) {
+        return FilterWidget(
+          campos: campos,
+          minhaLatitude: latitude,
+          minhaLongitude: longitude,
+          exibirFiltroPreco: widget.filtroTipo == 'privado', // Exibe o filtro de preço apenas para campos privados
+          onApplyFilters: (camposFiltradosAtualizados) {
+            setState(() {
+              camposFiltrados = camposFiltradosAtualizados.cast<Campo>();
+            });
+          },
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     // Obter o utilizador atual do Provider
     final currentUser = Provider.of<UserProvider>(context).user;
 
-    final List<Campo> camposFiltrados = filter_campos.filterCampos(
-      campos: campos,
+    final List<Campo> camposFiltradosComPesquisa = filter_campos.filterCampos(
+      campos: camposFiltrados,
       query: searchController.text,
       isAscending: isAscending,
       filtroTipo: widget.filtroTipo,
@@ -146,6 +173,12 @@ class _ListCamposState extends State<ListCampos> {
                                 });
                               },
                             ),
+                            const SizedBox(width: 8),
+                            IconButton(
+                              icon: const Icon(Icons.filter_list),
+                              color: const Color.fromARGB(255, 255, 152, 0),
+                              onPressed: () => _showFilters(context),
+                            ),
                           ],
                         ),
                         const SizedBox(height: 8),
@@ -155,7 +188,7 @@ class _ListCamposState extends State<ListCampos> {
                   Expanded(
                     child: isMapView
                         ? map_view.MapView(
-                            campos: camposFiltrados,
+                            campos: camposFiltradosComPesquisa,
                             userLocation: LatLng(latitude, longitude),
                             onCampoSelected: (campo) {
                               Navigator.push(
@@ -167,7 +200,7 @@ class _ListCamposState extends State<ListCampos> {
                             },
                           )
                         : list_view.buildListViewWithLoadMore(
-                            camposFiltrados,
+                            camposFiltradosComPesquisa,
                             camposVisiveis,
                             () {
                               setState(() {

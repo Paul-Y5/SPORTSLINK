@@ -40,7 +40,7 @@ final List<Campo> mockCampos = [
       'Quarta-feira': [TimeOfDay(hour: 9, minute: 0), TimeOfDay(hour: 18, minute: 0)],
       'Sexta-feira': [TimeOfDay(hour: 9, minute: 0), TimeOfDay(hour: 18, minute: 0)],
     },
-  ),
+  )..setDesportos([Desportos.futebol, Desportos.futsal]),
   CampoPub(
     id: 2,
     idPonto: 2,
@@ -53,7 +53,7 @@ final List<Campo> mockCampos = [
     ponto: mockPontos[1],
     entidadePublicaResp: "Câmara Municipal",
     imagem: 'img/icon_campo.jpg',
-  ),
+  )..setDesportos([Desportos.futebol, Desportos.basquetebol]),
   CampoPriv(
     id: 3,
     idPonto: 3,
@@ -70,7 +70,7 @@ final List<Campo> mockCampos = [
       'Terça-feira': [TimeOfDay(hour: 10, minute: 0), TimeOfDay(hour: 17, minute: 0)],
       'Quinta-feira': [TimeOfDay(hour: 10, minute: 0), TimeOfDay(hour: 17, minute: 0)],
     },
-  ),
+  )..setDesportos([Desportos.futebol, Desportos.basquetebol]),
   CampoPriv(
     id: 4,
     idPonto: 1,
@@ -89,7 +89,7 @@ final List<Campo> mockCampos = [
       'Quarta-feira': [TimeOfDay(hour: 8, minute: 0), TimeOfDay(hour: 20, minute: 0)],
       'Sábado': [TimeOfDay(hour: 8, minute: 0), TimeOfDay(hour: 20, minute: 0)],
     },
-  ),
+  )..setDesportos([Desportos.futebol, Desportos.futsal]),
   CampoPriv(
     id: 5,
     idPonto: 2,
@@ -118,7 +118,7 @@ final List<Campo> mockCampos = [
     descricao: 'Campo ao ar livre, ideal para basquete',
     ponto: mockPontos[2],
     entidadePublicaResp: "Câmara Municipal",
-  ),
+  )..setDesportos([Desportos.basquetebol]),
   CampoPriv(
     id: 7,
     idPonto: 5,
@@ -129,7 +129,7 @@ final List<Campo> mockCampos = [
     ocupado: false,
     descricao: 'Campo moderno com relva natural',
     ponto: mockPontos[4],
-    idArrendador: 3,
+    idArrendador: 1,
     preco: 60.0,
     diasFuncionamento: {
       'Terça-feira': [
@@ -141,7 +141,7 @@ final List<Campo> mockCampos = [
         TimeOfDay(hour: 19, minute: 0),
       ],
     },
-  ),
+  )..setDesportos([Desportos.futebol, Desportos.futsal]),
   CampoPub(
     id: 8,
     idPonto: 6,
@@ -154,7 +154,7 @@ final List<Campo> mockCampos = [
     ponto: mockPontos[5],
     entidadePublicaResp: "Câmara Municipal de Setúbal",
     imagem: 'img/icon_campo_setubal.jpg',
-  ),
+  )..setDesportos([Desportos.futebol, Desportos.basquetebol]),
 ];
 
 // PARTIDAS

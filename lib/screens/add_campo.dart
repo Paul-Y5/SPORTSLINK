@@ -119,214 +119,208 @@ class _AddCampoState extends State<AddCampo> {
         title: const Text('Adicionar Campo'),
         backgroundColor: Colors.orange, // Cor consistente com o tema da aplicação
       ),
-      body: Stack(
-        children: [
-          // Fundo com o carousel
-          const Carouselbg(),
-          SingleChildScrollView(
-            padding: const EdgeInsets.all(16.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                Container(
-                  padding: const EdgeInsets.all(16),
-                  decoration: BoxDecoration(
-                    color: const Color.fromARGB(200, 255, 255, 255),
-                    borderRadius: BorderRadius.circular(16),
-                  ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const Text(
-                        'Adicionar Novo Campo',
-                        style: TextStyle(
-                          fontSize: 22,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.orange,
-                        ),
-                      ),
-                      const SizedBox(height: 16),
-                      TextField(
-                        controller: campoNameController,
-                        decoration: InputDecoration(
-                          labelText: 'Nome do Campo',
-                          labelStyle: const TextStyle(color: Color.fromARGB(255, 0, 0, 0)),
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                          focusedBorder: OutlineInputBorder(
-                            borderSide: const BorderSide(color: Colors.orange),
-                            borderRadius: BorderRadius.circular(8),
+      body: SafeArea( // Adicionado SafeArea
+        child: Stack(
+          children: [
+            // Fundo com o carousel
+            const Carouselbg(),
+            SingleChildScrollView(
+              padding: const EdgeInsets.all(16.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(16),
+                    decoration: BoxDecoration(
+                      color: const Color.fromARGB(200, 255, 255, 255),
+                      borderRadius: BorderRadius.circular(16),
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Text(
+                          'Adicionar Novo Campo',
+                          style: TextStyle(
+                            fontSize: 22,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.orange,
                           ),
                         ),
-                      ),
-                      const SizedBox(height: 16),
-                      Card(
-                        elevation: 2,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
+                        const SizedBox(height: 16),
+                        TextField(
+                          controller: campoNameController,
+                          decoration: InputDecoration(
+                            labelText: 'Nome do Campo',
+                            labelStyle: const TextStyle(color: Color.fromARGB(255, 0, 0, 0)),
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            focusedBorder: OutlineInputBorder(
+                              borderSide: const BorderSide(color: Colors.orange),
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                          ),
                         ),
-                        child: Padding(
-                          padding: const EdgeInsets.all(16),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              const Text(
-                                'Localização',
-                                style: TextStyle(
-                                  fontSize: 18,
-                                  fontWeight: FontWeight.bold,
-                                  color: Colors.orange,
-                                ),
-                              ),
-                              const SizedBox(height: 8),
-                              GestureDetector(
-                                onTap: _abrirMapa,
-                                child: AbsorbPointer(
-                                  child: TextField(
-                                    controller: latitudeController,
-                                    decoration: InputDecoration(
-                                      labelText: 'Clique para selecionar no mapa',
-                                      border: OutlineInputBorder(
-                                        borderRadius: BorderRadius.circular(8),
-                                      ),
-                                      focusedBorder: OutlineInputBorder(
-                                        borderSide: const BorderSide(color: Colors.orange),
+                        const SizedBox(height: 16),
+                        Card(
+                          shadowColor: Colors.transparent,
+                          color: Colors.transparent,
+                          elevation: 2,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: Padding(
+                            padding: const EdgeInsets.all(0),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                GestureDetector(
+                                  onTap: _abrirMapa,
+                                  child: AbsorbPointer(
+                                    child: TextField(
+                                      controller: latitudeController,
+                                      decoration: InputDecoration(
+                                        labelText: 'Localização',
+                                        border: OutlineInputBorder(
+                                          borderRadius: BorderRadius.circular(8),
+                                        ),
+                                        focusedBorder: OutlineInputBorder(
+                                          borderSide: const BorderSide(color: Colors.orange),
+                                        ),
                                       ),
                                     ),
                                   ),
                                 ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                      const SizedBox(height: 16),
-                      const SizedBox(height: 16),
-                      TextField(
-                        controller: campoPriceController,
-                        decoration: InputDecoration(
-                          labelText: 'Entidade Pública Responsável',
-                          labelStyle: const TextStyle(
-                            color: Color.fromARGB(255, 0, 0, 0),
-                          ),
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                          focusedBorder: OutlineInputBorder(
-                            borderSide: const BorderSide(color: Colors.orange),
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                        ),
-                      ),
-                      const SizedBox(height: 16),
-                      TextField(
-                        controller: campoDescriptionController,
-                        decoration: InputDecoration(
-                          labelText: 'Descrição',
-                          labelStyle: const TextStyle(
-                            color: Color.fromARGB(255, 0, 0, 0),
-                          ),
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                          focusedBorder: OutlineInputBorder(
-                            borderSide: const BorderSide(color: Colors.orange),
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                        ),
-                        maxLines: 3,
-                      ),
-                      const SizedBox(height: 16),
-                      TextField(
-                        controller: comprimentoController,
-                        decoration: InputDecoration(
-                          labelText: 'Comprimento (opcional)',
-                          labelStyle: const TextStyle(color: Color.fromARGB(255, 0, 0, 0)),
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                          focusedBorder: OutlineInputBorder(
-                            borderSide: const BorderSide(color: Colors.orange),
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                        ),
-                        keyboardType: TextInputType.number,
-                      ),
-                      const SizedBox(height: 16),
-                      TextField(
-                        controller: larguraController,
-                        decoration: InputDecoration(
-                          labelText: 'Largura (opcional)',
-                          labelStyle: const TextStyle(color: Color.fromARGB(255, 0, 0, 0)),
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                          focusedBorder: OutlineInputBorder(
-                            borderSide: const BorderSide(color: Colors.orange),
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                        ),
-                        keyboardType: TextInputType.number,
-                      ),
-                      const SizedBox(height: 16),
-                      const Text(
-                        'Desportos Associados',
-                        style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.orange,
-                        ),
-                      ),
-                      const SizedBox(height: 8),
-                      Column(
-                        children: Desportos.values.map((desporto) {
-                          return CheckboxListTile(
-                            title: Text(
-                              desporto.name[0].toUpperCase() + desporto.name.substring(1),
-                              style: const TextStyle(fontSize: 14),
+                              ],
                             ),
-                            value: desportosSelecionados.contains(desporto),
-                            activeColor: Colors.orange,
-                            onChanged: (bool? value) {
-                              setState(() {
-                                if (value == true) {
-                                  desportosSelecionados.add(desporto);
-                                } else {
-                                  desportosSelecionados.remove(desporto);
-                                }
-                              });
-                            },
-                          );
-                        }).toList(),
-                      ),
-                      const SizedBox(height: 20),
-                      Center(
-                        child: ElevatedButton(
-                          onPressed: _adicionarCampo, // Chamar a função ao clicar
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.orange,
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 24,
-                              vertical: 12,
+                          ),
+                        ),
+                        const SizedBox(height: 16),
+                        TextField(
+                          controller: campoPriceController,
+                          decoration: InputDecoration(
+                            labelText: 'Entidade Pública Responsável',
+                            labelStyle: const TextStyle(
+                              color: Color.fromARGB(255, 0, 0, 0),
                             ),
-                            shape: RoundedRectangleBorder(
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            focusedBorder: OutlineInputBorder(
+                              borderSide: const BorderSide(color: Colors.orange),
                               borderRadius: BorderRadius.circular(8),
                             ),
                           ),
-                          child: const Text(
-                            'Adicionar Campo',
-                            style: TextStyle(fontSize: 16, color: Colors.black),
+                        ),
+                        const SizedBox(height: 16),
+                        TextField(
+                          controller: campoDescriptionController,
+                          decoration: InputDecoration(
+                            labelText: 'Descrição',
+                            labelStyle: const TextStyle(
+                              color: Color.fromARGB(255, 0, 0, 0),
+                            ),
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            focusedBorder: OutlineInputBorder(
+                              borderSide: const BorderSide(color: Colors.orange),
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                          ),
+                          maxLines: 3,
+                        ),
+                        const SizedBox(height: 16),
+                        TextField(
+                          controller: comprimentoController,
+                          decoration: InputDecoration(
+                            labelText: 'Comprimento (opcional)',
+                            labelStyle: const TextStyle(color: Color.fromARGB(255, 0, 0, 0)),
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            focusedBorder: OutlineInputBorder(
+                              borderSide: const BorderSide(color: Colors.orange),
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                          ),
+                          keyboardType: TextInputType.number,
+                        ),
+                        const SizedBox(height: 16),
+                        TextField(
+                          controller: larguraController,
+                          decoration: InputDecoration(
+                            labelText: 'Largura (opcional)',
+                            labelStyle: const TextStyle(color: Color.fromARGB(255, 0, 0, 0)),
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            focusedBorder: OutlineInputBorder(
+                              borderSide: const BorderSide(color: Colors.orange),
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                          ),
+                          keyboardType: TextInputType.number,
+                        ),
+                        const SizedBox(height: 16),
+                        const Text(
+                          'Desportos Associados',
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.orange,
                           ),
                         ),
-                      ),
-                    ],
+                        const SizedBox(height: 8),
+                        Column(
+                          children: Desportos.values.map((desporto) {
+                            return CheckboxListTile(
+                              title: Text(
+                                desporto.name[0].toUpperCase() + desporto.name.substring(1),
+                                style: const TextStyle(fontSize: 14),
+                              ),
+                              value: desportosSelecionados.contains(desporto),
+                              activeColor: Colors.orange,
+                              onChanged: (bool? value) {
+                                setState(() {
+                                  if (value == true) {
+                                    desportosSelecionados.add(desporto);
+                                  } else {
+                                    desportosSelecionados.remove(desporto);
+                                  }
+                                });
+                              },
+                            );
+                          }).toList(),
+                        ),
+                        const SizedBox(height: 20),
+                        Center(
+                          child: ElevatedButton(
+                            onPressed: _adicionarCampo, // Chamar a função ao clicar
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.orange,
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 24,
+                                vertical: 12,
+                              ),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                            ),
+                            child: const Text(
+                              'Adicionar Campo',
+                              style: TextStyle(fontSize: 16, color: Colors.black),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
