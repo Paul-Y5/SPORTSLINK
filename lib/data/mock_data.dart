@@ -342,6 +342,44 @@ final Map<int, Utilizador> mockUsers = {
           'Transferência Bancária',
           'Transferência Bancária',
         ),
+
+  11: Jogador(
+    id: 11,
+    nome: 'Tomás Floro Silva',
+    email: 'tfl@example.com',
+    numTele: 919876543,
+    password: 'teste123',
+    nacionalidade: 'Português',
+    idade: 22,
+    descricao: 'Jogador de Futebol, sempre em busca de novos desafios.', utilizador: 'tflor',
+    createDate: DateTime.now(),
+    nivel: 1, // Adicionado nível
+  )..setAltura(1.80)
+    ..setPeso(75.0)
+    ..adicionarDesporto(Desportos.futebol)
+    ..adicionarDesporto(Desportos.voleibol),
+
+  12: Arrendador( 
+    id: 12,
+    nome: 'Francisco Garcia Gameiro',
+    nivel: 5.0,
+    email: 'fgg@example.com',
+    numTele: 919876543,
+    password: 'teste123',
+    nacionalidade: 'Português',
+    idade: 69,
+    descricao: 'Arrendador novo na área.',
+    noCampos: 0,
+    iban: "PT50000000000000000000000",
+    utilizador: 'fgg',
+    createDate: DateTime.now(),
+  )..setAltura(1.70)
+    ..setPeso(70.0)
+    ..adicionarDesporto(Desportos.futebol)
+    ..adicionarMetodoPagamento('Cartão de Crédito', 'Cartão de Crédito')
+    ..adicionarMetodoPagamento('MB Way', 'MB Way')
+    ..adicionarMetodoPagamento('Transferência Bancária', 'Transferência Bancária'),
+  
 };
 
 enum LoginResult { success, wrongPassword, userNotFound }
