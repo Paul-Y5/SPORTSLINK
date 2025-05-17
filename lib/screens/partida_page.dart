@@ -10,15 +10,11 @@ import 'package:sports_link/screens/main_page_1.dart';
 import 'package:sports_link/styles/carouselbg.dart';
 import 'package:sports_link/utils/blinkdot.dart';
 import 'package:sports_link/utils/time_utils.dart';
-import 'package:sports_link/widgets/style_row.dart';
 
 class PartidaPage extends StatefulWidget {
   final Partida partida;
 
-  const PartidaPage({
-    super.key,
-    required this.partida,
-  });
+  const PartidaPage({super.key, required this.partida});
 
   @override
   State<PartidaPage> createState() => _PartidaPageState();
@@ -28,18 +24,15 @@ class _PartidaPageState extends State<PartidaPage> {
   late Duration tempoRestante;
   Timer? _timer;
   bool isUserJoined = false;
-
   late Jogador currentUser;
-  final TextEditingController _chatController = TextEditingController(); // Controlador para o chat
+  final TextEditingController _chatController = TextEditingController();
 
   @override
   void initState() {
     super.initState();
 
-    // Calcula o tempo restante usando a função utilitária
     tempoRestante = calcularTempoRestante(widget.partida.data, widget.partida.hora);
 
-    // Obtém o usuário atual e define se já está na partida
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (mounted) {
         currentUser = Provider.of<UserProvider>(context, listen: false).user as Jogador;
@@ -59,29 +52,25 @@ class _PartidaPageState extends State<PartidaPage> {
           setState(() {
             tempoRestante -= const Duration(seconds: 1);
 
-            // Verifica se o tempo acabou
             if (tempoRestante.isNegative) {
               _timer?.cancel();
 
-              // Verifica se há jogadores suficientes para iniciar a partida
               if (widget.partida.jogadores!.length < widget.partida.numeroJogadoresMinimo!) {
-                // Cancela a partida
                 widget.partida.setEstado(EstadoPartida.cancelada);
                 mockPartidas.removeWhere((p) => p.id == widget.partida.id);
 
-                // Exibe uma mensagem informando que a partida foi cancelada
                 if (mounted) {
                   ScaffoldMessenger.of(context).showSnackBar(
                     const SnackBar(
                       content: Text('A partida foi cancelada por falta de jogadores.'),
+                      backgroundColor: Colors.red,
                     ),
                   );
                 }
 
-                // No fim de 10 segundos, navega para a tela inicial
-                Future.delayed(const Duration(seconds: 10), () {
+                Future.delayed(const Duration(seconds: 3), () {
                   if (mounted) {
-                    Navigator.push(
+                    Navigator.pushReplacement(
                       context,
                       MaterialPageRoute(
                         builder: (context) => MainPage1(id: currentUser.id),
@@ -90,16 +79,15 @@ class _PartidaPageState extends State<PartidaPage> {
                   }
                 });
               } else {
-                // Inicia a partida
                 setState(() {
                   widget.partida.estado = EstadoPartida.emAndamento;
                 });
 
-                // Exibe uma mensagem informando que a partida começou
                 if (mounted) {
                   ScaffoldMessenger.of(context).showSnackBar(
                     const SnackBar(
                       content: Text('A partida foi iniciada!'),
+                      backgroundColor: Colors.green,
                     ),
                   );
                 }
@@ -114,7 +102,7 @@ class _PartidaPageState extends State<PartidaPage> {
   @override
   void dispose() {
     _timer?.cancel();
-    _chatController.dispose(); // Libera o controlador do chat
+    _chatController.dispose();
     super.dispose();
   }
 
@@ -160,9 +148,7 @@ class _PartidaPageState extends State<PartidaPage> {
           ),
           actions: [
             TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
+              onPressed: () => Navigator.of(context).pop(),
               child: const Text(
                 'Cancelar',
                 style: TextStyle(color: Colors.orange),
@@ -174,6 +160,7 @@ class _PartidaPageState extends State<PartidaPage> {
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(
                       content: Text('Convite enviado para ${inviteController.text}!'),
+                      backgroundColor: Colors.green,
                     ),
                   );
                   Navigator.of(context).pop();
@@ -181,6 +168,7 @@ class _PartidaPageState extends State<PartidaPage> {
                   ScaffoldMessenger.of(context).showSnackBar(
                     const SnackBar(
                       content: Text('Por favor, insira o nome do amigo.'),
+                      backgroundColor: Colors.red,
                     ),
                   );
                 }
@@ -208,8 +196,8 @@ class _PartidaPageState extends State<PartidaPage> {
         widget.partida.chat!.add(
           Msg(
             remetente: currentUser,
-            conteudo: _chatController.text, 
-            timestamp: DateTime.now(),  
+            conteudo: _chatController.text,
+            timestamp: DateTime.now(),
           ),
         );
       });
@@ -221,88 +209,90 @@ class _PartidaPageState extends State<PartidaPage> {
   Widget build(BuildContext context) {
     final partida = widget.partida;
     final campo = partida.campo;
+    final infoStyle = TextStyle(fontSize: 16, color: Colors.grey[800]);
+    final labelStyle = TextStyle(fontSize: 14, color: Colors.orange[700], fontWeight: FontWeight.w500);
 
     return Scaffold(
+      extendBodyBehindAppBar: true,
+      backgroundColor: Colors.transparent,
       appBar: AppBar(
         title: const Text('Detalhes da Partida'),
-        backgroundColor: Colors.orange,
+        centerTitle: true,
+        backgroundColor: Colors.orange[400],
+        elevation: 0,
         actions: [
           IconButton(
             icon: const Icon(Icons.people, color: Colors.white),
             onPressed: () {
               showDialog(
                 context: context,
-                builder: (context) {
-                  return AlertDialog(
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(16),
+                builder: (context) => AlertDialog(
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                  title: Text(
+                    'Jogadores na Partida (${partida.jogadores?.length ?? 0})',
+                    style: const TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.orange,
                     ),
-                    title: Text(
-                      'Jogadores na Partida (${partida.jogadores?.length ?? 0})',
-                      style: const TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.orange,
-                      ),
-                    ),
-                    content: SizedBox(
-                      width: double.maxFinite,
-                      child: ListView(
-                        shrinkWrap: true,
-                        children: [
-                          if (partida.jogadores?.isNotEmpty ?? false)
-                            ...partida.jogadores!.map((jogador) {
-                              return Card(
-                                elevation: 2,
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(12),
-                                ),
-                                child: ListTile(
-                                  leading: CircleAvatar(
-                                    backgroundImage: AssetImage(
-                                      jogador.urlIMG ?? 'assets/default_image.png',
-                                    ),
-                                    radius: 20,
-                                  ),
-                                  title: Text(
-                                    jogador.nome,
-                                    style: const TextStyle(
-                                      fontSize: 16,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-                                  subtitle: Text('Nível: ${jogador.nivel}'),
-                                ),
-                              );
-                            })
-                          else
-                            const Padding(
-                              padding: EdgeInsets.symmetric(vertical: 12.0),
-                              child: Text(
-                                'Nenhum jogador presente no momento.',
-                                style: TextStyle(
-                                  fontSize: 16,
-                                  color: Colors.black54,
-                                ),
-                                textAlign: TextAlign.center,
+                  ),
+                  content: SizedBox(
+                    width: double.maxFinite,
+                    child: ListView(
+                      shrinkWrap: true,
+                      children: [
+                        if (partida.jogadores?.isNotEmpty ?? false)
+                          ...partida.jogadores!.map((jogador) {
+                            return Card(
+                              elevation: 2,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12),
                               ),
+                              child: ListTile(
+                                leading: CircleAvatar(
+                                  backgroundImage: AssetImage(
+                                    jogador.urlIMG ?? 'assets/default_image.png',
+                                  ),
+                                  radius: 20,
+                                ),
+                                title: Text(
+                                  jogador.nome,
+                                  style: const TextStyle(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                                subtitle: Text('Nível: ${jogador.nivel}'),
+                              ),
+                            );
+                          })
+                        else
+                          const Padding(
+                            padding: EdgeInsets.symmetric(vertical: 12.0),
+                            child: Text(
+                              'Nenhum jogador presente no momento.',
+                              style: TextStyle(
+                                fontSize: 16,
+                                color: Colors.black54,
+                              ),
+                              textAlign: TextAlign.center,
                             ),
-                        ],
+                          ),
+                      ],
+                    ),
+                  ),
+                  actions: [
+                    TextButton(
+                      onPressed: () => Navigator.of(context).pop(),
+                      child: const Text(
+                        'Fechar',
+                        style: TextStyle(color: Colors.orange),
                       ),
                     ),
-                    actions: [
-                      TextButton(
-                        onPressed: () {
-                          Navigator.of(context).pop();
-                        },
-                        child: const Text(
-                          'Fechar',
-                          style: TextStyle(color: Colors.orange),
-                        ),
-                      ),
-                    ],
-                  );
-                },
+                  ],
+                ),
               );
             },
           ),
@@ -310,51 +300,98 @@ class _PartidaPageState extends State<PartidaPage> {
       ),
       body: Stack(
         children: [
-          const Carouselbg(), // Fundo com o carousel
+          const Carouselbg(),
           SingleChildScrollView(
-            padding: const EdgeInsets.all(16.0),
+            padding: const EdgeInsets.fromLTRB(16, 32 + kToolbarHeight, 16, 16),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Informações do campo e partida
+                // Card informações gerais
                 Card(
-                  elevation: 2,
+                  elevation: 6,
                   shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(16),
+                    borderRadius: BorderRadius.circular(18),
                   ),
                   child: Padding(
-                    padding: const EdgeInsets.all(16),
+                    padding: const EdgeInsets.symmetric(vertical: 18, horizontal: 16),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Row(
                           children: [
+                            Icon(Icons.sports_soccer, color: Colors.orange[700], size: 28),
+                            const SizedBox(width: 10),
                             Expanded(
                               child: Text(
-                                'Campo: ${campo.nome}',
-                                style: const TextStyle(
+                                campo.nome,
+                                style: TextStyle(
                                   fontSize: 22,
                                   fontWeight: FontWeight.bold,
-                                  color: Colors.orange,
+                                  color: Colors.orange[800],
                                 ),
                               ),
                             ),
                             if (partida.estado == EstadoPartida.emAndamento)
-                              const BlinkingDot(), // Bolinha vermelha intermitente
+                              const BlinkingDot(),
                           ],
                         ),
+                        const Divider(height: 28, thickness: 1.2),
+                        ListTile(
+                          dense: true,
+                          leading: const Icon(Icons.people_alt_outlined, color: Colors.orange),
+                          title: Text('Jogadores', style: labelStyle),
+                          subtitle: Text(
+                            '${partida.jogadores?.length ?? 0} / ${partida.numeroJogadoresMaximo ?? 'N/A'}',
+                            style: infoStyle,
+                          ),
+                        ),
+                        ListTile(
+                          dense: true,
+                          leading: const Icon(Icons.calendar_today, color: Colors.orange),
+                          title: Text('Data', style: labelStyle),
+                          subtitle: Text(
+                            '${partida.data.day.toString().padLeft(2, '0')}/${partida.data.month.toString().padLeft(2, '0')}/${partida.data.year}',
+                            style: infoStyle,
+                          ),
+                        ),
+                        ListTile(
+                          dense: true,
+                          leading: const Icon(Icons.access_time, color: Colors.orange),
+                          title: Text('Hora', style: labelStyle),
+                          subtitle: Text(
+                            partida.hora.format(context),
+                            style: infoStyle,
+                          ),
+                        ),
+                        ListTile(
+                          dense: true,
+                          leading: const Icon(Icons.timer, color: Colors.orange),
+                          title: Text('Duração', style: labelStyle),
+                          subtitle: Text(
+                            '${partida.duracao?.toStringAsFixed(0) ?? 'N/A'} minutos',
+                            style: infoStyle,
+                          ),
+                        ),
+                        ListTile(
+                          dense: true,
+                          leading: const Icon(Icons.emoji_events, color: Colors.orange),
+                          title: Text('Resultado', style: labelStyle),
+                          subtitle: Text(
+                            partida.resultado?.isNotEmpty == true
+                                ? partida.resultado!
+                                : 'N/A',
+                            style: infoStyle,
+                          ),
+                        ),
                         const SizedBox(height: 8),
-                        buildInfoRow('Número Mínimo de Jogadores', '${widget.partida.numeroJogadoresMinimo}'),
-                        buildInfoRow('Jogadores na Partida', '${partida.jogadores?.length ?? 0}'),
-                        const SizedBox(height: 16),
                         Text(
-                          'Estado: ${partida.estado == EstadoPartida.aguardando ? "Aguardando" : partida.estado == EstadoPartida.emAndamento ? "Em Andamento" : "Cancelada"}',
+                          'Estado: ${_getEstadoPartida(partida)}',
                           style: TextStyle(
                             fontSize: 16,
                             color: partida.estado == EstadoPartida.cancelada ? Colors.red : Colors.black,
                           ),
                         ),
-                        const SizedBox(height: 16),
+                        const SizedBox(height: 10),
                         if (partida.estado == EstadoPartida.aguardando)
                           Row(
                             children: [
@@ -389,16 +426,16 @@ class _PartidaPageState extends State<PartidaPage> {
                     ),
                   ),
                 ),
-                const SizedBox(height: 16),
+                const SizedBox(height: 20),
 
-                // Chat da partida
+                // Card do chat
                 Card(
-                  elevation: 2,
+                  elevation: 4,
                   shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(16),
+                    borderRadius: BorderRadius.circular(14),
                   ),
                   child: Padding(
-                    padding: const EdgeInsets.all(16),
+                    padding: const EdgeInsets.all(14),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
@@ -412,7 +449,7 @@ class _PartidaPageState extends State<PartidaPage> {
                         ),
                         const SizedBox(height: 8),
                         Container(
-                          height: 200,
+                          height: 180,
                           decoration: BoxDecoration(
                             color: Colors.grey[200],
                             borderRadius: BorderRadius.circular(12),
@@ -464,7 +501,7 @@ class _PartidaPageState extends State<PartidaPage> {
                     ),
                   ),
                 ),
-                const SizedBox(height: 16),
+                const SizedBox(height: 20),
 
                 // Botões de ação
                 Center(
@@ -478,6 +515,9 @@ class _PartidaPageState extends State<PartidaPage> {
                               partida.jogadores!.add(currentUser);
                               isUserJoined = true;
                             });
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(content: Text('${currentUser.nome} entrou na partida!')),
+                            );
                           },
                           style: ElevatedButton.styleFrom(
                             backgroundColor: Colors.orange,
@@ -525,5 +565,20 @@ class _PartidaPageState extends State<PartidaPage> {
         ],
       ),
     );
+  }
+
+  String _getEstadoPartida(Partida partida) {
+    switch (partida.estado) {
+      case EstadoPartida.aguardando:
+        return 'Aguardando';
+      case EstadoPartida.emAndamento:
+        return 'Em andamento';
+      case EstadoPartida.terminada:
+        return 'Finalizada';
+      case EstadoPartida.cancelada:
+        return 'Cancelada';
+      default:
+        return 'Desconhecido';
+    }
   }
 }

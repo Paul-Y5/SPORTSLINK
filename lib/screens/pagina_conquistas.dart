@@ -1,10 +1,36 @@
 import 'package:flutter/material.dart';
 import 'package:sports_link/models/conquista.dart';
 
+// Lista de conquistas bloqueadas de exemplo
+final List<Conquista> conquistasBloqueadas = [
+  Conquista(
+    nome: 'Primeira Partida',
+    descricao: 'Joga a tua primeira partida na plataforma.',
+    desbloqueada: false,
+  ),
+  Conquista(
+    nome: 'Amigo Ativo',
+    descricao: 'Adiciona 5 amigos.',
+    desbloqueada: false,
+  ),
+  Conquista(
+    nome: 'Organizador',
+    descricao: 'Cria o teu primeiro evento.',
+    desbloqueada: false,
+  ),
+  Conquista(
+    nome: 'Mestre das Reservas',
+    descricao: 'Reserva 10 campos diferentes.',
+    desbloqueada: false,
+  ),
+];
+
 class PaginaConquistas extends StatelessWidget {
   final List<Conquista> conquistas;
 
-  const PaginaConquistas({super.key, required this.conquistas});
+  // Se não receber conquistas, usa as bloqueadas por defeito
+  const PaginaConquistas({super.key, List<Conquista>? conquistas})
+      : conquistas = conquistas ?? const [];
 
   @override
   Widget build(BuildContext context) {

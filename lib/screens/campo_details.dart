@@ -76,15 +76,29 @@ class _CampoDetailsState extends State<CampoDetails> {
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
                       // Nome do campo
-                      Center(
-                        child: Text(
-                          widget.campo.nome,
-                          style: const TextStyle(
-                            fontSize: 28,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.orange,
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          IconButton(
+                            icon: const Icon(Icons.arrow_back, color: Colors.orange, size: 28),
+                            tooltip: 'Voltar',
+                            onPressed: () {
+                              Navigator.of(context).pop();
+                            },
                           ),
-                        ),
+                          const SizedBox(width: 8),
+                          Expanded(
+                            child: Text(
+                              widget.campo.nome,
+                              textAlign: TextAlign.center,
+                              style: const TextStyle(
+                                fontSize: 28,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.orange,
+                              ),
+                            ),
+                          ),
+                        ],
                       ),
                       const SizedBox(height: 20),
 
@@ -439,7 +453,16 @@ class _CampoDetailsState extends State<CampoDetails> {
             (context) =>
                 PageReserva(campo: widget.campo as CampoPriv, user: Provider.of<UserProvider>(context).user as Jogador),
       ),
-    );
+    ).then((value) {
+      // Exibe a snackbar após retornar da página de reserva
+      // ignore: use_build_context_synchronously
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Reserva efetuada com sucesso!'),
+          backgroundColor: Colors.green,
+        ),
+      );
+    });
   }
 
   void _openArrendadorProfile() {
@@ -460,216 +483,228 @@ class _CampoDetailsState extends State<CampoDetails> {
   final TextEditingController maxJogadoresController = TextEditingController();
   final TextEditingController minJogadoresController = TextEditingController();
   final TextEditingController duracaoController = TextEditingController();
-  final bool checked = false;
+  bool checked = false; // agora pode ser alterado
 
   showDialog(
     context: context,
     builder: (BuildContext context) {
-      return AlertDialog(
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(16),
-        ),
-        title: const Text(
-          'Configurar Partida',
-          style: TextStyle(
-            fontWeight: FontWeight.bold,
-            fontSize: 20,
-            color: Colors.orange, // Título em laranja
-          ),
-        ),
-        content: SingleChildScrollView(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const Text(
-                  'Número Mínimo de Jogadores (opcional):',
-                  style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                    fontSize: 16,
-                    color: Colors.black, // Texto preto
-                  ),
-                ),
-                const SizedBox(height: 8),
-                TextField(
-                  controller: minJogadoresController,
-                  keyboardType: TextInputType.number,
-                  decoration: InputDecoration(
-                    hintText: 'Ex: 4',
-                    hintStyle: const TextStyle(color: Colors.grey),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    focusedBorder: OutlineInputBorder(
-                      borderSide: const BorderSide(color: Colors.orange),
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 16),
-              const Text(
-                'Número máximo de Jogadores (opcional):',
-                style: TextStyle(
-                  fontWeight: FontWeight.bold,
-                  fontSize: 16,
-                  color: Colors.black, // Texto preto
-                ),
+      return StatefulBuilder(
+        builder: (context, setState) {
+          return AlertDialog(
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(16),
+            ),
+            title: const Text(
+              'Configurar Partida',
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                fontSize: 20,
+                color: Colors.orange,
               ),
-              const SizedBox(height: 8),
-              TextField(
-                controller: maxJogadoresController,
-                keyboardType: TextInputType.number,
-                decoration: InputDecoration(
-                  hintText: 'Ex: 10',
-                  hintStyle: const TextStyle(color: Colors.grey),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  focusedBorder: OutlineInputBorder(
-                    borderSide: const BorderSide(color: Colors.orange),
-                  ),
-                ),
-              ),
-              const SizedBox(height: 16),
-
-              const Text(
-                'Duração da Partida (opcional):',
-                style: TextStyle(
-                  fontWeight: FontWeight.bold,
-                  fontSize: 16,
-                  color: Colors.black, // Texto preto
-                ),
-              ),
-              const SizedBox(height: 8),
-              TextField(
-                controller: duracaoController,
-                keyboardType: TextInputType.number,
-                decoration: InputDecoration(
-                  hintText: 'Ex: 60 minutos',
-                  hintStyle: const TextStyle(color: Colors.grey),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  focusedBorder: OutlineInputBorder(
-                    borderSide: const BorderSide(color: Colors.orange),
-                  ),
-                ),
-              ),
-              const SizedBox(height: 16),
-              const SizedBox(height: 8),
-              // Checkbox para marcar resultado
-              Row(
+            ),
+            content: SingleChildScrollView(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Checkbox(
-                    value: checked,
-                    onChanged: (value) {},
-                    activeColor: Colors.orange,
-                  ),
                   const Text(
-                    'Marcar resultado da partida',
+                    'Número Mínimo de Jogadores (opcional):',
                     style: TextStyle(
-                      color: Colors.black, // Texto preto
+                      fontWeight: FontWeight.bold,
                       fontSize: 16,
+                      color: Colors.black,
                     ),
+                  ),
+                  const SizedBox(height: 8),
+                  TextField(
+                    controller: minJogadoresController,
+                    keyboardType: TextInputType.number,
+                    decoration: InputDecoration(
+                      hintText: 'Ex: 4',
+                      hintStyle: const TextStyle(color: Colors.grey),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderSide: const BorderSide(color: Colors.orange),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  const Text(
+                    'Número máximo de Jogadores (opcional):',
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 16,
+                      color: Colors.black,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  TextField(
+                    controller: maxJogadoresController,
+                    keyboardType: TextInputType.number,
+                    decoration: InputDecoration(
+                      hintText: 'Ex: 10',
+                      hintStyle: const TextStyle(color: Colors.grey),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderSide: const BorderSide(color: Colors.orange),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  const Text(
+                    'Duração da Partida (opcional):',
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 16,
+                      color: Colors.black,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  TextField(
+                    controller: duracaoController,
+                    keyboardType: TextInputType.number,
+                    decoration: InputDecoration(
+                      hintText: 'Ex: 60 minutos',
+                      hintStyle: const TextStyle(color: Colors.grey),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderSide: const BorderSide(color: Colors.orange),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  const SizedBox(height: 8),
+                  // Checkbox para marcar resultado
+                  Row(
+                    children: [
+                      Checkbox(
+                        value: checked,
+                        onChanged: (value) {
+                          setState(() {
+                            checked = value ?? false;
+                          });
+                        },
+                        activeColor: Colors.orange,
+                      ),
+                      const Text(
+                        'Marcar resultado da partida',
+                        style: TextStyle(
+                          color: Colors.black,
+                          fontSize: 16,
+                        ),
+                      ),
+                    ],
                   ),
                 ],
               ),
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(),
+                child: const Text(
+                  'Cancelar',
+                  style: TextStyle(
+                    color: Colors.orange,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+              ElevatedButton(
+                onPressed: () {
+                  if (maxJogadoresController.text.isEmpty) {
+                    maxJogadoresController.text = '0';
+                  }
+                  if (minJogadoresController.text.isEmpty) {
+                    minJogadoresController.text = '0';
+                  }
+                  if (duracaoController.text.isEmpty) {
+                    duracaoController.text = '0';
+                  }
+                  Navigator.of(context).pop();
+                  _startMatch(
+                    widget.campo as CampoPub,
+                    int.parse(maxJogadoresController.text),
+                    int.parse(minJogadoresController.text),
+                    double.parse(duracaoController.text),
+                    checked,
+                  );
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.orange,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                ),
+                child: const Text(
+                  'Confirmar',
+                  style: TextStyle(
+                    color: Colors.black,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
             ],
-          ),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(),
-            child: const Text(
-              'Cancelar',
-              style: TextStyle(
-                color: Colors.orange, // Botão laranja
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-          ),
-          ElevatedButton(
-            onPressed: () {
-              if (maxJogadoresController.text.isEmpty) {
-                maxJogadoresController.text = '0';
-              } 
-              if (minJogadoresController.text.isEmpty) {
-                minJogadoresController.text = '0';
-              } 
-              if (duracaoController.text.isEmpty) {
-                duracaoController.text = '0';
-              }
-
-              // Confirmar informações e redirecionar para a página da partida
-              Navigator.of(context).pop();
-              _startMatch(
-                widget.campo as CampoPub, // Usa o campo atual
-                int.parse(maxJogadoresController.text),
-                int.parse(minJogadoresController.text),
-                double.parse(duracaoController.text),
-                checked,
-              );
-            },
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.orange, // Botão laranja
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(8),
-              ),
-            ),
-            child: const Text(
-              'Confirmar',
-              style: TextStyle(
-                color: Colors.black, // Texto preto
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-          ),
-        ],
+          );
+        },
       );
     },
   );
 }
 
-  void _startMatch(CampoPub campoSelecionado, int maxJogadores, int minJogadores, double duracaoController, bool checked) {
-  setState(() {
-    String resultado = ''; // Definir resultado padrão
-    if (checked) {
-      resultado = '0-0';
-    }
-    campoSelecionado.ocupado = true; // Atualizar o estado do campo para ocupado
-    campoSelecionado.partidaEmCurso = true; // Atualizar o estado da partida
-    campoSelecionado.partida = Partida(
-      id: DateTime.now().millisecondsSinceEpoch,
-      resultado: resultado,
-      campo: campoSelecionado,
-      duracao: duracaoController,
-      data: DateTime.now(),
-      hora: TimeOfDay.now(),
-      estado: EstadoPartida.aguardando,
-      jogadores: [Provider.of<UserProvider>(context, listen: false).user as Jogador],
-      tipo: TipoPartida.publica,
-      numeroJogadoresMaximo: maxJogadores,
-      numeroJogadoresMinimo: minJogadores,
+  void _startMatch(
+    CampoPub campoSelecionado,
+    int maxJogadores,
+    int minJogadores,
+    double duracaoController,
+    bool checked,
+  ) {
+    setState(() {
+      String resultado = ''; // Definir resultado padrão
+      if (checked) {
+        resultado = '0-0';
+      }
+      campoSelecionado.ocupado = true; // Atualizar o estado do campo para ocupado
+      campoSelecionado.partidaEmCurso = true; // Atualizar o estado da partida
+      campoSelecionado.partida = Partida(
+        id: DateTime.now().millisecondsSinceEpoch,
+        resultado: resultado,
+        campo: campoSelecionado,
+        duracao: duracaoController,
+        data: DateTime.now(),
+        hora: TimeOfDay.now(),
+        estado: EstadoPartida.aguardando,
+        jogadores: [Provider.of<UserProvider>(context, listen: false).user as Jogador],
+        tipo: TipoPartida.publica,
+        numeroJogadoresMaximo: maxJogadores,
+        numeroJogadoresMinimo: minJogadores,
+      );
+    });
+
+    // SNACKBAR: Partida iniciada com sucesso!
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(
+          'Partida iniciada no campo ${campoSelecionado.nome}!', // Mensagem personalizada
+        ),
+        backgroundColor: Colors.green,
+      ),
     );
-  });
 
-  // Exibir mensagem de sucesso
-  ScaffoldMessenger.of(context).showSnackBar(
-    SnackBar(
-      content: Text(
-        'Partida iniciada no campo ${campoSelecionado.nome}!',
+    // Redirecionar para a página do proprietário da partida
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => PartidaOwnerPage(
+          partida: campoSelecionado.partida!,
+        ),
       ),
-    ),
-  );
-
-  // Redirecionar para a página do proprietário da partida
-  Navigator.push(
-    context,
-    MaterialPageRoute(
-      builder: (context) => PartidaOwnerPage(
-        partida: campoSelecionado.partida!,
-      ),
-    ),
-  );
-}
+    );
+  }
 
   String _getNomeCliente(int idCliente) {
     for (var user in mockUsers.values) {
@@ -721,13 +756,22 @@ class _CampoDetailsState extends State<CampoDetails> {
 
   return Center(
     child: SizedBox(
-      width: double.infinity, // O botão ocupará toda a largura disponível
+      width: double.infinity,
       child: ElevatedButton(
         onPressed: () {
           if (estadoAguardando || (estadoEmAndamento && !jogadoresMaximosAtingidos)) {
             // Redirecionar para a página da partida existente
             campoPub.partida!.jogadores!.add(Provider.of<UserProvider>(context, listen: false).user as Jogador);
             (Provider.of<UserProvider>(context, listen: false).user! as Jogador).partidas.add(campoPub.partida!);
+
+            // SNACKBAR: Entrou na partida
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content: Text('Entraste na partida!'),
+                backgroundColor: Colors.green,
+              ),
+            );
+
             Navigator.push(
               context,
               MaterialPageRoute(
@@ -740,10 +784,11 @@ class _CampoDetailsState extends State<CampoDetails> {
             // Abrir popup para configurar e iniciar uma nova partida
             _showStartMatchPopup();
           } else {
-            // Exibir mensagem de erro se os jogadores máximos forem atingidos
+            // SNACKBAR: Erro ao entrar (limite de jogadores)
             ScaffoldMessenger.of(context).showSnackBar(
               const SnackBar(
                 content: Text('O número máximo de jogadores foi atingido.'),
+                backgroundColor: Colors.red,
               ),
             );
           }
@@ -808,5 +853,5 @@ String _getEstadoPartida(CampoPub campoPub) {
     }
   }
   return 'Estado não disponível';
-}
+  }
 }

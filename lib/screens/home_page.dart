@@ -6,7 +6,6 @@ import 'package:sports_link/models/jogador.dart';
 import 'package:sports_link/screens/main_page_1.dart';
 import 'package:sports_link/styles/carouselbg.dart';
 import 'package:sports_link/styles/styles_btn.dart';
-import 'package:sports_link/utils/register_validate.dart';
 import 'package:intl_phone_number_input/intl_phone_number_input.dart';
 
 // Página Inicial
@@ -47,9 +46,9 @@ class HomePage extends StatelessWidget {
                     decorationStyle: TextDecorationStyle.solid,
                     shadows: [
                       Shadow(
-                        blurRadius: 1.0, // Desfoque do contorno
-                        offset: Offset(2.0, 2.0), // Deslocamento do contorno
-                        color: Color.fromARGB(200, 0, 0, 0), // Cor do contorno
+                        blurRadius: 1.0,
+                        offset: Offset(2.0, 2.0),
+                        color: Color.fromARGB(200, 0, 0, 0),
                       ),
                     ],
                   ),
@@ -384,8 +383,13 @@ class RegisterPageState extends State<RegisterPage> {
   final TextEditingController emailController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
   final TextEditingController phoneController = TextEditingController();
+  final TextEditingController anoNascimentoController = TextEditingController();
 
+  String selectedCountry = 'Portugal';
   String selectedCountryCode = 'PT';
+  PhoneNumber phoneNumber = PhoneNumber(isoCode: 'PT');
+  String parsedPhone = '';
+  DateTime? dataNascimento;
 
   final Map<String, String> countryCodes = {
     'Portugal': 'PT',
@@ -396,6 +400,7 @@ class RegisterPageState extends State<RegisterPage> {
 
   void updatePhoneNumberSelector(String country) {
     setState(() {
+      selectedCountry = country;
       selectedCountryCode = countryCodes[country] ?? 'PT';
     });
   }
@@ -477,7 +482,7 @@ class RegisterPageState extends State<RegisterPage> {
                       // Nacionalidade
                       DropdownButtonFormField<String>(
                         decoration: inputDecoration(labelText: 'Nacionalidade'),
-                        value: 'Portugal',
+                        value: selectedCountry,
                         icon: const Icon(Icons.arrow_drop_down, color: Colors.white),
                         items: countryCodes.keys.map((String value) {
                           return DropdownMenuItem<String>(
@@ -487,30 +492,59 @@ class RegisterPageState extends State<RegisterPage> {
                         }).toList(),
                         onChanged: (String? newValue) {
                           updatePhoneNumberSelector(newValue!);
-                          phoneController.clear(); 
+                          phoneController.clear();
                         },
                         dropdownColor: const Color.fromARGB(150, 6, 6, 6),
                         style: const TextStyle(color: Colors.white, fontSize: 16),
                       ),
                       const SizedBox(height: 10),
 
-                      // Telemóvel
+                      // Telemóvel com intl_phone_number_input
                       InternationalPhoneNumberInput(
                         onInputChanged: (PhoneNumber number) {
-                          phoneController.text = number.phoneNumber ?? '';
+                          parsedPhone = number.phoneNumber ?? '';
                         },
-                        initialValue: PhoneNumber(isoCode: selectedCountryCode),
+                        initialValue: phoneNumber,
                         selectorConfig: const SelectorConfig(
-                          selectorType: PhoneInputSelectorType.DIALOG,
+                          selectorType: PhoneInputSelectorType.DROPDOWN,
                         ),
                         selectorTextStyle: const TextStyle(color: Colors.white),
-                        inputDecoration: inputDecoration(
-                          labelText: 'Número de Telemóvel',
-                        ),
+                        inputDecoration: inputDecoration(labelText: 'Número de Telemóvel'),
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return 'Por favor, insira o seu número de telemóvel';
+                          }
+                          // Validação simples: pelo menos 9 dígitos
+                          final digits = value.replaceAll(RegExp(r'\D'), '');
+                          if (digits.length < 9) {
+                            return 'Número de telemóvel inválido';
+                          }
+                          return null;
+                        },
+                        textStyle: const TextStyle(color: Colors.white),
+                        keyboardType: TextInputType.phone,
+                        autoValidateMode: AutovalidateMode.onUserInteraction,
+                      ),
+                      const SizedBox(height: 10),
+
+                      // Ano de Nascimento
+                      TextFormField(
+                        controller: anoNascimentoController,
+                        decoration: inputDecoration(labelText: 'Ano de Nascimento'),
+                        keyboardType: TextInputType.number,
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return 'Por favor, insira o ano de nascimento';
+                          }
+                          final ano = int.tryParse(value);
+                          final anoAtual = DateTime.now().year;
+                          if (ano == null || ano < 1900 || ano > anoAtual) {
+                            return 'Ano inválido';
+                          }
+                          return null;
+                        },
                         cursorColor: Colors.white,
-                        textStyle: const TextStyle(
-                          color: Colors.white,
-                        ), // <- torna o texto branco
+                        style: const TextStyle(color: Colors.white),
                       ),
                       const SizedBox(height: 10),
 
@@ -522,6 +556,9 @@ class RegisterPageState extends State<RegisterPage> {
                         validator: (value) {
                           if (value == null || value.isEmpty) {
                             return 'Por favor, insira uma password';
+                          }
+                          if (value.length < 6) {
+                            return 'A password deve ter pelo menos 6 caracteres';
                           }
                           return null;
                         },
@@ -539,7 +576,11 @@ class RegisterPageState extends State<RegisterPage> {
                               nameController,
                               emailController,
                               passwordController,
+                              phoneController,
+                              anoNascimentoController, // passa o controller do ano
+                              selectedCountry,
                               _formKey,
+                              parsedPhone: parsedPhone,
                             );
                           }
                         },
@@ -581,7 +622,6 @@ class RegisterPageState extends State<RegisterPage> {
           ),
         ],
       ),
-      
       bottomNavigationBar: Container(
         color: Colors.transparent,
         child: const BottomAppBar(
@@ -611,6 +651,81 @@ class RegisterPageState extends State<RegisterPage> {
           ),
         ),
       ),
+    );
+  }
+}
+
+class RegisterValidate {
+  void handleRegister(
+    BuildContext context,
+    TextEditingController nameController,
+    TextEditingController emailController,
+    TextEditingController passwordController,
+    TextEditingController phoneController,
+    TextEditingController anoNascimentoController, // agora recebe o controller do ano
+    String selectedNationality,
+    GlobalKey<FormState> formKey,
+    {String? parsedPhone}
+  ) {
+    final name = nameController.text.trim();
+    final email = emailController.text.trim();
+    final password = passwordController.text;
+    final phone = (parsedPhone ?? phoneController.text.trim());
+    final nacionalidade = selectedNationality;
+    final anoNascimento = int.tryParse(anoNascimentoController.text.trim());
+
+    // Validação extra para garantir que o número é válido
+    final digits = phone.replaceAll(RegExp(r'\D'), '');
+    if (digits.length < 9) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Número de telemóvel inválido!'),
+          backgroundColor: Colors.red,
+        ),
+      );
+      return;
+    }
+
+    if (anoNascimento == null || anoNascimento < 1900 || anoNascimento > DateTime.now().year) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Por favor, insira um ano de nascimento válido!'),
+          backgroundColor: Colors.red,
+        ),
+      );
+      return;
+    }
+
+    final newId = mockUsers.keys.isEmpty ? 1 : (mockUsers.keys.reduce((a, b) => a > b ? a : b) + 1);
+
+    final novoJogador = Jogador(
+      id: newId,
+      nome: name,
+      email: email,
+      numTele: int.tryParse(digits) ?? 0,
+      password: password,
+      nacionalidade: nacionalidade,
+      idade: DateTime.now().year - anoNascimento,
+      isInPartida: false,
+      isOnline: false,
+      descricao: '',
+      utilizador: name,
+      createDate: DateTime.now(),
+      nivel: 1,
+    );
+
+    mockUsers[newId] = novoJogador;
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('Registo efetuado com sucesso!'),
+        backgroundColor: Colors.green,
+      ),
+    );
+
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(builder: (context) => const LoginPage()),
     );
   }
 }

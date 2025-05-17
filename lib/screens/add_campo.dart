@@ -17,7 +17,7 @@ class AddCampo extends StatefulWidget {
 
 class _AddCampoState extends State<AddCampo> {
   final TextEditingController campoNameController = TextEditingController();
-  final TextEditingController campoPriceController = TextEditingController();
+  final TextEditingController campoENTController = TextEditingController();
   final TextEditingController campoDescriptionController = TextEditingController();
   final TextEditingController latitudeController = TextEditingController();
   final TextEditingController longitudeController = TextEditingController();
@@ -77,7 +77,7 @@ class _AddCampoState extends State<AddCampo> {
       id: DateTime.now().millisecondsSinceEpoch, // Gerar um ID único
       nome: campoNameController.text,
       ponto: novoPonto,
-      entidadePublicaResp: campoPriceController.text,
+      entidadePublicaResp: campoENTController.text,
       descricao: campoDescriptionController.text,
       ocupado: false,
       idPonto: novoPonto.id,
@@ -109,6 +109,10 @@ class _AddCampoState extends State<AddCampo> {
           ],
         );
       },
+    );
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Campo adicionado com sucesso!')),
     );
   }
 
@@ -197,7 +201,7 @@ class _AddCampoState extends State<AddCampo> {
                         ),
                         const SizedBox(height: 16),
                         TextField(
-                          controller: campoPriceController,
+                          controller: campoENTController,
                           decoration: InputDecoration(
                             labelText: 'Entidade Pública Responsável',
                             labelStyle: const TextStyle(

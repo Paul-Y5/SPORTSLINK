@@ -55,11 +55,23 @@ class _PartidaOwnerPageState extends State<PartidaOwnerPage> {
   void _encerrarPartida() {
     setState(() {
       widget.partida.estado = EstadoPartida.terminada;
+      // Remover a partida do campo
+      widget.partida.campo.partida = null;
+      widget.partida.campo.ocupado = false;
+
+      // Adicionar ao histórico de todos os jogadores da partida
+      if (widget.partida.jogadores != null) {
+        for (var jogador in widget.partida.jogadores!) {
+          if (!jogador.partidas.contains(widget.partida)) {
+            jogador.adicionarPartida(widget.partida);
+          }
+        }
+      }
     });
 
-    ScaffoldMessenger.of(
-      context,
-    ).showSnackBar(const SnackBar(content: Text('Partida encerrada!')));
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Partida encerrada!')),
+    );
 
     Navigator.pop(context);
   }
@@ -67,11 +79,21 @@ class _PartidaOwnerPageState extends State<PartidaOwnerPage> {
   @override
   Widget build(BuildContext context) {
     final partida = widget.partida;
+    final infoStyle = TextStyle(fontSize: 16, color: Colors.grey[800]);
+    final labelStyle = TextStyle(
+        fontSize: 14,
+        color: Colors.orange[700],
+        fontWeight: FontWeight.w500);
 
     return Scaffold(
       extendBodyBehindAppBar: true,
       appBar: AppBar(
-        title: const Text('Gerenciar Partida'),
+        title: const Text('Partida Detalhes'),
+        centerTitle: true,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () => Navigator.pop(context),
+        ),
         backgroundColor: Colors.orange[400],
         elevation: 0,
       ),
@@ -79,212 +101,242 @@ class _PartidaOwnerPageState extends State<PartidaOwnerPage> {
         children: [
           const Carouselbg(),
           SingleChildScrollView(
-            padding: const EdgeInsets.all(16.0),
+            padding:
+                const EdgeInsets.fromLTRB(16, 32 + kToolbarHeight, 16, 16),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Informações gerais da partida
+                // Card informações gerais
                 Card(
-                  elevation: 4,
+                  elevation: 6,
                   shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(16),
+                    borderRadius: BorderRadius.circular(18),
                   ),
                   child: Padding(
-                    padding: const EdgeInsets.all(16),
+                    padding: const EdgeInsets.symmetric(
+                        vertical: 18, horizontal: 16),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(
-                          'Campo: ${partida.campo.nome}',
-                          style: const TextStyle(
-                            fontSize: 20,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.orange,
-                          ),
-                        ),
-                        const SizedBox(height: 8),
-                        Text(
-                          'Estado: ${_getEstadoPartida(partida)}',
-                          style: TextStyle(
-                            fontSize: 16,
-                            color: partida.estado == EstadoPartida.terminada
-                                ? Colors.red
-                                : Colors.black,
-                          ),
-                        ),
-                        const SizedBox(height: 8),
-                        Text(
-                          'Jogadores: ${partida.jogadores?.length ?? 0}/${partida.numeroJogadoresMaximo ?? 'N/A'}',
-                          style: const TextStyle(fontSize: 16),
-                        ),
-                        const SizedBox(height: 8),
-                        Text(
-                          'Data: ${partida.data.day}/${partida.data.month}/${partida.data.year}',
-                          style: const TextStyle(fontSize: 16),
-                        ),
-                        const SizedBox(height: 8),
-                        Text(
-                          'Hora: ${partida.hora.format(context)}',
-                          style: const TextStyle(fontSize: 16),
-                        ),
-                        const SizedBox(height: 8),
-                        Text(
-                          'Duração: ${partida.duracao?.toStringAsFixed(0) ?? 'N/A'} minutos',
-                          style: const TextStyle(fontSize: 16),
-                        ),
-                        const SizedBox(height: 8),
-                        Text(
-                          'Resultado: ${partida.resultado ?? 'N/A'}',
-                          style: const TextStyle(fontSize: 16),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 16),
-
-                // Número mínimo de jogadores
-                Card(
-                  elevation: 4,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(16),
-                  ),
-                  child: Padding(
-                    padding: const EdgeInsets.all(16),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const Text(
-                          'Número Mínimo de Jogadores',
-                          style: TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.orange,
-                          ),
-                        ),
-                        const SizedBox(height: 8),
-                        TextField(
-                          controller: _minJogadoresController,
-                          keyboardType: TextInputType.number,
-                          decoration: InputDecoration(
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(12),
+                        Row(
+                          children: [
+                            Icon(Icons.sports_soccer,
+                                color: Colors.orange[700], size: 28),
+                            const SizedBox(width: 10),
+                            Expanded(
+                              child: Text(
+                                partida.campo.nome,
+                                style: TextStyle(
+                                  fontSize: 22,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.orange[800],
+                                ),
+                              ),
                             ),
-                            hintText: 'Digite o número mínimo de jogadores',
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 16),
-
-                // Número máximo de jogadores
-                Card(
-                  elevation: 4,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(16),
-                  ),
-                  child: Padding(
-                    padding: const EdgeInsets.all(16),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const Text(
-                          'Número Máximo de Jogadores',
-                          style: TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.orange,
-                          ),
-                        ),
-                        const SizedBox(height: 8),
-                        TextField(
-                          controller: _maxJogadoresController,
-                          keyboardType: TextInputType.number,
-                          decoration: InputDecoration(
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(12),
+                            Container(
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 12, vertical: 6),
+                              decoration: BoxDecoration(
+                                color: _getEstadoColor(partida),
+                                borderRadius: BorderRadius.circular(16),
+                              ),
+                              child: Text(
+                                _getEstadoPartida(partida),
+                                style: const TextStyle(
+                                  fontSize: 13,
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
                             ),
-                            hintText: 'Digite o número máximo de jogadores',
+                          ],
+                        ),
+                        const Divider(height: 28, thickness: 1.2),
+                        ListTile(
+                          dense: true,
+                          leading:
+                              const Icon(Icons.people_alt_outlined, color: Colors.orange),
+                          title: Text('Jogadores', style: labelStyle),
+                          subtitle: Text(
+                            '${partida.jogadores?.length ?? 0} / ${partida.numeroJogadoresMaximo ?? 'N/A'}',
+                            style: infoStyle,
+                          ),
+                        ),
+                        ListTile(
+                          dense: true,
+                          leading: const Icon(Icons.calendar_today, color: Colors.orange),
+                          title: Text('Data', style: labelStyle),
+                          subtitle: Text(
+                            '${partida.data.day.toString().padLeft(2, '0')}/${partida.data.month.toString().padLeft(2, '0')}/${partida.data.year}',
+                            style: infoStyle,
+                          ),
+                        ),
+                        ListTile(
+                          dense: true,
+                          leading: const Icon(Icons.access_time, color: Colors.orange),
+                          title: Text('Hora', style: labelStyle),
+                          subtitle: Text(
+                            partida.hora.format(context),
+                            style: infoStyle,
+                          ),
+                        ),
+                        ListTile(
+                          dense: true,
+                          leading: const Icon(Icons.timer, color: Colors.orange),
+                          title: Text('Duração', style: labelStyle),
+                          subtitle: Text(
+                            '${partida.duracao?.toStringAsFixed(0) ?? 'N/A'} minutos',
+                            style: infoStyle,
+                          ),
+                        ),
+                        ListTile(
+                          dense: true,
+                          leading: const Icon(Icons.emoji_events, color: Colors.orange),
+                          title: Text('Resultado', style: labelStyle),
+                          subtitle: Text(
+                            partida.resultado?.isNotEmpty == true
+                                ? partida.resultado!
+                                : 'N/A',
+                            style: infoStyle,
                           ),
                         ),
                       ],
                     ),
                   ),
                 ),
-                const SizedBox(height: 16),
+                const SizedBox(height: 20),
 
-                // Resultado da partida
+                // Card edição de jogadores
                 Card(
                   elevation: 4,
                   shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(16),
+                    borderRadius: BorderRadius.circular(14),
                   ),
                   child: Padding(
-                    padding: const EdgeInsets.all(16),
+                    padding: const EdgeInsets.all(14),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Text(
+                        Text(
+                          'Editar Jogadores',
+                          style: TextStyle(
+                            fontSize: 17,
+                            fontWeight: FontWeight.w600,
+                            color: Colors.orange[700],
+                          ),
+                        ),
+                        const SizedBox(height: 10),
+                        Row(
+                          children: [
+                            Expanded(
+                              child: TextField(
+                                controller: _minJogadoresController,
+                                keyboardType: TextInputType.number,
+                                decoration: InputDecoration(
+                                  labelText: 'Mínimo',
+                                  border: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(10),
+                                  ),
+                                ),
+                              ),
+                            ),
+                            const SizedBox(width: 12),
+                            Expanded(
+                              child: TextField(
+                                controller: _maxJogadoresController,
+                                keyboardType: TextInputType.number,
+                                decoration: InputDecoration(
+                                  labelText: 'Máximo',
+                                  border: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(10),
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+
+                const SizedBox(height: 20),
+
+                // Card edição do resultado
+                Card(
+                  elevation: 4,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(14),
+                  ),
+                  child: Padding(
+                    padding: const EdgeInsets.all(14),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
                           'Resultado da Partida',
                           style: TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.orange,
+                            fontSize: 17,
+                            fontWeight: FontWeight.w600,
+                            color: Colors.orange[700],
                           ),
                         ),
-                        const SizedBox(height: 8),
+                        const SizedBox(height: 10),
                         TextField(
                           controller: _resultadoController,
                           decoration: InputDecoration(
+                            labelText: 'Resultado',
                             border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(12),
+                              borderRadius: BorderRadius.circular(10),
                             ),
-                            hintText: 'Digite o resultado da partida',
                           ),
                         ),
                       ],
                     ),
                   ),
                 ),
-                const SizedBox(height: 16),
 
-                // Botões de ação
+                const SizedBox(height: 30),
+
+                // Botões
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: [
-                    ElevatedButton(
+                    ElevatedButton.icon(
                       onPressed: _atualizarPartida,
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.orange,
                         padding: const EdgeInsets.symmetric(
                           vertical: 12,
-                          horizontal: 24,
+                          horizontal: 28,
                         ),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(12),
                         ),
+                        elevation: 4,
                       ),
-                      child: const Text(
+                      icon: const Icon(Icons.save, color: Colors.black),
+                      label: const Text(
                         'Atualizar',
                         style: TextStyle(fontSize: 16, color: Colors.black),
                       ),
                     ),
-                    ElevatedButton(
+                    ElevatedButton.icon(
                       onPressed: _encerrarPartida,
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.red,
                         padding: const EdgeInsets.symmetric(
                           vertical: 12,
-                          horizontal: 24,
+                          horizontal: 28,
                         ),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(12),
                         ),
+                        elevation: 4,
                       ),
-                      child: const Text(
-                        'Encerrar Partida',
+                      icon: const Icon(Icons.stop_circle, color: Colors.white),
+                      label: const Text(
+                        'Encerrar',
                         style: TextStyle(fontSize: 16, color: Colors.white),
                       ),
                     ),
@@ -301,7 +353,7 @@ class _PartidaOwnerPageState extends State<PartidaOwnerPage> {
   String _getEstadoPartida(Partida partida) {
     switch (partida.estado) {
       case EstadoPartida.aguardando:
-        return 'Aguardando jogadores';
+        return 'Aguardando';
       case EstadoPartida.emAndamento:
         return 'Em andamento';
       case EstadoPartida.terminada:
@@ -309,7 +361,22 @@ class _PartidaOwnerPageState extends State<PartidaOwnerPage> {
       case EstadoPartida.cancelada:
         return 'Cancelada';
       default:
-        return 'Estado desconhecido';
+        return 'Desconhecido';
+    }
+  }
+
+  Color _getEstadoColor(Partida partida) {
+    switch (partida.estado) {
+      case EstadoPartida.aguardando:
+        return Colors.blueAccent;
+      case EstadoPartida.emAndamento:
+        return Colors.orange;
+      case EstadoPartida.terminada:
+        return Colors.red;
+      case EstadoPartida.cancelada:
+        return Colors.grey;
+      default:
+        return Colors.black26;
     }
   }
 }
