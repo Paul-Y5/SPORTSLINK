@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:sports_link/controllers/user_provider.dart';
+import 'package:sports_link/models/campo.dart';
+import 'package:sports_link/models/campo_priv.dart';
 import 'package:sports_link/models/jogador.dart';
 import 'package:sports_link/models/partida.dart';
 
@@ -123,36 +125,79 @@ class _ListaPartidasPageState extends State<ListaPartidasPage> {
 }
 
 // Exemplo de uma página de detalhes da partida
-class PartidaDetalhesPage extends StatelessWidget {
+class PartidaDetalhesPage extends StatefulWidget {
   final Partida partida;
 
   const PartidaDetalhesPage({super.key, required this.partida});
 
   @override
+  State<PartidaDetalhesPage> createState() => _PartidaDetalhesPageState();
+}
+
+class _PartidaDetalhesPageState extends State<PartidaDetalhesPage> {
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Detalhes da Partida ${partida.id}'),
+        title: Text('Detalhes da Partida ${widget.partida.id}'),
         backgroundColor: Colors.orange,
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              'Campo: ${partida.campo.nome}',
-              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 8),
-            Text('Data: ${partida.data.toLocal()}'),
-            Text('Hora: ${partida.hora.format(context)}'),
-            const SizedBox(height: 16),
-            Text(
-              'Estado: ${partida.estado.name}',
-              style: const TextStyle(fontSize: 16),
-            ),
-          ],
+      body: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'Campo: ${widget.partida.campo.nome}',
+                style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              ),
+              const SizedBox(height: 8),
+              Text('Data: ${widget.partida.data.toLocal()}'),
+              Text('Hora: ${widget.partida.hora.format(context)}'),
+              const SizedBox(height: 16),
+              Text(
+                'Estado: ${widget.partida.estado.name}',
+                style: const TextStyle(fontSize: 16),
+              ),
+              const Spacer(),
+              if (widget.partida.estado != EstadoPartida.cancelada &&
+                  widget.partida.estado != EstadoPartida.terminada)
+                SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.red,
+                    ),
+                    onPressed: () {
+                      setState(() {
+                        (Provider.of<UserProvider>(context, listen: false)
+                            .user as Jogador).partidas
+                            .removeWhere((partida) => partida.id == widget.partida.id);
+                        Campo campo = widget.partida.campo;
+                        if (campo is CampoPriv) {
+                          campo.reservas.removeWhere(
+                            (reserva, _) => reserva == widget.partida.data,
+                          );
+                        }
+                        widget.partida.estado = EstadoPartida.cancelada;
+                      });
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text('Reserva cancelada com sucesso!'),
+                          backgroundColor: Colors.red,
+                        ),
+                      );
+                      Navigator.pop(context); // Volta à lista após cancelar, se quiseres
+                    },
+                    child: const Text(
+                      'Cancelar Reserva',
+                      style: TextStyle(color: Colors.white),
+                    ),
+                  ),
+                ),
+            ],
+          ),
         ),
       ),
     );

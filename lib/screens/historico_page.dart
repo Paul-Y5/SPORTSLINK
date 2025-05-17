@@ -32,7 +32,7 @@ class HistoricoPage extends StatelessWidget {
           historicoPartidas.isEmpty
               ? const Center(
                   child: Text(
-                    'Nenhuma partida finalizada ou cancelada encontrada.',
+                    'Nenhuma partida encontrada.',
                     style: TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.bold,
