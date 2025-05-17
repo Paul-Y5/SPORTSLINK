@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:sports_link/controllers/controller_dropdown.dart' as dpd;
 import 'package:sports_link/data/mock_data.dart';
 import 'package:sports_link/models/desportos.dart';
 import 'package:sports_link/models/jogador.dart';
 import 'package:sports_link/controllers/user_provider.dart';
 import 'package:sports_link/styles/carouselbg.dart';
+import 'package:sports_link/styles/custom_appbar.dart';
 
 class ListAmigosPage extends StatefulWidget {
   const ListAmigosPage({super.key});
@@ -14,6 +16,8 @@ class ListAmigosPage extends StatefulWidget {
 }
 
 class _ListAmigosPageState extends State<ListAmigosPage> {
+  final GlobalKey notificationButtonKey = GlobalKey();
+
   void _adicionarAmigo(BuildContext context) {
     final TextEditingController idController = TextEditingController();
 
@@ -99,37 +103,36 @@ class _ListAmigosPageState extends State<ListAmigosPage> {
 
   @override
   Widget build(BuildContext context) {
-    // Obter o usuário atual e a lista de amigos
     final currentUser = Provider.of<UserProvider>(context).user as Jogador;
     final amigos = currentUser.amigos;
 
     return Scaffold(
       extendBody: true,
       extendBodyBehindAppBar: true,
+      backgroundColor: Colors.transparent,
+      appBar: CustomAppBar(
+        notificationButtonKey: notificationButtonKey,
+        onNotificationPressed: (context) {
+         dpd.showNotificationDropdown(
+            context,
+            notificationButtonKey,
+            currentUser,
+          );
+        },
+        onMenuPressed: (context, items) {
+          dpd.toggleDropdownOverlay(context, items);
+        },
+      ),
       body: Stack(
         children: [
-          // Carousel no fundo
           const Carouselbg(),
-          // Conteúdo principal
-          Scaffold(
-            backgroundColor: Colors.transparent,
-            appBar: AppBar(
-              title: const Text('Lista de Amigos'),
-              backgroundColor: Colors.orange,
-              actions: [
-                IconButton(
-                  icon: const Icon(Icons.person_add),
-                  onPressed: () {
-                    _adicionarAmigo(context);
-                  },
-                ),
-              ],
-            ),
-            body: amigos.isEmpty
+          Padding(
+            padding: const EdgeInsets.only(top: 80), // espaço para a appbar custom
+            child: amigos.isEmpty
                 ? const Center(
                     child: Text(
                       'Ainda não tens amigos.',
-                      style: TextStyle(fontSize: 16, color: Colors.black54),
+                      style: TextStyle(fontSize: 16, color: Colors.black),
                     ),
                   )
                 : ListView.builder(
@@ -159,7 +162,6 @@ class _ListAmigosPageState extends State<ListAmigosPage> {
                           subtitle: Text('Nível: ${amigo.id}'),
                           trailing: ElevatedButton(
                             onPressed: () {
-                              // Lógica para navegar para a página de perfil do amigo
                               Navigator.push(
                                 context,
                                 MaterialPageRoute(
@@ -185,6 +187,11 @@ class _ListAmigosPageState extends State<ListAmigosPage> {
                   ),
           ),
         ],
+      ),
+      floatingActionButton: FloatingActionButton(
+        backgroundColor: Colors.orange,
+        onPressed: () => _adicionarAmigo(context),
+        child: const Icon(Icons.person_add, color: Colors.black),
       ),
     );
   }

@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:provider/provider.dart';
-import 'package:geolocator/geolocator.dart'; // Import necessário para localização
+import 'package:geolocator/geolocator.dart';
+import 'package:sports_link/controllers/controller_dropdown.dart' as dpd;
 import 'package:sports_link/data/mock_data.dart';
 import 'package:sports_link/models/arrendador.dart';
 import 'package:sports_link/models/campo_priv.dart';
@@ -9,6 +10,8 @@ import 'package:sports_link/models/desportos.dart';
 import 'package:sports_link/models/ponto.dart';
 import 'package:sports_link/screens/campo_details.dart';
 import 'package:sports_link/controllers/user_provider.dart';
+import 'package:sports_link/styles/carouselbg.dart';
+import 'package:sports_link/styles/custom_appbar.dart';
 import 'package:sports_link/utils/abrir_mapa.dart';
 
 class ArrCamposList extends StatefulWidget {
@@ -21,6 +24,7 @@ class ArrCamposList extends StatefulWidget {
 class _ArrCamposListState extends State<ArrCamposList> {
   LatLng? selectedLocation;
   final List<Desportos> desportosSelecionados = [];
+  final GlobalKey notificationButtonKey = GlobalKey();
 
   @override
   void initState() {
@@ -73,42 +77,139 @@ class _ArrCamposListState extends State<ArrCamposList> {
     final List<CampoPriv> camposAssociados = currentUser.camposPrivados;
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Meus Campos'),
-        backgroundColor: Colors.orange,
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.add),
-            onPressed: () {
-              final nomeController = TextEditingController();
-              final precoController = TextEditingController();
-              final larguraController = TextEditingController();
-              final comprimentoController = TextEditingController();
-              final descricaoController = TextEditingController();
+      extendBody: true,
+      extendBodyBehindAppBar: true,
+      backgroundColor: Colors.transparent,
+      appBar: CustomAppBar(
+        notificationButtonKey: notificationButtonKey, // usa a key da tua classe
+        onNotificationPressed: (context) {
+          dpd.showNotificationDropdown(
+            context,
+            notificationButtonKey,
+            currentUser,
+          );
+        },
+        onMenuPressed: (context, items) {
+          dpd.toggleDropdownOverlay(context, items);
+        },
+      ),
+      body: Stack(
+        children: [
+          const Carouselbg(), // background animado
+          // O teu conteúdo original:
+          camposAssociados.isEmpty
+              ? const Center(
+                  child: Text(
+                    'Nenhum campo associado.',
+                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                  ),
+                )
+              : ListView.builder(
+                  itemCount: camposAssociados.length,
+                  itemBuilder: (context, index) {
+                    final campo = camposAssociados[index];
+                    return Card(
+                      margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      elevation: 2,
+                      child: ListTile(
+                        title: Text(
+                          campo.nome,
+                          style: const TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        subtitle: Text(
+                          'Preço: ${campo.preco.toStringAsFixed(2)}€/h\nDimensões: ${campo.comprimento}m x ${campo.largura}m',
+                        ),
+                        trailing: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            IconButton(
+                              icon: const Icon(Icons.info, color: Colors.blue),
+                              onPressed: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => CampoDetails(campo: campo),
+                                  ),
+                                );
+                              },
+                            ),
+                            IconButton(
+                              icon: const Icon(Icons.edit, color: Colors.orange),
+                              onPressed: () {
+                                _showEditCampoDialog(context, campo);
+                              },
+                            ),
+                          ],
+                        ),
+                      ),
+                    );
+                  },
+                ),
+        ],
+      ),
+      floatingActionButton: Container(
+        decoration: BoxDecoration(
+        color: Colors.orange,         // Cor de fundo da caixa
+        shape: BoxShape.circle,       // Caixa circular (opcional)
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black26,
+            blurRadius: 4,
+            offset: Offset(2, 2),
+          ),
+        ],
+      ),
+      padding: EdgeInsets.all(8),     // Espaço interno
+      child: IconButton(
+        icon: const Icon(Icons.add, color: Color.fromARGB(255, 0, 0, 0)),
+        tooltip: 'Adicionar Campo Privado',
+        iconSize: 40,
+        onPressed: () {
+          final nomeController = TextEditingController();
+          final precoController = TextEditingController();
+          final larguraController = TextEditingController();
+          final comprimentoController = TextEditingController();
+          final descricaoController = TextEditingController();
 
-              final Map<String, bool> diasSelecionados = {
-                'Segunda': false,
-                'Terça': false,
-                'Quarta': false,
-                'Quinta': false,
-                'Sexta': false,
-                'Sábado': false,
-                'Domingo': false,
-              };
+          final Map<String, bool> diasSelecionados = {
+            'Segunda': false,
+            'Terça': false,
+            'Quarta': false,
+            'Quinta': false,
+            'Sexta': false,
+            'Sábado': false,
+            'Domingo': false,
+          };
 
-              final Map<String, List<TimeOfDay>> horarios = {};
-              Ponto? pontoSelecionado;
+          final Map<String, List<TimeOfDay>> horarios = {};
+          Ponto? pontoSelecionado;
 
-              showDialog(
-                context: context,
-                builder: (BuildContext context) {
-                  return StatefulBuilder(
-                    builder: (context, setState) {
-                      return AlertDialog(
-                        title: const Text('Adicionar Campo Privado'),
-                        content: SingleChildScrollView(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
+          showDialog(
+            context: context,
+            builder: (BuildContext context) {
+              return StatefulBuilder(
+                builder: (context, setState) {
+                  return AlertDialog(
+                    title: const Text('Adicionar Campo Privado'),
+                    content: SingleChildScrollView(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          ExpansionTile(
+                            initiallyExpanded: false,
+                            title: const Text(
+                              'Informações do Campo',
+                              style: TextStyle(
+                                color: Colors.orange,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
                             children: [
                               TextField(
                                 controller: nomeController,
@@ -233,15 +334,20 @@ class _ArrCamposListState extends State<ArrCamposList> {
                                     MaterialPageRoute(
                                       builder:
                                           (_) => SelecionarLocalizacaoMapa(
-                                            initialLocation:
-                                                selectedLocation ??
-                                                LatLng(0.0, 0.0),
-                                          ),
+                                        initialLocation:
+                                            selectedLocation ??
+                                            LatLng(0.0, 0.0),
+                                      ),
                                     ),
                                   );
                                   if (ponto != null) {
                                     setState(() {
-                                      pontoSelecionado = Ponto(id: DateTime.timestamp().millisecondsSinceEpoch, idMapa: 0, latitude: selectedLocation!.latitude, longitude: selectedLocation!.longitude);
+                                      pontoSelecionado = Ponto(
+                                        id: DateTime.timestamp().millisecondsSinceEpoch,
+                                        idMapa: 0,
+                                        latitude: selectedLocation!.latitude,
+                                        longitude: selectedLocation!.longitude,
+                                      );
                                     });
                                   }
                                 },
@@ -255,165 +361,6 @@ class _ArrCamposListState extends State<ArrCamposList> {
                                       : 'Selecionar Localização',
                                   style: const TextStyle(color: Colors.black),
                                 ),
-                              ),
-                              const SizedBox(height: 16),
-                              const Text(
-                                'Dias de Funcionamento:',
-                                style: TextStyle(fontWeight: FontWeight.bold),
-                              ),
-                              const SizedBox(height: 8),
-                              Column(
-                                children:
-                                    diasSelecionados.entries.map((entry) {
-                                      final dia = entry.key;
-                                      final ativo = entry.value;
-                                      return Column(
-                                        crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                        children: [
-                                          CheckboxListTile(
-                                            title: Text(dia),
-                                            value: ativo,
-                                            activeColor:
-                                                Colors
-                                                    .orange,
-                                            checkColor:
-                                                const Color.fromARGB(255, 0, 0, 0),
-                                            onChanged: (bool? value) {
-                                              setState(() {
-                                                diasSelecionados[dia] = value!;
-                                                if (value) {
-                                                  horarios[dia] = [
-                                                    const TimeOfDay(
-                                                      hour: 9,
-                                                      minute: 0,
-                                                    ),
-                                                    const TimeOfDay(
-                                                      hour: 18,
-                                                      minute: 0,
-                                                    ),
-                                                  ];
-                                                } else {
-                                                  horarios.remove(dia);
-                                                }
-                                              });
-                                            },
-                                          ),
-                                          if (ativo)
-                                            Padding(
-                                              padding: const EdgeInsets.only(
-                                                left: 16.0,
-                                              ),
-                                              child: Row(
-                                                children: [
-                                                  TextButton(
-                                                    onPressed: () async {
-                                                      final novaHora =
-                                                          await showTimePicker(
-                                                            context: context,
-                                                            initialEntryMode: TimePickerEntryMode.input,
-                                                            initialTime: horarios[dia]![0],
-                                                            builder: (BuildContext context, Widget? child) {
-                                                              return Theme(
-                                                                data: Theme.of(context).copyWith(
-                                                                  timePickerTheme: TimePickerThemeData(
-                                                                    backgroundColor: Colors.white,
-                                                                    dialHandColor: Colors.orange,
-                                                                    hourMinuteTextColor: Colors.black,
-                                                                    entryModeIconColor: Colors.orange,
-                                                                    dayPeriodTextColor: Colors.orange,
-                                                                  ),
-                                                                  colorScheme: const ColorScheme.light(
-                                                                    primary: Colors.orange, // cor do botão "OK"
-                                                                    onSurface: Colors.black, // cor do texto
-                                                                  ),
-                                                                ), child: child!,
-                                                                );
-                                                              },
-                                                            );
-                                                      if (novaHora != null) {
-                                                        setState(() {
-                                                          horarios[dia]![0] =
-                                                              novaHora;
-                                                        });
-                                                      }
-                                                    },
-                                                    child: Text(
-                                                      'Início: ${horarios[dia]![0].format(context)}',
-                                                      style: const TextStyle(
-                                                        color: Colors.orange,
-                                                      ),
-                                                    ),
-                                                  ),
-                                                  TextButton(
-                                                    onPressed: () async {
-                                                      final novaHora =
-                                                          await showTimePicker(
-                                                        context: context,
-                                                        initialEntryMode:
-                                                            TimePickerEntryMode
-                                                                .input,
-                                                        initialTime:
-                                                            horarios[dia]![0],
-                                                        builder: (
-                                                          BuildContext context,
-                                                          Widget? child,
-                                                        ) {
-                                                          return Theme(
-                                                            data: Theme.of(
-                                                              context,
-                                                            ).copyWith(
-                                                              timePickerTheme: TimePickerThemeData(
-                                                                backgroundColor:
-                                                                    Colors
-                                                                        .white,
-                                                                dialHandColor:
-                                                                    Colors
-                                                                        .orange,
-                                                                hourMinuteTextColor:
-                                                                    Colors
-                                                                        .black,
-                                                                entryModeIconColor:
-                                                                    Colors
-                                                                        .orange,
-                                                                dayPeriodTextColor:
-                                                                    Colors
-                                                                        .orange,
-                                                              ),
-                                                              colorScheme:
-                                                                  const ColorScheme.light(
-                                                                    primary:
-                                                                        Colors
-                                                                            .orange, // cor do botão "OK"
-                                                                    onSurface:
-                                                                        Colors
-                                                                            .black, // cor do texto
-                                                                  ),
-                                                            ),
-                                                            child: child!,
-                                                          );
-                                                        },
-                                                      );
-                                                      if (novaHora != null) {
-                                                        setState(() {
-                                                          horarios[dia]![1] =
-                                                              novaHora;
-                                                        });
-                                                      }
-                                                    },
-                                                    child: Text(
-                                                      'Fim: ${horarios[dia]![1].format(context)}',
-                                                      style: const TextStyle(
-                                                        color: Colors.orange,
-                                                      ),
-                                                    ),
-                                                  ),
-                                                ],
-                                              ),
-                                            ),
-                                        ],
-                                      );
-                                    }).toList(),
                               ),
                               const SizedBox(height: 16),
                               const Text(
@@ -444,170 +391,247 @@ class _ArrCamposListState extends State<ArrCamposList> {
                               ),
                             ],
                           ),
-                        ),
-                        actions: [
-                          TextButton(
-                            onPressed: () => Navigator.pop(context),
-                            child: const Text(
-                              'Cancelar',
-                              style: TextStyle(color: Colors.red),
+                          const SizedBox(height: 12),
+                          ExpansionTile(
+                            initiallyExpanded: false,
+                            title: const Text(
+                              'Horários',
+                              style: TextStyle(
+                                color: Colors.orange,
+                                fontWeight: FontWeight.bold,
+                              ),
                             ),
-                          ),
-                          ElevatedButton(
-                            onPressed: () {
-                              final nome = nomeController.text.trim();
-                              final preco = double.tryParse(
-                                precoController.text,
-                              );
-                              final largura = double.tryParse(
-                                larguraController.text,
-                              );
-                              final comprimento = double.tryParse(
-                                comprimentoController.text,
-                              );
-                              final descricao = descricaoController.text.trim();
-
-                              if (nome.isEmpty ||
-                                  preco == null ||
-                                  largura == null ||
-                                  comprimento == null ||
-                                  pontoSelecionado == null ||
-                                  horarios.isEmpty) {
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  const SnackBar(
-                                    content: Text(
-                                      'Por favor, preencha todos os campos corretamente.',
-                                    ),
-                                  ),
-                                );
-                                return;
-                              }
-
-                              final id = DateTime.now().millisecondsSinceEpoch;
-                              final ponto = Ponto(
-                                latitude: pontoSelecionado!.latitude,
-                                longitude: pontoSelecionado!.longitude,
-                                id: id,
-                                idMapa: 0,
-                              );
-
-                              final novoCampo = CampoPriv(
-                                id: id,
-                                nome: nome,
-                                preco: preco,
-                                largura: largura,
-                                comprimento: comprimento,
-                                imagem: 'assets/default_field.png',
-                                diasFuncionamento: Map.from(horarios),
-                                descricao: descricao,
-                                idArrendador:
-                                    Provider.of<UserProvider>(
-                                      context,
-                                      listen: false,
-                                    ).user!.id,
-                                ponto: ponto,
-                                idPonto: ponto.id,
-                                idMapa: 0,
-                                ocupado: false,
-                              )..setDesportos(desportosSelecionados);
-
-                              final userProvider = Provider.of<UserProvider>(
-                                context,
-                                listen: false,
-                              );
-                              if (userProvider.user is Arrendador) {
-                                (userProvider.user as Arrendador).camposPrivados
-                                    .add(novoCampo);
-                              }
-
-                              mockCampos.add(novoCampo);
-
-                              Navigator.pop(context);
-
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(
-                                  content: Text(
-                                    'Campo adicionado com sucesso!',
-                                  ),
-                                ),
-                              );
-                            },
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: Colors.orange,
-                            ),
-                            child: const Text(
-                              'Adicionar',
-                              style: TextStyle(color: Colors.black),
-                            ),
+                            children: [
+                              const Text(
+                                'Dias de Funcionamento:',
+                                style: TextStyle(fontWeight: FontWeight.bold),
+                              ),
+                              const SizedBox(height: 8),
+                              Column(
+                                children: diasSelecionados.entries.map((entry) {
+                                  final dia = entry.key;
+                                  final ativo = entry.value;
+                                  return Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      CheckboxListTile(
+                                        title: Text(dia),
+                                        value: ativo,
+                                        activeColor: Colors.orange,
+                                        checkColor: const Color.fromARGB(255, 0, 0, 0),
+                                        onChanged: (bool? value) {
+                                          setState(() {
+                                            diasSelecionados[dia] = value!;
+                                            if (value) {
+                                              horarios[dia] = [
+                                                const TimeOfDay(hour: 9, minute: 0),
+                                                const TimeOfDay(hour: 18, minute: 0),
+                                              ];
+                                            } else {
+                                              horarios.remove(dia);
+                                            }
+                                          });
+                                        },
+                                      ),
+                                      if (ativo)
+                                        Padding(
+                                          padding: const EdgeInsets.only(left: 16.0),
+                                          child: Row(
+                                            children: [
+                                              TextButton(
+                                                onPressed: () async {
+                                                  final novaHora = await showTimePicker(
+                                                    context: context,
+                                                    initialEntryMode: TimePickerEntryMode.input,
+                                                    initialTime: horarios[dia]![0],
+                                                    builder: (BuildContext context, Widget? child) {
+                                                      return Theme(
+                                                        data: Theme.of(context).copyWith(
+                                                          timePickerTheme: TimePickerThemeData(
+                                                            backgroundColor: Colors.white,
+                                                            dialHandColor: Colors.orange,
+                                                            hourMinuteTextColor: Colors.black,
+                                                            entryModeIconColor: Colors.orange,
+                                                            dayPeriodTextColor: Colors.orange,
+                                                          ),
+                                                          colorScheme: const ColorScheme.light(
+                                                            primary: Colors.orange,
+                                                            onSurface: Colors.black,
+                                                          ),
+                                                        ),
+                                                        child: child!,
+                                                      );
+                                                    },
+                                                  );
+                                                  if (novaHora != null) {
+                                                    setState(() {
+                                                      horarios[dia]![0] = novaHora;
+                                                    });
+                                                  }
+                                                },
+                                                child: Text(
+                                                  'Início: ${horarios[dia]![0].format(context)}',
+                                                  style: const TextStyle(color: Colors.orange),
+                                                ),
+                                              ),
+                                              TextButton(
+                                                onPressed: () async {
+                                                  final novaHora = await showTimePicker(
+                                                    context: context,
+                                                    initialEntryMode: TimePickerEntryMode.input,
+                                                    initialTime: horarios[dia]![1],
+                                                    builder: (BuildContext context, Widget? child) {
+                                                      return Theme(
+                                                        data: Theme.of(context).copyWith(
+                                                          timePickerTheme: TimePickerThemeData(
+                                                            backgroundColor: Colors.white,
+                                                            dialHandColor: Colors.orange,
+                                                            hourMinuteTextColor: Colors.black,
+                                                            entryModeIconColor: Colors.orange,
+                                                            dayPeriodTextColor: Colors.orange,
+                                                          ),
+                                                          colorScheme: const ColorScheme.light(
+                                                            primary: Colors.orange,
+                                                            onSurface: Colors.black,
+                                                          ),
+                                                        ),
+                                                        child: child!,
+                                                      );
+                                                    },
+                                                  );
+                                                  if (novaHora != null) {
+                                                    setState(() {
+                                                      horarios[dia]![1] = novaHora;
+                                                    });
+                                                  }
+                                                },
+                                                child: Text(
+                                                  'Fim: ${horarios[dia]![1].format(context)}',
+                                                  style: const TextStyle(color: Colors.orange),
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                    ],
+                                  );
+                                }).toList(),
+                              ),
+                            ],
                           ),
                         ],
-                      );
-                    },
+                      ),
+                    ),
+                    actions: [
+                      TextButton(
+                        onPressed: () => Navigator.pop(context),
+                        child: const Text(
+                          'Cancelar',
+                          style: TextStyle(color: Colors.red),
+                        ),
+                      ),
+                      ElevatedButton(
+                        onPressed: () {
+                          final nome = nomeController.text.trim();
+                          final preco = double.tryParse(
+                            precoController.text,
+                          );
+                          final largura = double.tryParse(
+                            larguraController.text,
+                          );
+                          final comprimento = double.tryParse(
+                            comprimentoController.text,
+                          );
+                          final descricao = descricaoController.text.trim();
+
+                          if (nome.isEmpty ||
+                              preco == null ||
+                              largura == null ||
+                              comprimento == null ||
+                              pontoSelecionado == null ||
+                              horarios.isEmpty) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text(
+                                  'Por favor, preencha todos os campos corretamente.',
+                                ),
+                              ),
+                            );
+                            return;
+                          }
+
+                          final id = DateTime.now().millisecondsSinceEpoch;
+                          final ponto = Ponto(
+                            latitude: pontoSelecionado!.latitude,
+                            longitude: pontoSelecionado!.longitude,
+                            id: id,
+                            idMapa: 0,
+                          );
+
+                          final novoCampo = CampoPriv(
+                            id: id,
+                            nome: nome,
+                            preco: preco,
+                            largura: largura,
+                            comprimento: comprimento,
+                            imagem: 'assets/default_field.png',
+                            diasFuncionamento: Map.from(horarios),
+                            descricao: descricao,
+                            idArrendador:
+                                Provider.of<UserProvider>(
+                                  context,
+                                  listen: false,
+                                ).user!.id,
+                            ponto: ponto,
+                            idPonto: ponto.id,
+                            idMapa: 0,
+                            ocupado: false,
+                          )..setDesportos(desportosSelecionados);
+
+                          final userProvider = Provider.of<UserProvider>(
+                            context,
+                            listen: false,
+                          );
+                          if (userProvider.user is Arrendador) {
+                            (userProvider.user as Arrendador).camposPrivados
+                                .add(novoCampo);
+                          }
+
+                          mockCampos.add(novoCampo);
+
+                          Navigator.pop(context);
+
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content: Text(
+                                'Campo adicionado com sucesso!',
+                              ),
+                            ),
+                          );
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => ArrCamposList(),
+                            ),
+                          );
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.orange,
+                        ),
+                        child: const Text(
+                          'Adicionar',
+                          style: TextStyle(color: Colors.black),
+                        ),
+                      ),
+                    ],
                   );
                 },
               );
             },
-          ),
-        ],
+          );
+          },
+        ),
       ),
-      body:
-          camposAssociados.isEmpty
-              ? const Center(
-                child: Text(
-                  'Nenhum campo associado.',
-                  style: TextStyle(fontSize: 16),
-                ),
-              )
-              : ListView.builder(
-                itemCount: camposAssociados.length,
-                itemBuilder: (context, index) {
-                  final campo = camposAssociados[index];
-                  return Card(
-                    margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    elevation: 2,
-                    child: ListTile(
-                      title: Text(
-                        campo.nome,
-                        style: const TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      subtitle: Text(
-                        'Preço: ${campo.preco.toStringAsFixed(2)}€/h\nDimensões: ${campo.comprimento}m x ${campo.largura}m',
-                      ),
-                      trailing: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          IconButton(
-                            icon: const Icon(Icons.info, color: Colors.blue),
-                            onPressed: () {
-                              // Navegar para a página de detalhes do campo
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder:
-                                      (context) => CampoDetails(campo: campo),
-                                ),
-                              );
-                            },
-                          ),
-                          IconButton(
-                            icon: const Icon(Icons.edit, color: Colors.orange),
-                            onPressed: () {
-                              // Abrir o popup para editar o campo
-                              _showEditCampoDialog(context, campo);
-                            },
-                          ),
-                        ],
-                      ),
-                    ),
-                  );
-                },
-              ),
     );
   }
 
@@ -732,7 +756,7 @@ class _ArrCamposListState extends State<ArrCamposList> {
 
                     ScaffoldMessenger.of(context).showSnackBar(
                       const SnackBar(
-                        content: Text('Alterações salvas com sucesso!'),
+                        content: Text('Alterações guardadas com sucesso!'),
                       ),
                     );
 
@@ -741,7 +765,7 @@ class _ArrCamposListState extends State<ArrCamposList> {
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.orange,
                   ),
-                  child: const Text('Salvar'),
+                  child: const Text('Guardar'),
                 ),
               ],
             );

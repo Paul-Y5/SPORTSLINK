@@ -29,7 +29,7 @@ class _PerfilPageState extends State<PerfilPage> {
     return Scaffold(
       extendBody: true,
       extendBodyBehindAppBar: true,
-      body: SafeArea( // Adicionado SafeArea
+      body: SafeArea(
         child: Stack(
           children: [
             const Carouselbg(),
@@ -50,6 +50,41 @@ class _PerfilPageState extends State<PerfilPage> {
                 children: [
                   const SizedBox(height: 40),
                   _buildProfileHeader(),
+                  if (widget.user is Jogador) ...[
+                    Padding(
+                      padding: const EdgeInsets.only(top: 8.0, bottom: 2.0),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(
+                            Icons.circle,
+                            color: (widget.user as Jogador).isOnline ? Colors.green : Colors.grey,
+                            size: 14,
+                          ),
+                          const SizedBox(width: 6),
+                          Text(
+                            (widget.user as Jogador).isOnline ? 'Online' : 'Offline',
+                            style: TextStyle(
+                              color: (widget.user as Jogador).isOnline ? Colors.green : Colors.grey,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          if ((widget.user as Jogador).isInPartida) ...[
+                            const SizedBox(width: 16),
+                            Icon(Icons.sports_soccer, color: Colors.orange, size: 16),
+                            const SizedBox(width: 4),
+                            const Text(
+                              'Em partida',
+                              style: TextStyle(
+                                color: Colors.orange,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ],
+                        ],
+                      ),
+                    ),
+                  ],
                   const SizedBox(height: 10),
                   Text(
                     widget.user.nome, // Nome dinâmico

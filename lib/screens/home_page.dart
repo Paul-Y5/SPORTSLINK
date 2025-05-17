@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:sports_link/data/mock_data.dart';
 import 'package:sports_link/controllers/user_provider.dart';
+import 'package:sports_link/models/jogador.dart';
 import 'package:sports_link/screens/main_page_1.dart';
 import 'package:sports_link/styles/carouselbg.dart';
 import 'package:sports_link/styles/styles_btn.dart';
@@ -177,6 +178,9 @@ class LoginPageState extends State<LoginPage> {
           ),
         );
 
+        (user as Jogador).isOnline = true;
+        user.lastLogin = DateTime.now();
+
         Future.delayed(const Duration(seconds: 2), () {
           if (!mounted) return;
 
@@ -201,7 +205,7 @@ class LoginPageState extends State<LoginPage> {
       } else {
         String errorMessage =
             result == LoginResult.wrongPassword || result == LoginResult.userNotFound
-                ? 'Senha incorreta. Tente novamente.'
+                ? 'palavra-passe incorreta. Tente novamente.'
                 : 'Email não encontrado. Verifique novamente.';
 
         ScaffoldMessenger.of(context).showSnackBar(
@@ -268,7 +272,7 @@ class LoginPageState extends State<LoginPage> {
                       ),
                       const SizedBox(height: 10),
 
-                      // Campo de Senha
+                      // Campo de palavra-passe
                       TextFormField(
                         controller: passwordController,
                         obscureText: true,

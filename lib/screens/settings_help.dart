@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:sports_link/data/mock_data.dart';
+import 'package:sports_link/models/utilizador.dart';
 
 class SettingsHelpPage extends StatelessWidget {
   const SettingsHelpPage({super.key});
@@ -107,8 +110,8 @@ class SettingsHelpPage extends StatelessWidget {
                   context: context,
                   builder: (context) {
                     return AlertDialog(
-                      title: const Text('Terminar Sessão'),
-                      content: const Text('Tem a certeza de que deseja terminar a sessão?'),
+                      title: const Text('Excluir Conta'),
+                      content: const Text('Tens a certeza de que desejas apagar a tua conta? Esta ação não pode ser desfeita.'),
                       actions: [
                         TextButton(
                           onPressed: () {
@@ -118,14 +121,17 @@ class SettingsHelpPage extends StatelessWidget {
                         ),
                         ElevatedButton(
                           onPressed: () {
+                            // Supondo que você tem acesso ao usuário atual via Provider
+                            final currentUser = Provider.of<Utilizador>(context, listen: false);
+                            mockUsers.removeWhere((key, user) => user.id == currentUser.id);
                             // Lógica para logout
                             Navigator.of(context).pop();
-                            Navigator.of(context).pushReplacementNamed('/login');
+                            Navigator.of(context).pushReplacementNamed('/home');
                           },
                           style: ElevatedButton.styleFrom(
                             backgroundColor: Colors.red,
                           ),
-                          child: const Text('Terminar Sessão'),
+                          child: const Text('Eliminar Conta', style: TextStyle(color: Colors.white)),
                         ),
                       ],
                     );

@@ -37,6 +37,8 @@ Map<String, dynamic> createUser({
     utilizador: utilizador,
     createDate: createDate,
     idade: idade, 
+    isInPartida: false,
+    isOnline: false,
     descricao: '', nivel: 1.0,
   );
 

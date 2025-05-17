@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:sports_link/data/mock_data.dart';
 import 'package:sports_link/data/my_user.dart';
 import 'package:sports_link/models/arrendador.dart';
 import 'package:sports_link/models/jogador.dart';
 import 'package:sports_link/models/partida.dart';
 import 'package:sports_link/models/utilizador.dart';
 import 'package:sports_link/screens/add_campo.dart';
+import 'package:sports_link/screens/arr_campos_list.dart';
 import 'package:sports_link/screens/list_campos.dart';
 import 'package:sports_link/screens/list_partidas.dart';
 import 'package:sports_link/screens/partida_page.dart';
@@ -38,7 +38,6 @@ class _MainPage1State extends State<MainPage1> {
   void initState() {
     super.initState();
     currentUser = getMyUser(widget.id);
-
     WidgetsBinding.instance.addPostFrameCallback((_) {
       fetchWeatherData();
     });
@@ -142,22 +141,28 @@ class _MainPage1State extends State<MainPage1> {
                             ),
                           ),
                           const SizedBox(height: 10),
-                          if (currentUser is Jogador &&
-                              currentUser is! Arrendador)
+                          if (currentUser is Arrendador) ...[
                             Padding(
                               padding: const EdgeInsets.symmetric(
                                 horizontal: 16,
                               ),
                               child: MenuCard(
-                                icon: Icons.face_retouching_natural_rounded,
-                                text: 'Tornar-me Arrendador',
-                                color: Colors.red,
+                                icon: Icons.sports_soccer,
+                                text: 'Gerir\nOs Meus Campos',
+                                color: Colors.blue,
                                 fullWidth: true,
-                                onPressed:
-                                    () => showArrendadorFormPopup(context),
+                                onPressed: () {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) => const ArrCamposList(),
+                                    ),
+                                  );
+                                },
                               ),
                             ),
-                          const SizedBox(height: 0),
+                            const SizedBox(height: 10),
+                          ],
                           Column(
                             children: [
                               Container(
@@ -275,117 +280,6 @@ class _MainPage1State extends State<MainPage1> {
               ],
             ),
           ),
-        );
-      },
-    );
-  }
-
-  void showArrendadorFormPopup(BuildContext context) {
-    final TextEditingController ibanController = TextEditingController();
-    final formKey = GlobalKey<FormState>();
-    bool termosAceites = false;
-
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return StatefulBuilder(
-          builder: (context, setState) {
-            return AlertDialog(
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(16),
-              ),
-              title: const Text('Tornar-me Arrendador'),
-              content: Form(
-                key: formKey,
-                child: SizedBox(
-                  width: 300,
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      TextFormField(
-                        controller: ibanController,
-                        decoration: const InputDecoration(labelText: 'IBAN'),
-                        validator: (value) {
-                          if (value == null || value.length < 15 || value.length > 34 || !RegExp(r'^[A-Z]{2}\d{2}[A-Z0-9]{1,30}$').hasMatch(value)) {
-                            return 'IBAN inválido.';
-                          }
-                          return null;
-                        },
-                      ),
-                      const SizedBox(height: 12),
-                      Row(
-                        children: [
-                          Checkbox(
-                            value: termosAceites,
-                            onChanged: (value) {
-                              setState(() {
-                                termosAceites = value ?? false;
-                              });
-                            },
-                          ),
-                          const Expanded(
-                            child: Text(
-                              'Aceito os Termos e Condições',
-                              style: TextStyle(fontSize: 14),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-              actions: [
-                TextButton(
-                  style: TextButton.styleFrom(
-                    foregroundColor: Colors.red,
-                  ),
-                  onPressed: () => Navigator.of(context).pop(),
-                  child: const Text('Cancelar', style: TextStyle(color: Colors.black)),
-                ),
-                ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: termosAceites ? Colors.orange : Colors.grey,
-                    disabledBackgroundColor: Colors.grey,
-                  ),
-                  onPressed:
-                      termosAceites
-                          ? () {
-                            if (formKey.currentState!.validate()) {
-                              Navigator.of(context).pop();
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(
-                                  content: Text(
-                                    'A tua conta de arrendador foi criada com sucesso!\nTerás acesso a novas funcionalidades depois das informações serem validadas.',
-                                    style: TextStyle(color: Colors.black),
-                                  ),
-                                ),
-                              );
-                              if (currentUser is Jogador) {
-                                final jogador = currentUser as Jogador;
-                              mockUsers[widget.id] = Arrendador(
-                                id: widget.id,
-                                nivel: currentUser.nivel,
-                                nome: jogador.nome,
-                                email: jogador.email,
-                                iban: ibanController.text, 
-                                noCampos: 0,
-                                numTele: jogador.numTele,
-                                password: jogador.password,
-                                nacionalidade: jogador.nacionalidade,
-                                idade: jogador.idade,
-                                descricao: jogador.descricao,
-                                utilizador: jogador.utilizador,
-                                createDate: jogador.createDate,
-                              );}
-                            }
-                          }
-                          : null,
-                  child: const Text('Submeter', style: TextStyle(color: Colors.black)),
-                ),
-              ],
-            );
-          },
         );
       },
     );

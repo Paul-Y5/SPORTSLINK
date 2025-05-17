@@ -26,6 +26,8 @@ class Arrendador extends Jogador {
     required super.idade,
     required super.descricao,
     required super.utilizador,
+    required super.isInPartida,
+    required super.isOnline,
     required super.createDate, required super.nivel,
   }) : metodosPagamento = {};
 
@@ -58,7 +60,10 @@ class Arrendador extends Jogador {
       noCampos: json['noCampos'] as int,
       iban: json['iban'] as String,
       utilizador: '',
-      createDate: null, nivel: json['nivel'] as double,
+      isInPartida: json['isInPartida'] as bool? ?? false,
+      isOnline: json['isOnline'] as bool? ?? false,
+      createDate: null,
+      nivel: json['nivel'] as double,
     );
   }
 
@@ -87,8 +92,8 @@ class Arrendador extends Jogador {
     camposPrivados.add(campo);
   }
 
-  void adicionarCampo(CampoPriv campo) {
-    camposPrivados.add(campo);
+  void removerCampoPrivado(CampoPriv campo) {
+    camposPrivados.remove(campo);
   }
 
 }

@@ -19,6 +19,9 @@ class Jogador extends Utilizador {
   int numAvaliacoes = 0;
   double mediaAvaliacoes = 0.0;
 
+  bool isInPartida = false;
+  bool isOnline = false;
+
   List<Partida> partidas = [];
   final List<Conquista> conquistas = [];
 
@@ -29,7 +32,8 @@ class Jogador extends Utilizador {
     required super.numTele,
     required super.password,
     required super.nacionalidade,
-    required this.idade,
+    required this.idade, required this.isInPartida,
+    required this.isOnline,
     required this.descricao, required super.utilizador, required super.createDate, required super.nivel,
   });
 
@@ -42,9 +46,12 @@ class Jogador extends Utilizador {
       password: json['password'] as String,
       nacionalidade: json['nacionalidade'] as String,
       idade: json['idade'] as int,
+      isInPartida: json['isInPartida'] as bool? ?? false,
+      isOnline: json['isOnline'] as bool? ?? false,
       descricao: json['descricao'] as String, 
       utilizador: '', 
-      createDate: null, nivel: json['nivel'] as double,
+      createDate: null, 
+      nivel: json['nivel'] as double,
     );
   }
 
@@ -68,8 +75,33 @@ class Jogador extends Utilizador {
   }
 
   // Setters
-Jogador setAltura(double altura) {
+  Jogador setAltura(double altura) {
     this.altura = altura;
+    return this;
+  }
+
+  Jogador setPartidas(List<Partida> partidas) {
+    this.partidas = partidas;
+    return this;
+  }
+
+  Jogador setAmigos(List<Utilizador> amigos) {
+    this.amigos = amigos;
+    return this;
+  }
+
+  Jogador setDesportos(List<Desportos> desportos) {
+    this.desportos = desportos;
+    return this;
+  }
+
+  Jogador setAvaliacoes(List<Avaliation> avaliacoes) {
+    this.avaliacoes = avaliacoes;
+    return this;
+  }
+
+  Jogador setNumAvaliacoes(int numAvaliacoes) {
+    this.numAvaliacoes = numAvaliacoes;
     return this;
   }
 

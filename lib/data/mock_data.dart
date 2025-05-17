@@ -221,6 +221,8 @@ final Map<int, Utilizador> mockUsers = {
     iban: "BR99123456789",
     utilizador: 'joaosilva',
     createDate: DateTime.now(),
+    isInPartida: false,
+    isOnline: false,
   )..adicionarMetodoPagamento('Cartão de Crédito', 'Cartão de Crédito')
     ..adicionarMetodoPagamento('MB Way', 'MB Way'),
   2: Arrendador(
@@ -236,6 +238,8 @@ final Map<int, Utilizador> mockUsers = {
     noCampos: 4,
     iban: "PT50556677889",
     utilizador: 'anacosta',
+    isInPartida: true,
+    isOnline: true,
     createDate: DateTime.now(),
   )..adicionarMetodoPagamento('MB Way', 'MB Way')
     ..adicionarMetodoPagamento('Transferência Bancária', 'Transferência Bancária'),
@@ -252,7 +256,9 @@ final Map<int, Utilizador> mockUsers = {
     descricao: 'Jogadora de futebol amadora, adora praticar desportos.',
     utilizador: 'mariaoliveira',
     createDate: DateTime.now(),
-    nivel: 5, // Adicionado nível
+    nivel: 5,
+    isInPartida: true,
+    isOnline: true,
   )..setAltura(1.70)
     ..setPeso(65.0)
     ..adicionarDesporto(Desportos.futebol)
@@ -268,7 +274,9 @@ final Map<int, Utilizador> mockUsers = {
     descricao: 'Jogador experiente em eventos desportivos.',
     utilizador: 'carlossantos',
     createDate: DateTime.now(),
-    nivel: 7, // Adicionado nível
+    nivel: 7,
+    isInPartida: true,
+    isOnline: true,
   )..setAltura(1.85)
     ..setPeso(80.0)
     ..adicionarDesporto(Desportos.futebol)
@@ -284,7 +292,9 @@ final Map<int, Utilizador> mockUsers = {
     descricao: 'Jogador de futebol amador, adora praticar desportos.',
     utilizador: 'pedroalmeida',
     createDate: DateTime.now(),
-    nivel: 4, // Adicionado nível
+    nivel: 4,
+    isInPartida: true,
+    isOnline: true,
   )..setAltura(1.80)
     ..setPeso(75.0)
     ..adicionarDesporto(Desportos.futebol)
@@ -300,7 +310,9 @@ final Map<int, Utilizador> mockUsers = {
     descricao: 'Jogador de basquetebol, sempre em busca de novos desafios.',
     utilizador: 'luisferreira',
     createDate: DateTime.now(),
-    nivel: 6, // Adicionado nível
+    nivel: 6,
+    isInPartida: true,
+    isOnline: true,
   )..setAltura(1.90)
     ..setPeso(85.0)
     ..adicionarDesporto(Desportos.basquetebol)
@@ -317,7 +329,9 @@ final Map<int, Utilizador> mockUsers = {
     descricao: 'Jogadora de voleibol, apaixonada por desporto.',
     utilizador: 'analuis',
     createDate: DateTime.now(),
-    nivel: 3, // Adicionado nível
+    nivel: 3,
+    isInPartida: false,
+    isOnline: false,
   )..setAltura(1.75)
     ..setPeso(60.0)
     ..adicionarDesporto(Desportos.voleibol),
@@ -336,24 +350,29 @@ final Map<int, Utilizador> mockUsers = {
           iban: "PT50000000000000000000000",
           utilizador: 'ricardomendes',
           createDate: DateTime.now(),
+          isInPartida: false,
+          isOnline: true,
         )
+        ..setAltura(1.78)
+        ..setPeso(78.0)
+        ..adicionarDesporto(Desportos.futebol)
+        ..adicionarDesporto(Desportos.basquetebol)
         ..adicionarMetodoPagamento('PayPal', 'PayPal')
-        ..adicionarMetodoPagamento(
-          'Transferência Bancária',
-          'Transferência Bancária',
-        ),
+        ..adicionarMetodoPagamento('Transferência Bancária','Transferência Bancária',),
 
   11: Jogador(
     id: 11,
     nome: 'Tomás Floro Silva',
-    email: 'tfl@example.com',
+    email: 'tfs@example.com',
     numTele: 919876543,
     password: 'teste123',
     nacionalidade: 'Português',
     idade: 22,
     descricao: 'Jogador de Futebol, sempre em busca de novos desafios.', utilizador: 'tflor',
     createDate: DateTime.now(),
-    nivel: 1, // Adicionado nível
+    nivel: 1,
+    isInPartida: false,
+    isOnline: false,
   )..setAltura(1.80)
     ..setPeso(75.0)
     ..adicionarDesporto(Desportos.futebol)
@@ -373,6 +392,8 @@ final Map<int, Utilizador> mockUsers = {
     iban: "PT50000000000000000000000",
     utilizador: 'fgg',
     createDate: DateTime.now(),
+    isInPartida: false,
+    isOnline: false,
   )..setAltura(1.70)
     ..setPeso(70.0)
     ..adicionarDesporto(Desportos.futebol)
@@ -429,7 +450,7 @@ void adicionarCamposAosArrendadores() {
         if (arrendador.camposPrivados.contains(campo)) {
           continue;
         }
-        arrendador.adicionarCampo(campo);
+        arrendador.adicionarCampoPrivado(campo);
       }
     }
   }

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:sports_link/controllers/user_provider.dart';
+import 'package:sports_link/data/mock_data.dart';
 import 'package:sports_link/models/arrendador.dart';
 import 'package:sports_link/models/jogador.dart';
 import 'package:sports_link/screens/arr_campos_list.dart';
@@ -45,6 +46,16 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
                 MaterialPageRoute(builder: (context) => PerfilPage(user: user!)),
               );
             }),
+            if (user is Jogador && user is! Arrendador) ...[
+              _buildMenuItem(
+                'Ser Arrendador',
+                Icons.sports_soccer,
+                'Ser Arrendador',
+                onTap: () {
+                  showArrendadorFormPopup(context, user);
+                },
+              ),
+            ],
             _buildMenuItem('Amigos', Icons.group, 'Amigos', onTap: () {
               Navigator.pushReplacement(
                 context,
@@ -67,9 +78,9 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
             ],
             if (user is Arrendador) ...[
               _buildMenuItem(
-                'Campos',
+                'Gerir Campos',
                 Icons.sports_baseball,
-                'Campos${user.camposPrivados.isNotEmpty ? ' (${user.camposPrivados.length})' : ''}',
+                'Gerir Campos',
                 onTap: () {
                   Navigator.pushReplacement(
                     context,
@@ -180,4 +191,148 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
 
   @override
   Size get preferredSize => const Size.fromHeight(kToolbarHeight);
+
+}
+
+void showArrendadorFormPopup(BuildContext context, Jogador user) {
+  final formKey = GlobalKey<FormState>();
+  final ibanController = TextEditingController();
+  bool termosAceites = false;
+
+  showDialog(
+    context: context,
+    builder: (BuildContext context) {
+      return StatefulBuilder(
+        builder: (context, setState) {
+          return AlertDialog(
+            backgroundColor: const Color.fromARGB(255, 251, 251, 251),
+            title: const Text(
+              'Tornar-se Arrendador',
+              style: TextStyle(
+                color: Colors.orange,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            content: Form(
+              key: formKey,
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  TextFormField(
+                    controller: ibanController,
+                    style: const TextStyle(color: Color.fromARGB(255, 0, 0, 0)),
+                    decoration: const InputDecoration(
+                      labelText: 'IBAN',
+                      labelStyle: TextStyle(color: Color.fromARGB(255, 0, 0, 0)),
+                      enabledBorder: UnderlineInputBorder(
+                        borderSide: BorderSide(color: Colors.orange),
+                      ),
+                      focusedBorder: UnderlineInputBorder(
+                        borderSide: BorderSide(color: Colors.orange, width: 2),
+                      ),
+                    ),
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Insira o IBAN';
+                      }
+                      if (value.length < 15 || value.length > 34) {
+                        return 'IBAN inválido';
+                      }
+                      return null;
+                    },
+                  ),
+                  Row(
+                    children: [
+                      Checkbox(
+                        value: termosAceites,
+                        activeColor: Colors.orange,
+                        checkColor: Colors.black,
+                        onChanged: (val) {
+                          setState(() {
+                            termosAceites = val ?? false;
+                          });
+                        },
+                      ),
+                      const Expanded(
+                        child: Text(
+                          'Aceito os termos e condições',
+                          style: TextStyle(color: Color.fromARGB(255, 0, 0, 0)),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: const Text(
+                  'Cancelar',
+                  style: TextStyle(color: Color.fromARGB(255, 255, 0, 0)),
+                ),
+              ),
+              ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.orange,
+                  foregroundColor: const Color.fromARGB(255, 0, 0, 0),
+                  textStyle: const TextStyle(fontWeight: FontWeight.bold),
+                ),
+                onPressed: termosAceites
+                    ? () {
+                        if (formKey.currentState!.validate()) {
+                          final jogador = user;
+                          final novoArrendador = Arrendador(
+                            id: jogador.id,
+                            nivel: jogador.nivel.toDouble(),
+                            nome: jogador.nome,
+                            email: jogador.email,
+                            iban: ibanController.text,
+                            noCampos: 0,
+                            numTele: jogador.numTele,
+                            password: jogador.password,
+                            nacionalidade: jogador.nacionalidade,
+                            idade: jogador.idade,
+                            descricao: jogador.descricao,
+                            utilizador: jogador.utilizador,
+                            createDate: jogador.createDate,
+                            isOnline: jogador.isOnline,
+                            isInPartida: jogador.isInPartida,
+                          )..setAltura(jogador.altura)
+                          ..setPeso(jogador.peso)
+                          ..setDesportos(List.from(jogador.desportos))
+                          ..setAvaliacoes(List.from(jogador.avaliacoes))
+                          ..adicionarMetodoPagamento('Transferência Bancária', ibanController.text)
+                          ..setNumAvaliacoes(jogador.numAvaliacoes);
+                           
+                          mockUsers[user.id] = novoArrendador;
+
+                          // Atualiza o provider para refletir o novo tipo de utilizador
+                          Provider.of<UserProvider>(context, listen: false).setUser(novoArrendador);
+
+                          Navigator.pop(context);
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content: Text('Agora és um arrendador!', style: TextStyle(color: Color.fromARGB(255, 0, 0, 0))),
+                              backgroundColor: Color.fromARGB(255, 0, 255, 0),
+                              behavior: SnackBarBehavior.floating,
+                            ),
+                          );
+                          Navigator.pushReplacement(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => MainPage1(id: novoArrendador.id),
+                            ),
+                          );
+                        }
+                      }
+                    : null,
+                child: const Text('Submeter'),
+              ),
+            ],
+          );
+        },
+      );
+    },
+  );
 }
