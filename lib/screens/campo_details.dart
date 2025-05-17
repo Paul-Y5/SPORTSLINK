@@ -701,6 +701,7 @@ class _CampoDetailsState extends State<CampoDetails> {
       MaterialPageRoute(
         builder: (context) => PartidaOwnerPage(
           partida: campoSelecionado.partida!,
+          user: UserProvider().user as Jogador,
         ),
       ),
     );

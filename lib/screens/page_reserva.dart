@@ -372,9 +372,18 @@ class PageReservaState extends State<PageReserva> {
                                           children: [
                                             TextField(
                                               controller: numeroCartaoController,
-                                              decoration: const InputDecoration(
+                                              decoration: InputDecoration(
                                                 labelText: 'Número do Cartão',
-                                                border: OutlineInputBorder(),
+                                                border: const OutlineInputBorder(),
+                                                focusedBorder: OutlineInputBorder(
+                                                  borderSide: const BorderSide(
+                                                    color: Colors.orange,
+                                                    width: 2,
+                                                  ),
+                                                ),
+                                                labelStyle: const TextStyle(
+                                                  color: Color.fromARGB(255, 0, 0, 0),
+                                                ),
                                               ),
                                             ),
                                             const SizedBox(height: 8),
@@ -392,6 +401,19 @@ class PageReservaState extends State<PageReserva> {
                                                   child: TextField(
                                                     controller: validadeCartaoController,
                                                     decoration: const InputDecoration(
+                                                      focusedBorder:
+                                                          OutlineInputBorder(
+                                                            borderSide:
+                                                                BorderSide(
+                                                                  color:
+                                                                      Colors
+                                                                          .orange,
+                                                                  width: 2,
+                                                                ),
+                                                          ),
+                                                      labelStyle: TextStyle(
+                                                        color: Color.fromARGB(255, 0, 0, 0),
+                                                      ),
                                                       labelText: 'Validade (MM/AA)',
                                                       border: OutlineInputBorder(),
                                                     ),
@@ -402,6 +424,19 @@ class PageReservaState extends State<PageReserva> {
                                                   child: TextField(
                                                     controller: cvvCartaoController,
                                                     decoration: const InputDecoration(
+                                                      focusedBorder:
+                                                          OutlineInputBorder(
+                                                            borderSide:
+                                                                BorderSide(
+                                                                  color:
+                                                                      Colors
+                                                                          .orange,
+                                                                  width: 2,
+                                                                ),
+                                                          ),
+                                                      labelStyle: TextStyle(
+                                                        color: Color.fromARGB(255, 0, 0, 0),
+                                                      ),
                                                       labelText: 'CVV',
                                                       border: OutlineInputBorder(),
                                                     ),
@@ -417,6 +452,16 @@ class PageReservaState extends State<PageReserva> {
                                             TextField(
                                               controller: telefoneMbWayController,
                                               decoration: const InputDecoration(
+                                                focusedBorder:
+                                                    OutlineInputBorder(
+                                                      borderSide: BorderSide(
+                                                        color: Colors.orange,
+                                                        width: 2,
+                                                      ),
+                                                    ),
+                                                labelStyle: TextStyle(
+                                                  color: Color.fromARGB(255, 0, 0, 0),
+                                                ),
                                                 labelText: 'Número de Telefone',
                                                 border: OutlineInputBorder(),
                                               ),
@@ -434,6 +479,16 @@ class PageReservaState extends State<PageReserva> {
                                             TextField(
                                               controller: emailPayPalController,
                                               decoration: const InputDecoration(
+                                                focusedBorder:
+                                                    OutlineInputBorder(
+                                                      borderSide: BorderSide(
+                                                        color: Colors.orange,
+                                                        width: 2,
+                                                      ),
+                                                    ),
+                                                labelStyle: TextStyle(
+                                                  color: Color.fromARGB(255, 0, 0, 0),
+                                                ),
                                                 labelText: 'E-mail do PayPal',
                                                 border: OutlineInputBorder(),
                                               ),
@@ -640,6 +695,43 @@ class PageReservaState extends State<PageReserva> {
             selectedStartTime = null;
             selectedEndTime = null;
           });
+
+          // Verifica se o dia está totalmente reservado
+          final dayOfWeek = getDiaSemanaPt(selectedDay);
+          if (widget.campo.diasFuncionamento.containsKey(dayOfWeek)) {
+            final timeRange = widget.campo.diasFuncionamento[dayOfWeek]!;
+            final inicio = timeRange[0];
+            final fim = timeRange[1];
+
+            // Gera todos os horários possíveis (de hora a hora)
+            List<TimeOfDay> todosSlots = [];
+            var horaAtual = inicio;
+            while (toMinutes(horaAtual) < toMinutes(fim)) {
+              todosSlots.add(horaAtual);
+              horaAtual = TimeOfDay(hour: horaAtual.hour + 1, minute: horaAtual.minute);
+            }
+            final totalSlots = todosSlots.length;
+
+            // Lista de reservas já criadas nessa data
+            final parsedDay = DateTime(selectedDay.year, selectedDay.month, selectedDay.day);
+            final reservasDoDia = widget.campo.reservas[parsedDay] ?? [];
+
+            // Conta quantos slots estão ocupados
+            int reservasCount = 0;
+            for (var reserva in reservasDoDia) {
+              final duracaoHoras = int.tryParse(reserva.tempoDuracao) ?? 1;
+              reservasCount += duracaoHoras;
+            }
+
+            if (reservasCount >= totalSlots) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(
+                  content: Text('Já não há horários disponíveis para este dia!'),
+                  backgroundColor: Colors.red,
+                ),
+              );
+            }
+          }
         },
         calendarStyle: const CalendarStyle(
           todayDecoration: BoxDecoration(),
@@ -661,35 +753,34 @@ class PageReservaState extends State<PageReserva> {
               );
             }
 
-            // normalize para tirar hora/minuto
+            // Normaliza para tirar hora/minuto
             final parsedDay = DateTime(day.year, day.month, day.day);
 
-            // pega nome do dia da semana
-            final dayOfW = getDiaSemanaPt(parsedDay);
+            // Horário de funcionamento do campo nesse dia
+            final timeRange = widget.campo.diasFuncionamento[dayOfWeek]!;
+            final inicio = timeRange[0];
+            final fim = timeRange[1];
 
-            // total de slots naquele dia da semana
-            final slots = <String>[];
-            var horaAtual = widget.campo.diasFuncionamento[dayOfW]![0];
-            final fecho = widget.campo.diasFuncionamento[dayOfW]![1];
-            while ((horaAtual.hour * 60 + horaAtual.minute) < (fecho.hour * 60 + fecho.minute)) {
-              slots.add(horaAtual.toString());
-              horaAtual = horaAtual.replacing(
-                hour: horaAtual.hour + 1,
-                minute: horaAtual.minute,
-              );
+            // Gera todos os horários possíveis (de hora a hora)
+            List<TimeOfDay> todosSlots = [];
+            var horaAtual = inicio;
+            while (toMinutes(horaAtual) < toMinutes(fim)) {
+              todosSlots.add(horaAtual);
+              horaAtual = TimeOfDay(hour: horaAtual.hour + 1, minute: horaAtual.minute);
             }
-            final totalSlots = slots.length;
+            final totalSlots = todosSlots.length;
 
-            // lista de reservas já criadas nessa data
+            // Lista de reservas já criadas nessa data
             final reservasDoDia = widget.campo.reservas[parsedDay] ?? [];
 
-            final reservasCount = reservasDoDia.length;
+            // Conta quantos slots estão ocupados
+            int reservasCount = 0;
+            for (var reserva in reservasDoDia) {
+              final duracaoHoras = int.tryParse(reserva.tempoDuracao) ?? 1;
+              reservasCount += duracaoHoras;
+            }
 
-            // debug opcional
-            debugPrint(
-              'Dia: $parsedDay → slots: $totalSlots → reservas: $reservasCount',
-            );
-
+            // Cor do dia
             Color backgroundColor;
             if (reservasCount == 0) {
               backgroundColor = Colors.green;

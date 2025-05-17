@@ -1,6 +1,7 @@
 // ignore_for_file: public_member_api_docs, sort_constructors_first
 import 'package:sports_link/models/campo_priv.dart';
 import 'package:sports_link/models/jogador.dart';
+import 'package:sports_link/models/partida.dart';
 import 'package:sports_link/models/reserva.dart';
 
 class Arrendador extends Jogador {
@@ -96,4 +97,13 @@ class Arrendador extends Jogador {
     camposPrivados.remove(campo);
   }
 
+  void setNotificacoes(List<String> notificacoes) {
+    this.notificacoes = notificacoes;
+  }
+
+  @override
+  Arrendador setPartidas(List<Partida> partidas) {
+    this.partidas = partidas;
+    return this;
+  }
 }

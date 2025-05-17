@@ -10,6 +10,8 @@ import 'package:sports_link/screens/main_page_1.dart';
 import 'package:sports_link/styles/carouselbg.dart';
 import 'package:sports_link/utils/blinkdot.dart';
 import 'package:sports_link/utils/time_utils.dart';
+import 'package:sports_link/utils/tempo_partida_widget.dart';
+import 'package:sports_link/controllers/partida_ativa_provider.dart';
 
 class PartidaPage extends StatefulWidget {
   final Partida partida;
@@ -43,6 +45,14 @@ class _PartidaPageState extends State<PartidaPage> {
     });
 
     _iniciarContador();
+
+    // Oculta o botão ao entrar na página da partida
+    Provider.of<PartidaAtivaProvider>(context, listen: false).iniciarPartida(
+      'Partida em andamento',
+      () {
+        // Código para voltar à página da partida (opcional)
+      },
+    );
   }
 
   void _iniciarContador() {
@@ -101,8 +111,7 @@ class _PartidaPageState extends State<PartidaPage> {
 
   @override
   void dispose() {
-    _timer?.cancel();
-    _chatController.dispose();
+    Provider.of<PartidaAtivaProvider>(context, listen: false).sairDaPartida();
     super.dispose();
   }
 
@@ -341,7 +350,7 @@ class _PartidaPageState extends State<PartidaPage> {
                           leading: const Icon(Icons.people_alt_outlined, color: Colors.orange),
                           title: Text('Jogadores', style: labelStyle),
                           subtitle: Text(
-                            '${partida.jogadores?.length ?? 0} / ${partida.numeroJogadoresMaximo ?? 'N/A'}',
+                            '${partida.jogadores?.length ?? 0} / ${partida.numeroJogadoresMaximo ?? '∞'}',
                             style: infoStyle,
                           ),
                         ),
@@ -368,7 +377,7 @@ class _PartidaPageState extends State<PartidaPage> {
                           leading: const Icon(Icons.timer, color: Colors.orange),
                           title: Text('Duração', style: labelStyle),
                           subtitle: Text(
-                            '${partida.duracao?.toStringAsFixed(0) ?? 'N/A'} minutos',
+                            '${partida.duracao?.toStringAsFixed(0) ?? 'Não Definido'} minutos',
                             style: infoStyle,
                           ),
                         ),
@@ -379,7 +388,7 @@ class _PartidaPageState extends State<PartidaPage> {
                           subtitle: Text(
                             partida.resultado?.isNotEmpty == true
                                 ? partida.resultado!
-                                : 'N/A',
+                                : '---',
                             style: infoStyle,
                           ),
                         ),
@@ -407,11 +416,14 @@ class _PartidaPageState extends State<PartidaPage> {
                             ],
                           )
                         else if (partida.estado == EstadoPartida.emAndamento)
-                          Text(
-                            'Resultado ao vivo: ${partida.resultado ?? "N/A"}',
-                            style: const TextStyle(
-                              fontSize: 16,
-                              color: Colors.red,
+                          TempoPartidaWidget(
+                            duracao: partida.duracao?.toInt(),
+                            inicio: DateTime(
+                              partida.data.year,
+                              partida.data.month,
+                              partida.data.day,
+                              partida.hora.hour,
+                              partida.hora.minute,
                             ),
                           )
                         else
@@ -513,10 +525,13 @@ class _PartidaPageState extends State<PartidaPage> {
                           onPressed: () {
                             setState(() {
                               partida.jogadores!.add(currentUser);
+                              currentUser.isInPartida = true;
+                              currentUser.partidas.add(partida);
                               isUserJoined = true;
                             });
+                            Provider.of<UserProvider>(context, listen: false).setUser(currentUser);
                             ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(content: Text('${currentUser.nome} entrou na partida!')),
+                              SnackBar(content: Text('${currentUser.nome} entrou na partida!'), backgroundColor: Colors.green),
                             );
                           },
                           style: ElevatedButton.styleFrom(

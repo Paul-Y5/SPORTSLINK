@@ -2,12 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:sports_link/screens/home_page.dart';
 import 'package:sports_link/controllers/user_provider.dart';
+import 'package:sports_link/controllers/partida_ativa_provider.dart';
 
 void main() {
   runApp(
     MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (_) => UserProvider()),
+        ChangeNotifierProvider(create: (_) => PartidaAtivaProvider()),
       ],
       child: const MyApp(),
     ),

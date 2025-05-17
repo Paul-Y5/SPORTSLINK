@@ -1,11 +1,15 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
+import 'package:sports_link/models/jogador.dart';
 import 'package:sports_link/models/partida.dart';
 import 'package:sports_link/styles/carouselbg.dart';
 
 class PartidaOwnerPage extends StatefulWidget {
   final Partida partida;
+  final dynamic user; // Replace 'dynamic' with your actual User type if available
 
-  const PartidaOwnerPage({super.key, required this.partida});
+  const PartidaOwnerPage({super.key, required this.partida, required this.user});
 
   @override
   State<PartidaOwnerPage> createState() => _PartidaOwnerPageState();
@@ -15,6 +19,10 @@ class _PartidaOwnerPageState extends State<PartidaOwnerPage> {
   late TextEditingController _minJogadoresController;
   late TextEditingController _maxJogadoresController;
   late TextEditingController _resultadoController;
+
+  // Novo: Contagem regressiva para início automático
+  Timer? _countdownTimer;
+  int _segundosRestantes = 30; // Exemplo: 30 segundos para início automático
 
   @override
   void initState() {
@@ -28,6 +36,13 @@ class _PartidaOwnerPageState extends State<PartidaOwnerPage> {
     _resultadoController = TextEditingController(
       text: widget.partida.resultado ?? '',
     );
+
+    // Se a partida está aguardando e já tem jogadores mínimos, inicia contagem
+    if (widget.partida.estado == EstadoPartida.aguardando &&
+        (widget.partida.jogadores?.length ?? 0) >= (widget.partida.numeroJogadoresMinimo ?? 0) &&
+        (widget.partida.numeroJogadoresMinimo ?? 0) > 0) {
+      _startCountdown();
+    }
   }
 
   @override
@@ -35,7 +50,50 @@ class _PartidaOwnerPageState extends State<PartidaOwnerPage> {
     _minJogadoresController.dispose();
     _maxJogadoresController.dispose();
     _resultadoController.dispose();
+    _countdownTimer?.cancel();
     super.dispose();
+  }
+
+  // Novo: Função para iniciar contagem regressiva
+  void _startCountdown() {
+    _countdownTimer?.cancel();
+    setState(() {
+      _segundosRestantes = 30; // Ou outro valor desejado
+    });
+    _countdownTimer = Timer.periodic(const Duration(seconds: 1), (timer) {
+      if (!mounted) return;
+      setState(() {
+        if (_segundosRestantes > 0) {
+          _segundosRestantes--;
+        } else {
+          timer.cancel();
+          _comecarPartida();
+        }
+      });
+    });
+  }
+
+  // Novo: Função para começar a partida
+  void _comecarPartida() {
+    if ((widget.partida.jogadores?.length ?? 0) < (widget.partida.numeroJogadoresMinimo ?? 0)) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Não há jogadores suficientes para começar a partida!'),
+          backgroundColor: Colors.red,
+        ),
+      );
+      return;
+    }
+    setState(() {
+      widget.partida.estado = EstadoPartida.emAndamento;
+      (widget.user as Jogador).isInPartida = true;
+    });
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('Partida iniciada!'),
+        backgroundColor: Colors.orange,
+      ),
+    );
   }
 
   void _atualizarPartida() {
@@ -58,6 +116,11 @@ class _PartidaOwnerPageState extends State<PartidaOwnerPage> {
       // Remover a partida do campo
       widget.partida.campo.partida = null;
       widget.partida.campo.ocupado = false;
+      // Remover a partida do jogador
+      // Remover a resto dos jogadores
+      for (var jogador in widget.partida.jogadores!) {
+        jogador.isInPartida = false;
+      }
 
       // Adicionar ao histórico de todos os jogadores da partida
       if (widget.partida.jogadores != null) {
@@ -80,10 +143,11 @@ class _PartidaOwnerPageState extends State<PartidaOwnerPage> {
   Widget build(BuildContext context) {
     final partida = widget.partida;
     final infoStyle = TextStyle(fontSize: 16, color: Colors.grey[800]);
-    final labelStyle = TextStyle(
-        fontSize: 14,
-        color: Colors.orange[700],
-        fontWeight: FontWeight.w500);
+    final labelStyle = const TextStyle(
+      fontSize: 14,
+      color: Colors.orange,
+      fontWeight: FontWeight.w500,
+    );
 
     return Scaffold(
       extendBodyBehindAppBar: true,
@@ -101,8 +165,7 @@ class _PartidaOwnerPageState extends State<PartidaOwnerPage> {
         children: [
           const Carouselbg(),
           SingleChildScrollView(
-            padding:
-                const EdgeInsets.fromLTRB(16, 32 + kToolbarHeight, 16, 16),
+            padding: const EdgeInsets.fromLTRB(16, 32 + kToolbarHeight, 16, 16),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -206,6 +269,71 @@ class _PartidaOwnerPageState extends State<PartidaOwnerPage> {
                 ),
                 const SizedBox(height: 20),
 
+                // NOVO: Contagem regressiva e botão de começar partida
+                if (partida.estado == EstadoPartida.aguardando)
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      if ((partida.jogadores?.length ?? 0) >= (partida.numeroJogadoresMinimo ?? 0) &&
+                          (partida.numeroJogadoresMinimo ?? 0) > 0)
+                        Column(
+                          children: [
+                            Text(
+                              'A partida irá começar automaticamente em:',
+                              style: TextStyle(
+                                color: Colors.orange[800],
+                                fontWeight: FontWeight.bold,
+                                fontSize: 16,
+                              ),
+                            ),
+                            const SizedBox(height: 6),
+                            Text(
+                              '${(_segundosRestantes ~/ 60).toString().padLeft(2, '0')}:${(_segundosRestantes % 60).toString().padLeft(2, '0')}',
+                              style: TextStyle(
+                                color: Colors.orange,
+                                fontWeight: FontWeight.bold,
+                                fontSize: 28,
+                              ),
+                            ),
+                            const SizedBox(height: 10),
+                            ElevatedButton.icon(
+                              onPressed: () {
+                                _countdownTimer?.cancel();
+                                _comecarPartida();
+                              },
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: Colors.orange,
+                                foregroundColor: Colors.black,
+                                padding: const EdgeInsets.symmetric(
+                                  vertical: 10,
+                                  horizontal: 24,
+                                ),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                                elevation: 4,
+                              ),
+                              icon: const Icon(Icons.play_arrow, color: Colors.black),
+                              label: const Text(
+                                'Começar Partida',
+                                style: TextStyle(fontSize: 16, color: Colors.black),
+                              ),
+                            ),
+                          ],
+                        )
+                      else
+                        Text(
+                          'É necessário pelo menos ${partida.numeroJogadoresMinimo ?? 0} jogadores para começar.',
+                          style: TextStyle(
+                            color: Colors.orange[800],
+                            fontWeight: FontWeight.bold,
+                            fontSize: 16,
+                          ),
+                        ),
+                      const SizedBox(height: 18),
+                    ],
+                  ),
+
                 // Card edição de jogadores
                 Card(
                   elevation: 4,
@@ -232,11 +360,17 @@ class _PartidaOwnerPageState extends State<PartidaOwnerPage> {
                               child: TextField(
                                 controller: _minJogadoresController,
                                 keyboardType: TextInputType.number,
+                                cursorColor: Colors.orange,
                                 decoration: InputDecoration(
                                   labelText: 'Mínimo',
                                   border: OutlineInputBorder(
                                     borderRadius: BorderRadius.circular(10),
                                   ),
+                                  focusedBorder: OutlineInputBorder(
+                                    borderSide: const BorderSide(color: Colors.orange, width: 2),
+                                    borderRadius: BorderRadius.circular(10),
+                                  ),
+                                  labelStyle: const TextStyle(color: Colors.orange),
                                 ),
                               ),
                             ),
@@ -245,11 +379,17 @@ class _PartidaOwnerPageState extends State<PartidaOwnerPage> {
                               child: TextField(
                                 controller: _maxJogadoresController,
                                 keyboardType: TextInputType.number,
+                                cursorColor: Colors.orange,
                                 decoration: InputDecoration(
                                   labelText: 'Máximo',
                                   border: OutlineInputBorder(
                                     borderRadius: BorderRadius.circular(10),
                                   ),
+                                  focusedBorder: OutlineInputBorder(
+                                    borderSide: const BorderSide(color: Colors.orange, width: 2),
+                                    borderRadius: BorderRadius.circular(10),
+                                  ),
+                                  labelStyle: const TextStyle(color: Colors.orange),
                                 ),
                               ),
                             ),
@@ -284,11 +424,17 @@ class _PartidaOwnerPageState extends State<PartidaOwnerPage> {
                         const SizedBox(height: 10),
                         TextField(
                           controller: _resultadoController,
+                          cursorColor: Colors.orange,
                           decoration: InputDecoration(
                             labelText: 'Resultado',
                             border: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(10),
                             ),
+                            focusedBorder: OutlineInputBorder(
+                              borderSide: const BorderSide(color: Colors.orange, width: 2),
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                            labelStyle: const TextStyle(color: Colors.orange),
                           ),
                         ),
                       ],

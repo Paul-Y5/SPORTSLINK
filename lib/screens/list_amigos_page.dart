@@ -132,7 +132,7 @@ class _ListAmigosPageState extends State<ListAmigosPage> {
                 ? const Center(
                     child: Text(
                       'Ainda não tens amigos.',
-                      style: TextStyle(fontSize: 16, color: Colors.black),
+                      style: TextStyle(fontSize: 16, color: Colors.orange),
                     ),
                   )
                 : ListView.builder(

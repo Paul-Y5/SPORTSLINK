@@ -303,8 +303,10 @@ void showArrendadorFormPopup(BuildContext context, Jogador user) {
                           ..setDesportos(List.from(jogador.desportos))
                           ..setAvaliacoes(List.from(jogador.avaliacoes))
                           ..adicionarMetodoPagamento('Transferência Bancária', ibanController.text)
-                          ..setNumAvaliacoes(jogador.numAvaliacoes);
-                           
+                          ..setNumAvaliacoes(jogador.numAvaliacoes)
+                          ..setNotificacoes(List.from(jogador.notificacoes)) // <-- adiciona isto
+                          ..setPartidas(List.from(jogador.partidas));        // <-- e isto
+
                           mockUsers[user.id] = novoArrendador;
 
                           // Atualiza o provider para refletir o novo tipo de utilizador

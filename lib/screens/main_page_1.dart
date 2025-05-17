@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:sports_link/data/my_user.dart';
 import 'package:sports_link/models/arrendador.dart';
 import 'package:sports_link/models/jogador.dart';
@@ -16,6 +17,7 @@ import 'package:sports_link/widgets/weather_info.dart';
 import 'package:sports_link/styles/custom_appbar.dart';
 import 'package:sports_link/controllers/controller_dropdown.dart' as dpd;
 import 'package:sports_link/widgets/menu_card.dart';
+import 'package:sports_link/controllers/partida_ativa_provider.dart';
 
 class MainPage1 extends StatefulWidget {
   final int id;
@@ -49,170 +51,187 @@ class _MainPage1State extends State<MainPage1> {
       extendBody: true,
       extendBodyBehindAppBar: true,
       body: Stack(
-        children: [
-          const Carouselbg(),
-          if (isDropdownOpen)
-            const ModalBarrier(
-              color: Color.fromARGB(128, 0, 0, 0),
-              dismissible: false,
+      children: [
+        const Carouselbg(),
+        if (isDropdownOpen)
+        const ModalBarrier(
+          color: Color.fromARGB(128, 0, 0, 0),
+          dismissible: false,
+        ),
+        Scaffold(
+        backgroundColor: Colors.transparent,
+        appBar: CustomAppBar(
+          notificationButtonKey: notificationButtonKey,
+          onNotificationPressed: (context) {
+          dpd.showNotificationDropdown(context, notificationButtonKey, currentUser);
+          },
+          onMenuPressed: (context, items) {
+          dpd.toggleDropdownOverlay(context, items);
+          },
+        ),
+        body: LayoutBuilder(
+          builder: (context, constraints) {
+          return SingleChildScrollView(
+            child: ConstrainedBox(
+            constraints: BoxConstraints(
+              minHeight: constraints.maxHeight,
             ),
-          Scaffold(
-            backgroundColor: Colors.transparent,
-            appBar: CustomAppBar(
-              notificationButtonKey: notificationButtonKey,
-              onNotificationPressed: (context) {
-                dpd.showNotificationDropdown(context, notificationButtonKey, currentUser);
-              },
-              onMenuPressed: (context, items) {
-                dpd.toggleDropdownOverlay(context, items);
-              },
-            ),
-            body: LayoutBuilder(
-              builder: (context, constraints) {
-                return SingleChildScrollView(
-                  child: ConstrainedBox(
-                    constraints: BoxConstraints(
-                      minHeight: constraints.maxHeight,
-                    ),
-                    child: IntrinsicHeight(
-                      child: Column(
-                        children: [
-                          WeatherInfo(
-                            currentUser: currentUser,
-                            city: currentCity,
-                            weatherStatus: weatherStatus,
-                            weatherFeedback: weatherFeedback,
-                          ),
-                          const SizedBox(height: 20),
-                          Padding(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 16,
-                              vertical: 10,
-                            ),
-                            child: Row(
-                              children: [
-                                Expanded(
-                                  child: MenuCard(
-                                    icon: Icons.sports_soccer,
-                                    text: 'Criar\nPartida',
-                                    color: Colors.orange,
-                                    fullWidth: false,
-                                    onPressed:
-                                        () => _showNavigationPopup(context),
-                                  ),
-                                ),
-                                const SizedBox(width: 20),
-                                Expanded(
-                                  child: MenuCard(
-                                    icon: Icons.search,
-                                    text: 'Encontrar\nPartida Aberta',
-                                    color: Colors.blue,
-                                    fullWidth: false,
-                                    onPressed: () {
-                                      Navigator.push(
-                                        context,
-                                        MaterialPageRoute(
-                                          builder:
-                                              (context) => const ListPartidas(),
-                                        ),
-                                      );
-                                    },
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                          const SizedBox(height: 20),
-                          Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 16),
-                            child: MenuCard(
-                              icon: Icons.add_location_alt,
-                              text: 'Adicionar Campo Público',
-                              color: Colors.green,
-                              fullWidth: true,
-                              onPressed: () {
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (context) => const AddCampo(),
-                                  ),
-                                );
-                              },
-                            ),
-                          ),
-                          const SizedBox(height: 10),
-                          if (currentUser is Arrendador) ...[
-                            Padding(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 16,
-                              ),
-                              child: MenuCard(
-                                icon: Icons.sports_soccer,
-                                text: 'Gerir\nOs Meus Campos',
-                                color: Colors.blue,
-                                fullWidth: true,
-                                onPressed: () {
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder: (context) => const ArrCamposList(),
-                                    ),
-                                  );
-                                },
-                              ),
-                            ),
-                            const SizedBox(height: 10),
-                          ],
-                          Column(
-                            children: [
-                              Container(
-                                height: 100,
-                                color: const Color.fromARGB(0, 0, 0, 0),
-                              ),
-                              CarouselBar(
-                                newsItems: [
-                                  '🔥 Novas funcionalidades disponíveis!',
-                                  '⚽ Partidas abertas neste fim de semana!',
-                                  '📢 Atualiza o teu perfil e ganha recompensas!',
-                                ],
-                              ),
-                            ],
-                          )
-                          
-                        ],
-                      ),
+            child: IntrinsicHeight(
+              child: Column(
+              children: [
+                WeatherInfo(
+                currentUser: currentUser,
+                city: currentCity,
+                weatherStatus: weatherStatus,
+                weatherFeedback: weatherFeedback,
+                ),
+                const SizedBox(height: 20),
+                Padding(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 10,
+                ),
+                child: Row(
+                  children: [
+                  Expanded(
+                    child: MenuCard(
+                    icon: Icons.sports_soccer,
+                    text: 'Criar\nPartida',
+                    color: Colors.orange,
+                    fullWidth: false,
+                    onPressed:
+                      () => _showNavigationPopup(context),
                     ),
                   ),
-                );
-              },
-            ),
-          ),
-
-          // Botão flutuante para a partida em andamento
-          if (currentUser is Jogador &&
-              (currentUser as Jogador).partidas.any((partida) => partida.estado == EstadoPartida.emAndamento))
-            Positioned(
-              bottom: 16,
-              right: 16,
-              child: FloatingActionButton.extended(
-                onPressed: () {
-                  final partidaEmAndamento = (currentUser as Jogador).partidas.firstWhere(
-                    (partida) => partida.estado == EstadoPartida.emAndamento,
-                  );
-
+                  const SizedBox(width: 20),
+                  Expanded(
+                    child: MenuCard(
+                    icon: Icons.search,
+                    text: 'Encontrar\nPartida Aberta',
+                    color: Colors.blue,
+                    fullWidth: false,
+                    onPressed: () {
+                      Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder:
+                          (context) => const ListPartidas(),
+                      ),
+                      );
+                    },
+                    ),
+                  ),
+                  ],
+                ),
+                ),
+                const SizedBox(height: 20),
+                Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                child: MenuCard(
+                  icon: Icons.add_location_alt,
+                  text: 'Adicionar Campo Público',
+                  color: Colors.green,
+                  fullWidth: true,
+                  onPressed: () {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (context) => PartidaPage(partida: partidaEmAndamento),
+                    builder: (context) => const AddCampo(),
                     ),
                   );
-                },
-                backgroundColor: Colors.orange,
-                icon: const Icon(Icons.sports_soccer),
-                label: const Text('Partida em Andamento'),
+                  },
+                ),
+                ),
+                const SizedBox(height: 10),
+                if (currentUser is Arrendador) ...[
+                Padding(
+                  padding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  ),
+                  child: MenuCard(
+                  icon: Icons.sports_soccer,
+                  text: 'Gerir\nOs Meus Campos',
+                  color: Colors.blue,
+                  fullWidth: true,
+                  onPressed: () {
+                    Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const ArrCamposList(),
+                    ),
+                    );
+                  },
+                  ),
+                ),
+                const SizedBox(height: 10),
+                ],
+                Column(
+                children: [
+                  Container(
+                  height: 100,
+                  color: const Color.fromARGB(0, 0, 0, 0),
+                  ),
+                  CarouselBar(
+                  newsItems: [
+                    '🔥 Novas funcionalidades disponíveis!',
+                    '⚽ Partidas abertas neste fim de semana!',
+                    '📢 Atualiza o teu perfil e ganha recompensas!',
+                  ],
+                  ),
+                ],
+                ) 
+              ],
               ),
             ),
-        ],
+            ),
+          );
+          },
+        ),
+        floatingActionButton: Consumer<PartidaAtivaProvider>(
+          builder: (context, partidaProvider, _) {
+          if (partidaProvider.emPartida) {
+            return FloatingActionButton.extended(
+            backgroundColor: Colors.deepOrange,
+            foregroundColor: Colors.white,
+            elevation: 6,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(24),
+              side: BorderSide(color: Colors.orangeAccent, width: 2),
+            ),
+            icon: const Icon(Icons.sports_soccer, size: 28),
+            label: const Padding(
+              padding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+              child: Text(
+                'Ir para Partida',
+                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+              ),
+            ),
+            onPressed: () {
+              final partidas = (currentUser as Jogador).partidas;
+              debugPrint('partidas: $partidas');
+              Partida? partidaAtual;
+              try {
+                partidaAtual = partidas.firstWhere((partida) => partida.estado == EstadoPartida.emAndamento);
+              } catch (e) {
+                partidaAtual = null;
+              }
+              debugPrint('partidaAtual: $partidaAtual');
+              if (partidaAtual != null) {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => PartidaPage(partida: partidaAtual!),
+                  ),
+                );
+              }
+                        },
+            );
+          }
+          return const SizedBox.shrink();
+          },
+        ),
+        ),
+      ],
       ),
     );
   }

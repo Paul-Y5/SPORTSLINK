@@ -1,53 +1,16 @@
-import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:sports_link/models/partida.dart';
 import 'package:sports_link/screens/partida_page.dart';
 import 'package:sports_link/utils/time_utils.dart';
 import 'package:sports_link/utils/blinkdot.dart';
+import 'package:sports_link/utils/tempo_partida_widget.dart';
 
-class PartidaCard extends StatefulWidget {
+class PartidaCard extends StatelessWidget {
   final Partida partida;
-
   const PartidaCard({super.key, required this.partida});
 
   @override
-  PartidaCardState createState() => PartidaCardState();
-}
-
-class PartidaCardState extends State<PartidaCard> {
-  late Duration tempoRestante;
-  Timer? _timer;
-
-  @override
-  void initState() {
-    super.initState();
-    _atualizarTempoRestante();
-    _iniciarAtualizacao();
-  }
-
-  @override
-  void dispose() {
-    _timer?.cancel();
-    super.dispose();
-  }
-
-  void _atualizarTempoRestante() {
-    setState(() {
-      tempoRestante = calcularTempoRestante(widget.partida.data, widget.partida.hora);
-    });
-  }
-
-  void _iniciarAtualizacao() {
-    _timer = Timer.periodic(const Duration(seconds: 1), (_) {
-      _atualizarTempoRestante();
-    });
-  }
-
-  @override
   Widget build(BuildContext context) {
-    final minutos = tempoRestante.inMinutes.remainder(60).toString().padLeft(2, '0');
-    final segundos = tempoRestante.inSeconds.remainder(60).toString().padLeft(2, '0');
-
     return Card(
       margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
       shape: RoundedRectangleBorder(
@@ -64,7 +27,7 @@ class PartidaCardState extends State<PartidaCard> {
               children: [
                 Expanded(
                   child: Text(
-                    widget.partida.campo.nome,
+                    partida.campo.nome,
                     style: const TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.bold,
@@ -72,7 +35,7 @@ class PartidaCardState extends State<PartidaCard> {
                     ),
                   ),
                 ),
-                if (widget.partida.estado == EstadoPartida.emAndamento)
+                if (partida.estado == EstadoPartida.emAndamento)
                   const BlinkingDot(), // Bolinha vermelha intermitente
               ],
             ),
@@ -80,7 +43,7 @@ class PartidaCardState extends State<PartidaCard> {
 
             // Data e hora da partida
             Text(
-              '${widget.partida.data.day}/${widget.partida.data.month}/${widget.partida.data.year} às ${widget.partida.hora.format(context)}',
+              '${partida.data.day}/${partida.data.month}/${partida.data.year} às ${partida.hora.format(context)}',
               style: const TextStyle(
                 fontSize: 14,
                 color: Colors.black54,
@@ -90,7 +53,7 @@ class PartidaCardState extends State<PartidaCard> {
 
             // Estado da partida
             Text(
-              'Estado: ${widget.partida.estado == EstadoPartida.aguardando ? "Aguardando Jogadores" : widget.partida.estado == EstadoPartida.emAndamento ? "Em Andamento" : "Cancelada"}',
+              'Estado: ${partida.estado == EstadoPartida.aguardando ? "Aguardando Jogadores" : partida.estado == EstadoPartida.emAndamento ? "Em Andamento" : "Cancelada"}',
               style: const TextStyle(
                 fontSize: 14,
                 fontWeight: FontWeight.bold,
@@ -100,21 +63,24 @@ class PartidaCardState extends State<PartidaCard> {
             const SizedBox(height: 8),
 
             // Tempo restante ou tempo de jogo
-            if (widget.partida.estado == EstadoPartida.aguardando)
+            if (partida.estado == EstadoPartida.aguardando)
               Text(
-                'Tempo restante: $minutos:$segundos',
+                'Tempo restante: ${calcularTempoRestante(partida.data, partida.hora).inMinutes.remainder(60).toString().padLeft(2, '0')}:${calcularTempoRestante(partida.data, partida.hora).inSeconds.remainder(60).toString().padLeft(2, '0')}',
                 style: const TextStyle(
                   fontSize: 14,
                   color: Colors.black,
                 ),
               )
-            else if (widget.partida.estado == EstadoPartida.emAndamento)
-              Text(
-                'Tempo de jogo: ${widget.partida.resultado ?? "N/A"}',
-                style: const TextStyle(
-                  fontSize: 14,
-                  color: Colors.red,
-                ),
+            else if (partida.estado == EstadoPartida.emAndamento)
+              TempoPartidaWidget(
+                duracao: partida.duracao?.toInt(),
+                inicio: DateTime(
+                  partida.data.year,
+                  partida.data.month,
+                  partida.data.day,
+                  partida.hora.hour,
+                  partida.hora.minute,
+                ), // Converte TimeOfDay para DateTime
               ),
             const SizedBox(height: 8),
 
@@ -127,7 +93,7 @@ class PartidaCardState extends State<PartidaCard> {
                     context,
                     MaterialPageRoute(
                       builder: (_) => PartidaPage(
-                        partida: widget.partida
+                        partida: partida
                       ),
                     ),
                   );
