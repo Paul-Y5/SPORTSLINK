@@ -1,10 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:sports_link/controllers/controller_dropdown.dart' as dpd;
 import 'package:sports_link/controllers/user_provider.dart';
 import 'package:sports_link/models/campo.dart';
 import 'package:sports_link/models/campo_priv.dart';
 import 'package:sports_link/models/jogador.dart';
 import 'package:sports_link/models/partida.dart';
+import 'package:sports_link/models/utilizador.dart';
+import 'package:sports_link/styles/carouselbg.dart';
+import 'package:sports_link/styles/custom_appbar.dart';
 
 class ListaPartidasPage extends StatefulWidget {
   const ListaPartidasPage({super.key});
@@ -16,6 +20,7 @@ class ListaPartidasPage extends StatefulWidget {
 class _ListaPartidasPageState extends State<ListaPartidasPage> {
   late List<Partida> partidasPublicas;
   late List<Partida> partidasPrivadas;
+  final GlobalKey notificationButtonKey = GlobalKey();
 
   @override
   void initState() {
@@ -41,24 +46,48 @@ class _ListaPartidasPageState extends State<ListaPartidasPage> {
 
   @override
   Widget build(BuildContext context) {
-
+    final userProvider = Provider.of<UserProvider>(context);
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Minhas Partidas'),
-        backgroundColor: Colors.orange,
+      extendBody: true,
+      extendBodyBehindAppBar: true,
+      appBar: CustomAppBar(
+        notificationButtonKey: notificationButtonKey,
+        onNotificationPressed: (context) {
+          dpd.showNotificationDropdown(
+            context,
+            notificationButtonKey,
+            userProvider as Utilizador,
+          );
+        },
+        onMenuPressed: (context, items) {
+          dpd.toggleDropdownOverlay(context, items);
+        },
       ),
-      body: ListView(
+      body: Stack(
         children: [
-          // Exibir partidas públicas
-          if (partidasPublicas.isNotEmpty) ...[
-            _buildPartidasHeader('Partidas Públicas'),
-            _buildPartidasList(partidasPublicas),
-          ],
-          // Exibir partidas privadas
-          if (partidasPrivadas.isNotEmpty) ...[
-            _buildPartidasHeader('Partidas Privadas'),
-            _buildPartidasList(partidasPrivadas),
-          ],
+          const Carouselbg(), // Fundo animado
+          if (partidasPublicas.isEmpty && partidasPrivadas.isEmpty)
+            const Center(
+              child: Text(
+                'Nenhuma partida agendada.',
+                style: TextStyle(fontSize: 18, fontStyle: FontStyle.italic, color: Colors.orange),
+              ),
+            )
+          else
+            ListView(
+              children: [
+                // Exibir partidas públicas
+                if (partidasPublicas.isNotEmpty) ...[
+                  _buildPartidasHeader('Partidas Públicas'),
+                  _buildPartidasList(partidasPublicas),
+                ],
+                // Exibir partidas privadas
+                if (partidasPrivadas.isNotEmpty) ...[
+                  _buildPartidasHeader('Partidas Privadas'),
+                  _buildPartidasList(partidasPrivadas),
+                ],
+              ],
+            ),
         ],
       ),
     );

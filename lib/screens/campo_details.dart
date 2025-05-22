@@ -105,17 +105,25 @@ class _CampoDetailsState extends State<CampoDetails> {
                       // Imagem do campo
                       ClipRRect(
                         borderRadius: BorderRadius.circular(16),
-                        child: Image.network(
-                          widget.campo.imagem,
-                          fit: BoxFit.cover,
-                          errorBuilder: (context, error, stackTrace) {
-                            return const Icon(
-                              Icons.broken_image,
-                              size: 100,
-                              color: Colors.grey,
-                            );
-                          },
-                        ),
+                        child:
+                            // ignore: unnecessary_null_comparison
+                            widget.campo.imagem != null
+                                ? Image.asset(
+                                  widget.campo.imagem,
+                                  fit: BoxFit.cover,
+                                  height: 200,
+                                )
+                                : Container(
+                                  height: 200,
+                                  color: Colors.grey[300],
+                                  alignment: Alignment.center,
+                                  child: const Icon(
+                                    Icons.image_not_supported,
+                                    size: 50,
+                                    color: Colors.grey,
+                                  ),
+                                ),
+
                       ),
                       const SizedBox(height: 20),
 
