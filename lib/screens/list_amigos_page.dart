@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:sports_link/controllers/controller_dropdown.dart' as dpd;
 import 'package:sports_link/data/mock_data.dart';
-import 'package:sports_link/models/desportos.dart';
 import 'package:sports_link/models/jogador.dart';
 import 'package:sports_link/controllers/user_provider.dart';
+import 'package:sports_link/screens/perfil_page.dart';
 import 'package:sports_link/styles/carouselbg.dart';
 import 'package:sports_link/styles/custom_appbar.dart';
 
@@ -166,7 +166,7 @@ class _ListAmigosPageState extends State<ListAmigosPage> {
                                 context,
                                 MaterialPageRoute(
                                   builder: (context) =>
-                                      PerfilAmigoPage(amigo: amigo as Jogador),
+                                      PerfilPage(user: amigo as Jogador,),
                                 ),
                               );
                             },
@@ -193,194 +193,6 @@ class _ListAmigosPageState extends State<ListAmigosPage> {
         onPressed: () => _adicionarAmigo(context),
         child: const Icon(Icons.person_add, color: Colors.black),
       ),
-    );
-  }
-}
-
-class PerfilAmigoPage extends StatelessWidget {
-  final Jogador amigo;
-
-  const PerfilAmigoPage({super.key, required this.amigo});
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      extendBody: true,
-      extendBodyBehindAppBar: true,
-      body: Stack(
-        children: [
-          // Carousel no fundo
-          const Carouselbg(),
-          // Conteúdo principal
-          Scaffold(
-            backgroundColor: Colors.transparent,
-            appBar: AppBar(
-              title: Text('Perfil de ${amigo.nome}'),
-              backgroundColor: Colors.orange[800],
-              elevation: 0,
-            ),
-            body: Column(
-              children: [
-                const SizedBox(height: 40),
-                _buildProfileHeader(),
-                const SizedBox(height: 10),
-                Text(
-                  amigo.nome,
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontSize: 22,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                const SizedBox(height: 16),
-                _buildInfoCards(),
-                const SizedBox(height: 16),
-                Expanded(child: _buildProfileDetails()),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildProfileHeader() {
-    return Center(
-      child: CircleAvatar(
-        backgroundImage: AssetImage(amigo.urlIMG ?? 'assets/default_image.png'),
-        radius: 55,
-      ),
-    );
-  }
-
-  Widget _buildInfoCards() {
-    int jogos = amigo.partidas.length;
-    int amigos = amigo.amigos.length;
-    double rating = amigo.mediaAvaliacoes;
-
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 40),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceAround,
-        children: [
-          _InfoCard(value: jogos.toString(), label: 'Jogos'),
-          _InfoCard(value: amigos.toString(), label: 'Amigos'),
-          _InfoCard(value: rating.toStringAsFixed(1), label: 'Rating'),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildProfileDetails() {
-    return SingleChildScrollView(
-      padding: const EdgeInsets.symmetric(horizontal: 20),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          _buildSectionTitle('Características'),
-          const SizedBox(height: 10),
-          Container(
-            width: double.infinity,
-            padding: const EdgeInsets.all(12),
-            decoration: BoxDecoration(
-              color: const Color.fromARGB(160, 0, 0, 0),
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                _DetailText(title: 'Idade', value: '${amigo.idade} anos'),
-                const SizedBox(height: 6),
-                _DetailText(
-                  title: 'Peso',
-                  value: '${amigo.peso.toStringAsFixed(1)} Kg',
-                ),
-                const SizedBox(height: 6),
-                _DetailText(
-                  title: 'Altura',
-                  value: '${amigo.altura.toStringAsFixed(2)} m',
-                ),
-                const SizedBox(height: 6),
-                _DetailText(
-                  title: 'Desporto(s) Favorito(s)',
-                  value: amigo.desportos.map((d) => d.nome).join(', '),
-                ),
-              ],
-            ),
-          ),
-          const SizedBox(height: 16),
-          _buildSectionTitle('Descrição'),
-          const SizedBox(height: 10),
-          Container(
-            width: double.infinity,
-            padding: const EdgeInsets.all(12),
-            decoration: BoxDecoration(
-              color: const Color.fromARGB(163, 0, 0, 0),
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: Text(
-              amigo.descricao,
-              style: const TextStyle(color: Colors.white, fontSize: 14),
-            ),
-          ),
-          const SizedBox(height: 20),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildSectionTitle(String title) {
-    return Text(
-      title,
-      style: const TextStyle(
-        fontSize: 18,
-        fontWeight: FontWeight.bold,
-        color: Colors.white,
-      ),
-    );
-  }
-}
-
-class _InfoCard extends StatelessWidget {
-  final String value;
-  final String label;
-
-  const _InfoCard({required this.value, required this.label});
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      width: 80,
-      padding: const EdgeInsets.all(8),
-      decoration: BoxDecoration(
-        color: Colors.grey[300],
-        borderRadius: BorderRadius.circular(10),
-      ),
-      child: Column(
-        children: [
-          Text(
-            value,
-            style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-          ),
-          const SizedBox(height: 5),
-          Text(label, style: const TextStyle(fontSize: 14)),
-        ],
-      ),
-    );
-  }
-}
-
-class _DetailText extends StatelessWidget {
-  final String title;
-  final String value;
-
-  const _DetailText({required this.title, required this.value});
-
-  @override
-  Widget build(BuildContext context) {
-    return Text(
-      '$title: $value',
-      style: const TextStyle(color: Colors.white, fontSize: 14),
     );
   }
 }
