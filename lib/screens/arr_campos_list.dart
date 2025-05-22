@@ -744,7 +744,7 @@ class _ArrCamposListState extends State<ArrCamposList> {
               actions: [
                 TextButton(
                   onPressed: () => Navigator.pop(context),
-                  child: const Text('Cancelar'),
+                  child: const Text('Cancelar', style: TextStyle(color: Colors.red)),
                 ),
                 ElevatedButton(
                   onPressed: () {
@@ -765,7 +765,7 @@ class _ArrCamposListState extends State<ArrCamposList> {
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.orange,
                   ),
-                  child: const Text('Guardar'),
+                  child: const Text('Guardar', style: TextStyle(color: Colors.black)),
                 ),
               ],
             );

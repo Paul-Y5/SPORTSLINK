@@ -489,7 +489,11 @@ class _PartidaPageState extends State<PartidaPage> {
                                 child: TextField(
                                   controller: _chatController,
                                   decoration: InputDecoration(
-                                    hintText: 'Digite sua mensagem...',
+                                    hintText: 'Escreve a mensagem...',
+                                    focusedBorder: OutlineInputBorder(
+                                      borderSide: const BorderSide(color: Colors.orange),
+                                      borderRadius: BorderRadius.all(Radius.circular(12)),
+                                    ),
                                     border: OutlineInputBorder(
                                       borderRadius: BorderRadius.circular(12),
                                     ),

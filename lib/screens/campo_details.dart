@@ -336,10 +336,9 @@ class _CampoDetailsState extends State<CampoDetails> {
   String _getMetodosPagamento() {
     if (widget.campo is CampoPriv) {
       final idArrendador = (widget.campo as CampoPriv).idArrendador;
-      for (var arrendador in mockUsers.values) {
-        arrendador as Arrendador;
-        if (arrendador.id == idArrendador) {
-          return arrendador.metodosPagamento.values.join(', ');
+      for (var user in mockUsers.values) {
+        if (user is Arrendador && user.id == idArrendador) {
+          return user.metodosPagamento.values.join(', ');
         }
       }
     }
